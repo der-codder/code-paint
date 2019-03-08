@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+
+  code-paint-server:
+    container_name: code-paint-server
+    image: dercodder/code-paint-server
+    restart: always
+    build:
+      context: ./server
+      dockerfile: dev.dockerfile
+    ports:
+      - 5000:5000
+    volumes:
+      - './server:/app/server'

@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CodePaint.WebApi\CodePaint.WebApi.csproj" />
+    <ProjectReference Include="..\server\CodePaint.WebApi.csproj" />
   </ItemGroup>
 
 </Project>

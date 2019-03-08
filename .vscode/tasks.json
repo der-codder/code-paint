@@ -1,13 +1,32 @@
 {
   "version": "2.0.0",
   "tasks": [{
-    "label": "build",
+    "label": "server start",
+    "command": "docker-compose up",
+    "type": "shell",
+    "presentation": {
+      "reveal": "always",
+      "panel": "new"
+    },
+    "problemMatcher": []
+  }, {
+    "label": "server stop",
+    "command": "docker-compose down",
+    "type": "shell",
+    "presentation": {
+      "reveal": "always",
+      "panel": "new"
+    },
+    "problemMatcher": []
+  }, {
+    "label": "Run server tests",
+    "type": "shell",
     "command": "dotnet",
-    "type": "process",
     "args": [
-      "build",
-      "${workspaceFolder}/CodePaint.WebApi/CodePaint.WebApi.csproj"
+      "test",
+      "${workspaceFolder}/tests/CodePaint.WebApi.Tests.csproj"
     ],
+    "group": "test",
     "problemMatcher": "$msCompile"
   }]
 }

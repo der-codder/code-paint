@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CodePaint.WebApi.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -27,6 +28,10 @@ namespace CodePaint.WebApi
         {
             var config = new ServerConfig();
             Configuration.Bind(config);
+
+            var galleryContext = new GalleryContext(config.MongoDB);
+            var repo = new GalleryRepository(galleryContext);
+            services.AddSingleton<IGalleryRepository>(repo);
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

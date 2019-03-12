@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace CodePaint.WebApi.Utils
-{
-    public static class Extensions
-    {
+namespace CodePaint.WebApi.Utils {
+
+    public static class Extensions {
         /// <summary>
         /// Get a the value for a key. If the key does not exist, return default value;
         /// </summary>

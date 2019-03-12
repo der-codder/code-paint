@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace CodePaint.WebApi.Models
-{
-    public interface IGalleryRepository
-    {
+namespace CodePaint.WebApi.Models {
+
+    public interface IGalleryRepository {
         Task<IEnumerable<ThemeInfo>> GetAllThemesInfo();
 
         Task<ThemeInfo> GetThemeInfo(string id);

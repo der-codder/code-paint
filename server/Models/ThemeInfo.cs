@@ -1,6 +1,6 @@
 using System;
-using System.Globalization;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -8,10 +8,9 @@ using Newtonsoft.Json.Linq;
 
 using static CodePaint.WebApi.Utils.Extensions;
 
-namespace CodePaint.WebApi.Models
-{
-    public class ThemeInfo
-    {
+namespace CodePaint.WebApi.Models {
+
+    public class ThemeInfo {
         [BsonId]
         public ObjectId InternalId { get; set; }
         public string Id { get; set; }
@@ -35,8 +34,7 @@ namespace CodePaint.WebApi.Models
         public double TrendingWeekly { get; set; }
         public double TrendingMonthly { get; set; }
 
-        public static ThemeInfo FromJson(JObject jObject)
-        {
+        public static ThemeInfo FromJson(JObject jObject) {
             var themeInfo = new ThemeInfo();
 
             themeInfo.Name = jObject.SelectToken("extensionName", true).ToString();
@@ -47,33 +45,31 @@ namespace CodePaint.WebApi.Models
 
             themeInfo.Id = $"{themeInfo.Name}.{themeInfo.PublisherName}";
 
-            themeInfo = ProcessVersionData(themeInfo, (JObject)jObject.SelectToken("versions[0]", true));
-            themeInfo = ProcessStatistics(themeInfo, (JArray)jObject.SelectToken("statistics", true));
+            themeInfo = ProcessVersionData(themeInfo, (JObject) jObject.SelectToken("versions[0]", true));
+            themeInfo = ProcessStatistics(themeInfo, (JArray) jObject.SelectToken("statistics", true));
 
             return themeInfo;
         }
 
-        private static ThemeInfo ProcessVersionData(ThemeInfo themeInfo, JObject version)
-        {
-            themeInfo.Version = (string) version.SelectToken("version", true);
-            themeInfo.AssetUri = (string) version.SelectToken("assetUri", true);
-            themeInfo.FallbackAssetUri = (string) version.SelectToken("fallbackAssetUri", true);
+        private static ThemeInfo ProcessVersionData(ThemeInfo themeInfo, JObject version) {
+            themeInfo.Version = version.SelectToken("version", true).ToString();
+            themeInfo.AssetUri = version.SelectToken("assetUri", true).ToString();
+            themeInfo.FallbackAssetUri = version.SelectToken("fallbackAssetUri", true).ToString();
 
-            var lastUpdatedStr = (string) version.SelectToken("lastUpdated", true);
+            var lastUpdatedStr = version.SelectToken("lastUpdated", true).ToString();
             themeInfo.LastUpdated = DateTime.Parse(
                 lastUpdatedStr,
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.AdjustToUniversal);
 
-            var assets = ToDictionary((JArray)version.SelectToken("files"),"assetType","source");
+            var assets = ToDictionary((JArray) version.SelectToken("files"), "assetType", "source");
             themeInfo.IconDefault = assets.GetValueOrDefault("Microsoft.VisualStudio.Services.Icons.Default");
             themeInfo.IconSmall = assets.GetValueOrDefault("Microsoft.VisualStudio.Services.Icons.Small");
 
             return themeInfo;
         }
 
-        private static ThemeInfo ProcessStatistics(ThemeInfo themeInfo, JArray statistics)
-        {
+        private static ThemeInfo ProcessStatistics(ThemeInfo themeInfo, JArray statistics) {
             var statisticDict = ToDictionary(statistics, "statisticName", "value");
 
             themeInfo.InstallCount = Convert.ToInt32(statisticDict.GetValueOrDefault("install"));
@@ -91,8 +87,7 @@ namespace CodePaint.WebApi.Models
         private static IDictionary<string, string> ToDictionary(
             JArray jArray,
             string keyIdentifier,
-            string valueIdentifier)
-        {
+            string valueIdentifier) {
             if (jArray == null)
                 return new Dictionary<string, string>();
 

@@ -4,10 +4,9 @@ using CodePaint.WebApi.Models;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace CodePaint.WebApi.Tests
-{
-    public class ThemeInfoTests
-    {
+namespace CodePaint.WebApi.Tests {
+
+    public class ThemeInfoTests {
         const string validJson = @"{
                 'publisher': {
                     'publisherName': 'publisherName_test',
@@ -71,8 +70,7 @@ namespace CodePaint.WebApi.Tests
             }";
 
         [Fact]
-        public void FromJson_JObjectWithValidBaseProperties_ReturnsCorrectResult()
-        {
+        public void FromJson_JObjectWithValidBaseProperties_ReturnsCorrectResult() {
             var result = ThemeInfo.FromJson(JObject.Parse(validJson));
 
             Assert.Equal("extensionName_test.publisherName_test", result.Id);
@@ -84,8 +82,7 @@ namespace CodePaint.WebApi.Tests
         }
 
         [Fact]
-        public void FromJson_JObjectWithValidStatistics_ReturnsCorrectResult()
-        {
+        public void FromJson_JObjectWithValidStatistics_ReturnsCorrectResult() {
             var result = ThemeInfo.FromJson(JObject.Parse(validJson));
 
             Assert.Equal(101, result.InstallCount);
@@ -99,8 +96,7 @@ namespace CodePaint.WebApi.Tests
         }
 
         [Fact]
-        public void FromJson_JObjectWithValidVersion_ReturnsCorrectResult()
-        {
+        public void FromJson_JObjectWithValidVersion_ReturnsCorrectResult() {
             var expextedDate = DateTime.Parse("2019-01-01T00:00:00.0Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);
             var result = ThemeInfo.FromJson(JObject.Parse(validJson));
 

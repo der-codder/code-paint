@@ -20,10 +20,10 @@ namespace CodePaint.WebApi.Services
         public VSMarketplaceClient(HttpClient httpClient)
         {
             httpClient.BaseAddress = new Uri(_marketplaceUri);
-
-            var mthv = new MediaTypeWithQualityHeaderValue("application/json");
-            mthv.Parameters.Add(new NameValueHeaderValue("api-version", "3.0-preview.1"));
-            httpClient.DefaultRequestHeaders.Accept.Add(mthv);
+            httpClient.DefaultRequestHeaders.Accept
+                .Add(new MediaTypeWithQualityHeaderValue("application/json") {
+                    Parameters = { new NameValueHeaderValue("api-version", "3.0-preview.1") }
+                });
 
             _client = httpClient;
         }
@@ -43,19 +43,24 @@ namespace CodePaint.WebApi.Services
                     return await Task.FromResult(new List<ThemeInfo>());
                 }
 
-                using (Stream s = await response.Content.ReadAsStreamAsync())
-                using (StreamReader sr = new StreamReader(s))
-                using (JsonReader reader = new JsonTextReader(sr))
-                {
-                    var jObject = await JObject.LoadAsync(reader);
-
-                    return ProcessExtensions((JArray)jObject.SelectToken("results[0].extensions"));
-                }
+                return await ProcessResponseContent(response.Content);
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Caught exception : " + ex);
                 return await Task.FromResult(new List<ThemeInfo>());
+            }
+        }
+
+        private async Task<IEnumerable<ThemeInfo>> ProcessResponseContent(HttpContent content)
+        {
+            using (Stream s = await content.ReadAsStreamAsync())
+            using (StreamReader sr = new StreamReader(s))
+            using (JsonReader reader = new JsonTextReader(sr))
+            {
+                var jObject = await JObject.LoadAsync(reader);
+
+                return ProcessExtensions((JArray)jObject.SelectToken("results[0].extensions"));
             }
         }
 

@@ -56,7 +56,7 @@ namespace CodePaint.WebApi.Models {
             themeInfo.AssetUri = version.SelectToken("assetUri", true).ToString();
             themeInfo.FallbackAssetUri = version.SelectToken("fallbackAssetUri", true).ToString();
 
-            var lastUpdatedStr = version.SelectToken("lastUpdated", true).ToString();
+            var lastUpdatedStr = (string) version.SelectToken("lastUpdated", true);
             themeInfo.LastUpdated = DateTime.Parse(
                 lastUpdatedStr,
                 CultureInfo.InvariantCulture,

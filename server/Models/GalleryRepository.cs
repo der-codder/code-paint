@@ -4,23 +4,27 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace CodePaint.WebApi.Models {
-
-    public class GalleryRepository : IGalleryRepository {
+namespace CodePaint.WebApi.Models
+{
+    public class GalleryRepository : IGalleryRepository
+    {
         private readonly IGalleryContext _context;
 
-        public GalleryRepository(IGalleryContext context) {
+        public GalleryRepository(IGalleryContext context)
+        {
             _context = context;
         }
 
-        public async Task<IEnumerable<ThemeInfo>> GetAllThemesInfo() {
+        public async Task<IEnumerable<ThemeInfo>> GetAllThemesInfo()
+        {
             return await _context
                 .ThemesInfo
                 .Find(_ => true)
                 .ToListAsync();
         }
 
-        public Task<ThemeInfo> GetThemeInfo(string id) {
+        public Task<ThemeInfo> GetThemeInfo(string id)
+        {
             var filter = Builders<ThemeInfo>.Filter.Eq(m => m.Id, id);
 
             return _context
@@ -29,11 +33,13 @@ namespace CodePaint.WebApi.Models {
                 .FirstOrDefaultAsync();
         }
 
-        public async Task Create(ThemeInfo themeInfo) {
+        public async Task Create(ThemeInfo themeInfo)
+        {
             await _context.ThemesInfo.InsertOneAsync(themeInfo);
         }
 
-        public async Task<bool> Update(ThemeInfo themeInfo) {
+        public async Task<bool> Update(ThemeInfo themeInfo)
+        {
             ReplaceOneResult updateResult =
                 await _context
                 .ThemesInfo
@@ -46,7 +52,8 @@ namespace CodePaint.WebApi.Models {
                 updateResult.ModifiedCount > 0;
         }
 
-        public async Task<bool> Delete(string id) {
+        public async Task<bool> Delete(string id)
+        {
             FilterDefinition<ThemeInfo> filter = Builders<ThemeInfo>.Filter.Eq(m => m.Id, id);
             DeleteResult deleteResult = await _context
                 .ThemesInfo

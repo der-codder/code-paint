@@ -6,22 +6,25 @@ using CodePaint.WebApi.Models;
 using CodePaint.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CodePaint.WebApi.Controllers {
+namespace CodePaint.WebApi.Controllers
+{
     [Route("api/[controller]")]
     [ApiController]
-    public class ValuesController : ControllerBase {
-
+    public class ValuesController : ControllerBase
+    {
         private GalleryRefreshService _galleryRefreshService;
 
         public ValuesController(
             IGalleryRepository repository,
-            IVSMarketplaceClient marketplaceClient) {
+            IVSMarketplaceClient marketplaceClient)
+        {
             _galleryRefreshService = new GalleryRefreshService(repository, marketplaceClient);
         }
 
         // GET api/values
         [HttpGet]
-        public ActionResult<IEnumerable<string>> Get() {
+        public ActionResult<IEnumerable<string>> Get()
+        {
             _galleryRefreshService.RefreshGallery().Wait();
 
             return new string[] { "value1", "value3", "value2" };
@@ -29,7 +32,8 @@ namespace CodePaint.WebApi.Controllers {
 
         // GET api/values/5
         [HttpGet("{id}")]
-        public ActionResult<string> Get(int id) {
+        public ActionResult<string> Get(int id)
+        {
             return "value";
         }
 

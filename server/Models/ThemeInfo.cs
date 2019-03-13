@@ -8,9 +8,10 @@ using Newtonsoft.Json.Linq;
 
 using static CodePaint.WebApi.Utils.Extensions;
 
-namespace CodePaint.WebApi.Models {
-
-    public class ThemeInfo {
+namespace CodePaint.WebApi.Models
+{
+    public class ThemeInfo
+    {
         [BsonId]
         public ObjectId InternalId { get; set; }
         public string Id { get; set; }
@@ -34,7 +35,8 @@ namespace CodePaint.WebApi.Models {
         public double TrendingWeekly { get; set; }
         public double TrendingMonthly { get; set; }
 
-        public static ThemeInfo FromJson(JObject jObject) {
+        public static ThemeInfo FromJson(JObject jObject)
+        {
             var themeInfo = new ThemeInfo();
 
             themeInfo.Name = jObject.SelectToken("extensionName", true).ToString();
@@ -51,7 +53,8 @@ namespace CodePaint.WebApi.Models {
             return themeInfo;
         }
 
-        private static ThemeInfo ProcessVersionData(ThemeInfo themeInfo, JObject version) {
+        private static ThemeInfo ProcessVersionData(ThemeInfo themeInfo, JObject version)
+        {
             themeInfo.Version = version.SelectToken("version", true).ToString();
             themeInfo.AssetUri = version.SelectToken("assetUri", true).ToString();
             themeInfo.FallbackAssetUri = version.SelectToken("fallbackAssetUri", true).ToString();
@@ -69,7 +72,8 @@ namespace CodePaint.WebApi.Models {
             return themeInfo;
         }
 
-        private static ThemeInfo ProcessStatistics(ThemeInfo themeInfo, JArray statistics) {
+        private static ThemeInfo ProcessStatistics(ThemeInfo themeInfo, JArray statistics)
+        {
             var statisticDict = ToDictionary(statistics, "statisticName", "value");
 
             themeInfo.InstallCount = Convert.ToInt32(statisticDict.GetValueOrDefault("install"));
@@ -87,7 +91,8 @@ namespace CodePaint.WebApi.Models {
         private static IDictionary<string, string> ToDictionary(
             JArray jArray,
             string keyIdentifier,
-            string valueIdentifier) {
+            string valueIdentifier)
+        {
             if (jArray == null)
                 return new Dictionary<string, string>();
 

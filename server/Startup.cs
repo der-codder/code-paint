@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using CodePaint.WebApi.Models;
+using CodePaint.WebApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -25,6 +28,12 @@ namespace CodePaint.WebApi {
         public void ConfigureServices(IServiceCollection services) {
             var config = new ServerConfig();
             Configuration.Bind(config);
+
+            services.AddHttpClient<IVSMarketplaceClient, VSMarketplaceClient>()
+                .ConfigurePrimaryHttpMessageHandler(
+                    conf => new HttpClientHandler {
+                        AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
+                });
 
             var galleryContext = new GalleryContext(config.MongoDB);
             var repo = new GalleryRepository(galleryContext);

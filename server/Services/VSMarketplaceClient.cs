@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -12,23 +13,25 @@ using Newtonsoft.Json.Linq;
 
 namespace CodePaint.WebApi.Services {
 
-    public class VSMarketplaceClient {
+    public class VSMarketplaceClient : IVSMarketplaceClient {
         private const string _marketplaceUri = "https://marketplace.visualstudio.com/";
         private readonly HttpClient _client;
 
         public VSMarketplaceClient(HttpClient httpClient) {
             httpClient.BaseAddress = new Uri(_marketplaceUri);
-            httpClient.DefaultRequestHeaders.Accept
+
+            _client = httpClient;
+        }
+
+        public async Task<IEnumerable<ThemeInfo>> GetThemesInfoAsync(int pageNumber, int pageSize) {
+            _client.DefaultRequestHeaders.Clear();
+            _client.DefaultRequestHeaders.Accept
                 .Add(
                     new MediaTypeWithQualityHeaderValue("application/json") {
                         Parameters = { new NameValueHeaderValue("api-version", "3.0-preview.1") }
                     }
                 );
 
-            _client = httpClient;
-        }
-
-        public async Task<IEnumerable<ThemeInfo>> GetThemesInfoAsync(int pageNumber, int pageSize) {
             try {
                 var response = await _client.PostAsync(
                     "/_apis/public/gallery/extensionquery",
@@ -45,6 +48,37 @@ namespace CodePaint.WebApi.Services {
             catch (Exception ex) {
                 Console.WriteLine("Caught exception : " + ex);
                 return await Task.FromResult(new List<ThemeInfo>());
+            }
+        }
+
+        public async Task<Stream> GetVsixFileStream(string publisherName, string vsExtensionName, string version) {
+            if (string.IsNullOrWhiteSpace(publisherName))
+                throw new ArgumentNullException("publisherName");
+            if (string.IsNullOrWhiteSpace(vsExtensionName))
+                throw new ArgumentNullException("vsExtensionName");
+            if (string.IsNullOrWhiteSpace(version))
+                throw new ArgumentNullException("version");
+
+            _client.DefaultRequestHeaders.Clear();
+
+            try {
+                var uri = $"/_apis/public/gallery/publishers/{publisherName}" +
+                    $"/vsextensions/{vsExtensionName}/{version}/vspackage";
+
+                Console.WriteLine($"---- Sending reguest to: {uri}");
+
+                return await _client.GetStreamAsync(uri);
+
+                // if (!response.IsSuccessStatusCode) {
+                //     Console.WriteLine($"\nResponse is unsuccessful: {response.StatusCode}, {response.RequestMessage}");
+                //     throw new Exception();
+                // }
+
+                // return await response.Content.ReadAsStreamAsync();
+            }
+            catch (Exception ex) {
+                Console.WriteLine("Caught exception : " + ex);
+                throw;
             }
         }
 

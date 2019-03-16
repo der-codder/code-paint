@@ -36,76 +36,88 @@ namespace CodePaint.WebApi.Models
         public double TrendingMonthly { get; set; }
 
         public static ThemeInfo FromJson(JObject jObject)
+            => ParseJson()
+                .TakeBaseData(jObject)
+                .TakeVersionData(jObject)
+                .TakeStatistics(jObject);
+
+        private static ThemeInfoParser ParseJson()
+                => new ThemeInfoParser(new ThemeInfo());
+
+        private class ThemeInfoParser
         {
-            var themeInfo = new ThemeInfo();
+            private readonly ThemeInfo _themeInfo;
 
-            themeInfo.Name = jObject.SelectToken("extensionName", true).ToString();
-            themeInfo.DisplayName = jObject.SelectToken("displayName", true).ToString();
-            themeInfo.Description = jObject.SelectToken("shortDescription", true).ToString();
-            themeInfo.PublisherName = jObject.SelectToken("publisher.publisherName", true).ToString();
-            themeInfo.PublisherDisplayName = jObject.SelectToken("publisher.displayName", true).ToString();
+            public ThemeInfoParser(ThemeInfo themeInfo) => _themeInfo = themeInfo;
 
-            themeInfo.Id = $"{themeInfo.Name}.{themeInfo.PublisherName}";
+            public ThemeInfoParser TakeBaseData(JObject jObject)
+            {
+                _themeInfo.Name = jObject.SelectToken("extensionName", true).ToString();
+                _themeInfo.DisplayName = jObject.SelectToken("displayName", true).ToString();
+                _themeInfo.Description = jObject.SelectToken("shortDescription", true).ToString();
+                _themeInfo.PublisherName = jObject.SelectToken("publisher.publisherName", true).ToString();
+                _themeInfo.PublisherDisplayName = jObject.SelectToken("publisher.displayName", true).ToString();
+                _themeInfo.Id = $"{_themeInfo.PublisherName}.{_themeInfo.Name}";
 
-            themeInfo = ProcessVersionData(themeInfo, (JObject) jObject.SelectToken("versions[0]", true));
-            themeInfo = ProcessStatistics(themeInfo, (JArray) jObject.SelectToken("statistics", true));
+                return this;
+            }
 
-            return themeInfo;
-        }
+            public ThemeInfoParser TakeVersionData(JObject jObject)
+            {
+                var jVersion = (JObject) jObject.SelectToken("versions[0]", true);
+                _themeInfo.Version = jVersion.SelectToken("version", true).ToString();
+                _themeInfo.AssetUri = jVersion.SelectToken("assetUri", true).ToString();
+                _themeInfo.FallbackAssetUri = jVersion.SelectToken("fallbackAssetUri", true).ToString();
 
-        private static ThemeInfo ProcessVersionData(ThemeInfo themeInfo, JObject version)
-        {
-            themeInfo.Version = version.SelectToken("version", true).ToString();
-            themeInfo.AssetUri = version.SelectToken("assetUri", true).ToString();
-            themeInfo.FallbackAssetUri = version.SelectToken("fallbackAssetUri", true).ToString();
+                var lastUpdatedStr = (string) jVersion.SelectToken("lastUpdated", true);
+                _themeInfo.LastUpdated = DateTime.Parse(
+                    lastUpdatedStr,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.AdjustToUniversal);
 
-            var lastUpdatedStr = (string) version.SelectToken("lastUpdated", true);
-            themeInfo.LastUpdated = DateTime.Parse(
-                lastUpdatedStr,
-                CultureInfo.InvariantCulture,
-                DateTimeStyles.AdjustToUniversal);
+                var assets = ((JArray) jVersion.SelectToken("files"))
+                    .ToDictionary<string, string>("assetType", "source");
 
-            var assets = ToDictionary((JArray) version.SelectToken("files"), "assetType", "source");
-            themeInfo.IconDefault = assets.GetValueOrDefault("Microsoft.VisualStudio.Services.Icons.Default");
-            themeInfo.IconSmall = assets.GetValueOrDefault("Microsoft.VisualStudio.Services.Icons.Small");
+                _themeInfo.IconDefault = assets.GetValueOrDefault("Microsoft.VisualStudio.Services.Icons.Default");
+                _themeInfo.IconSmall = assets.GetValueOrDefault("Microsoft.VisualStudio.Services.Icons.Small");
 
-            return themeInfo;
-        }
+                return this;
+            }
 
-        private static ThemeInfo ProcessStatistics(ThemeInfo themeInfo, JArray statistics)
-        {
-            var statisticDict = ToDictionary(statistics, "statisticName", "value");
+            public ThemeInfoParser TakeStatistics(JObject jObject)
+            {
+                var statisticDict = ((JArray) jObject.SelectToken("statistics", true))
+                    .ToDictionary<string, string>("statisticName", "value");
 
-            themeInfo.InstallCount = Convert.ToInt32(statisticDict.GetValueOrDefault("install"));
-            themeInfo.UpdateCount = Convert.ToInt32(statisticDict.GetValueOrDefault("updateCount"));
-            themeInfo.AverageRating = Convert.ToDouble(statisticDict.GetValueOrDefault("averagerating"));
-            themeInfo.WeightedRating = Convert.ToDouble(statisticDict.GetValueOrDefault("weightedRating"));
-            themeInfo.RatingCount = Convert.ToInt32(statisticDict.GetValueOrDefault("ratingcount"));
-            themeInfo.TrendingDaily = Convert.ToDouble(statisticDict.GetValueOrDefault("trendingdaily"));
-            themeInfo.TrendingWeekly = Convert.ToDouble(statisticDict.GetValueOrDefault("trendingweekly"));
-            themeInfo.TrendingMonthly = Convert.ToDouble(statisticDict.GetValueOrDefault("trendingmonthly"));
+                _themeInfo.InstallCount = Convert.ToInt32(
+                    statisticDict.GetValueOrDefault("install"),
+                    CultureInfo.InvariantCulture);
+                _themeInfo.UpdateCount = Convert.ToInt32(
+                    statisticDict.GetValueOrDefault("updateCount"),
+                    CultureInfo.InvariantCulture);
+                _themeInfo.AverageRating = Convert.ToDouble(
+                    statisticDict.GetValueOrDefault("averagerating"),
+                    CultureInfo.InvariantCulture);
+                _themeInfo.WeightedRating = Convert.ToDouble(
+                    statisticDict.GetValueOrDefault("weightedRating"),
+                    CultureInfo.InvariantCulture);
+                _themeInfo.RatingCount = Convert.ToInt32(
+                    statisticDict.GetValueOrDefault("ratingcount"),
+                    CultureInfo.InvariantCulture);
+                _themeInfo.TrendingDaily = Convert.ToDouble(
+                    statisticDict.GetValueOrDefault("trendingdaily"),
+                    CultureInfo.InvariantCulture);
+                _themeInfo.TrendingWeekly = Convert.ToDouble(
+                    statisticDict.GetValueOrDefault("trendingweekly"),
+                    CultureInfo.InvariantCulture);
+                _themeInfo.TrendingMonthly = Convert.ToDouble(
+                    statisticDict.GetValueOrDefault("trendingmonthly"),
+                    CultureInfo.InvariantCulture);
 
-            return themeInfo;
-        }
+                return this;
+            }
 
-        private static IDictionary<string, string> ToDictionary(
-            JArray jArray,
-            string keyIdentifier,
-            string valueIdentifier)
-        {
-            if (jArray == null)
-                return new Dictionary<string, string>();
-
-            var keyValuePairs = jArray
-                .Select(
-                    item => new KeyValuePair<string, string>(
-                        item[keyIdentifier].ToString(),
-                        item[valueIdentifier].ToString()
-                    )
-                )
-                .ToList();
-
-            return new Dictionary<string, string>(keyValuePairs);
+            public static implicit operator ThemeInfo(ThemeInfoParser themeInfo) => themeInfo._themeInfo;
         }
     }
 }

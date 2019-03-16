@@ -8,7 +8,7 @@ namespace CodePaint.WebApi.Tests
 {
     public class ThemeInfoTests
     {
-        const string validJson = @"{
+        private const string ValidJson = @"{
                 'publisher': {
                     'publisherName': 'publisherName_test',
                     'displayName': 'publisherDisplayName_test'
@@ -73,9 +73,9 @@ namespace CodePaint.WebApi.Tests
         [Fact]
         public void FromJson_JObjectWithValidBaseProperties_ReturnsCorrectResult()
         {
-            var result = ThemeInfo.FromJson(JObject.Parse(validJson));
+            var result = ThemeInfo.FromJson(JObject.Parse(ValidJson));
 
-            Assert.Equal("extensionName_test.publisherName_test", result.Id);
+            Assert.Equal("publisherName_test.extensionName_test", result.Id);
             Assert.Equal("extensionName_test", result.Name);
             Assert.Equal("displayName_test", result.DisplayName);
             Assert.Equal("shortDescription_test", result.Description);
@@ -86,7 +86,7 @@ namespace CodePaint.WebApi.Tests
         [Fact]
         public void FromJson_JObjectWithValidStatistics_ReturnsCorrectResult()
         {
-            var result = ThemeInfo.FromJson(JObject.Parse(validJson));
+            var result = ThemeInfo.FromJson(JObject.Parse(ValidJson));
 
             Assert.Equal(101, result.InstallCount);
             Assert.Equal(102, result.UpdateCount);
@@ -102,7 +102,7 @@ namespace CodePaint.WebApi.Tests
         public void FromJson_JObjectWithValidVersion_ReturnsCorrectResult()
         {
             var expextedDate = DateTime.Parse("2019-01-01T00:00:00.0Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);
-            var result = ThemeInfo.FromJson(JObject.Parse(validJson));
+            var result = ThemeInfo.FromJson(JObject.Parse(ValidJson));
 
             Assert.Equal("1.0.0", result.Version);
             Assert.Equal("assetUri_test", result.AssetUri);

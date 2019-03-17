@@ -11,6 +11,11 @@
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="2.2.0" />
     <PackageReference Include="MongoDB.Driver" Version="2.7.3" />
+    <PackageReference Include="Roslynator.Analyzers" Version="2.0.0" />
+    <PackageReference Include="Roslynator.CodeFixes" Version="2.0.0" />
   </ItemGroup>
+  <PropertyGroup>
+    <CodeAnalysisRuleSet>./CodePaint.WebApi.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
 
 </Project>

@@ -12,13 +12,14 @@ namespace CodePaint.WebApi.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        private GalleryRefreshService _galleryRefreshService;
+        private IGalleryRefreshService _galleryRefreshService;
 
         public ValuesController(
             IGalleryRepository repository,
-            IVSMarketplaceClient marketplaceClient)
+            IVSMarketplaceClient marketplaceClient,
+            IGalleryRefreshService galleryRefreshService)
         {
-            _galleryRefreshService = new GalleryRefreshService(repository, marketplaceClient);
+            _galleryRefreshService = galleryRefreshService;
         }
 
         // GET api/values

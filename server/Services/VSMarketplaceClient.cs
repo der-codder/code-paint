@@ -7,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using CodePaint.WebApi.Models;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -16,15 +17,19 @@ namespace CodePaint.WebApi.Services
     {
         private const string _marketplaceUri = "https://marketplace.visualstudio.com/";
         private readonly HttpClient _client;
+        private readonly ILogger<VSMarketplaceClient> _logger;
 
-        public VSMarketplaceClient(HttpClient httpClient)
+        public VSMarketplaceClient(HttpClient httpClient, ILogger<VSMarketplaceClient> logger)
         {
             httpClient.BaseAddress = new Uri(_marketplaceUri);
 
             _client = httpClient;
+            _logger = logger;
         }
 
-        public async Task<IEnumerable<ThemeInfo>> GetThemesInfoAsync(int pageNumber, int pageSize)
+        public async Task<IEnumerable<ThemeInfo>> GetThemesInfoAsync(
+            int pageNumber,
+            int pageSize)
         {
             _client.DefaultRequestHeaders.Clear();
             _client.DefaultRequestHeaders.Accept
@@ -37,6 +42,8 @@ namespace CodePaint.WebApi.Services
 
             try
             {
+                _logger.LogInformation($"Sending Post request to get gallery items. Requesting: pageNumber={pageNumber}, pageSize={pageSize}");
+
                 var response = await _client.PostAsync(
                     "/_apis/public/gallery/extensionquery",
                     GetRequestContent(pageNumber, pageSize)
@@ -44,20 +51,26 @@ namespace CodePaint.WebApi.Services
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"\nResponse is unsuccessful: {response.StatusCode}, {response.RequestMessage}");
+                    _logger.LogInformation($"Response is unsuccessful: {response.StatusCode}, {response.RequestMessage}");
                     return await Task.FromResult(new List<ThemeInfo>());
                 }
 
-                return await ProcessResponseContent(response.Content);
+                var result = await ProcessResponseContent(response.Content);
+                _logger.LogInformation($"Response is successful.");
+
+                return result;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Caught exception : " + ex);
+                _logger.LogError(ex, "Caught exception");
                 return await Task.FromResult(new List<ThemeInfo>());
             }
         }
 
-        public async Task<Stream> GetVsixFileStream(string publisherName, string vsExtensionName, string version)
+        public async Task<Stream> GetVsixFileStream(
+            string publisherName,
+            string vsExtensionName,
+            string version)
         {
             if (string.IsNullOrWhiteSpace(publisherName))
             {
@@ -81,20 +94,13 @@ namespace CodePaint.WebApi.Services
                 var uri = $"/_apis/public/gallery/publishers/{publisherName}" +
                     $"/vsextensions/{vsExtensionName}/{version}/vspackage";
 
-                Console.WriteLine($"---- Sending reguest to: {uri}");
+                _logger.LogInformation("Sending reguest to: {Uri}", uri);
 
                 return await _client.GetStreamAsync(uri);
-
-                // if (!response.IsSuccessStatusCode) {
-                //     Console.WriteLine($"\nResponse is unsuccessful: {response.StatusCode}, {response.RequestMessage}");
-                //     throw new Exception();
-                // }
-
-                // return await response.Content.ReadAsStreamAsync();
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Caught exception : " + ex);
+                _logger.LogError(ex, "Caught exception");
                 throw;
             }
         }
@@ -107,14 +113,19 @@ namespace CodePaint.WebApi.Services
             {
                 var jObject = await JObject.LoadAsync(reader);
 
-                return ProcessExtensions((JArray) jObject.SelectToken("results[0].extensions"));
+                return ((JArray) jObject.SelectToken("results[0].extensions"))
+                    .Select(
+                        ext =>
+                        {
+                            _logger.LogInformation($"Parsing Started: '{ext.ToString()}'");
+                            var result = ThemeInfo.FromJson((JObject) ext);
+                            _logger.LogInformation($"Parsing Completed");
+
+                            return result;
+                        })
+                    .ToList();
             }
         }
-
-        private IEnumerable<ThemeInfo> ProcessExtensions(JArray extensions)
-            => extensions
-                .Select(ext => ThemeInfo.FromJson((JObject) ext))
-                .ToList();
 
         private StringContent GetRequestContent(int pageNumber, int pageSize)
         {

@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -61,11 +60,19 @@ namespace CodePaint.WebApi.Services
         public async Task<Stream> GetVsixFileStream(string publisherName, string vsExtensionName, string version)
         {
             if (string.IsNullOrWhiteSpace(publisherName))
-                throw new ArgumentNullException("publisherName");
+            {
+                throw new ArgumentNullException(nameof(publisherName));
+            }
+
             if (string.IsNullOrWhiteSpace(vsExtensionName))
-                throw new ArgumentNullException("vsExtensionName");
+            {
+                throw new ArgumentNullException(nameof(vsExtensionName));
+            }
+
             if (string.IsNullOrWhiteSpace(version))
-                throw new ArgumentNullException("version");
+            {
+                throw new ArgumentNullException(nameof(version));
+            }
 
             _client.DefaultRequestHeaders.Clear();
 
@@ -94,8 +101,8 @@ namespace CodePaint.WebApi.Services
 
         private async Task<IEnumerable<ThemeInfo>> ProcessResponseContent(HttpContent content)
         {
-            using(Stream s = await content.ReadAsStreamAsync())
-            using(StreamReader sr = new StreamReader(s))
+            using(var s = await content.ReadAsStreamAsync())
+            using(var sr = new StreamReader(s))
             using(JsonReader reader = new JsonTextReader(sr))
             {
                 var jObject = await JObject.LoadAsync(reader);
@@ -105,11 +112,9 @@ namespace CodePaint.WebApi.Services
         }
 
         private IEnumerable<ThemeInfo> ProcessExtensions(JArray extensions)
-        {
-            return extensions
+            => extensions
                 .Select(ext => ThemeInfo.FromJson((JObject) ext))
                 .ToList();
-        }
 
         private StringContent GetRequestContent(int pageNumber, int pageSize)
         {

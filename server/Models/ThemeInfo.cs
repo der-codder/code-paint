@@ -35,14 +35,12 @@ namespace CodePaint.WebApi.Models
         public double TrendingWeekly { get; set; }
         public double TrendingMonthly { get; set; }
 
-        public static ThemeInfo FromJson(JObject jObject)
-            => ParseJson()
-                .TakeBaseData(jObject)
-                .TakeVersionData(jObject)
-                .TakeStatistics(jObject);
+        public static ThemeInfo FromJson(JObject jObject) => Create()
+            .TakeBaseData(jObject)
+            .TakeVersionData(jObject)
+            .TakeStatistics(jObject);
 
-        private static ThemeInfoParser ParseJson()
-                => new ThemeInfoParser(new ThemeInfo());
+        private static ThemeInfoParser Create() => new ThemeInfoParser(new ThemeInfo());
 
         private class ThemeInfoParser
         {

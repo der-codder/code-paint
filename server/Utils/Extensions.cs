@@ -1,6 +1,6 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace CodePaint.WebApi.Utils
@@ -27,7 +27,7 @@ namespace CodePaint.WebApi.Utils
         /// <typeparam name="TValue">The type of the values in the dictionary.</typeparam>
         /// <param name="keyIdentifier">Identifier of key in JArray item.</param>
         /// <param name="valueIdentifier">Identifier of value in JArray item.</param>
-        /// <example> 
+        /// <example>
         /// JSON array to convert:
         /// <code>
         /// [{

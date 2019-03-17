@@ -47,7 +47,7 @@ namespace CodePaint.WebApi.Services
                     archive.ExtractToDirectory(tempFolder);
                 }
 
-                string readText = File.ReadAllText(Path.Combine(tempFolder, "extension", "package") + ".json");
+                string readText = File.ReadAllText(Path.Combine(tempFolder, "extension", "package.json"));
                 Console.WriteLine(readText);
             }
             catch (Exception ex)

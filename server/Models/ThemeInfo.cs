@@ -37,12 +37,6 @@ namespace CodePaint.WebApi.Models
         [BsonElement("lastUpdated")]
         public DateTime LastUpdated { get; set; }
 
-        [BsonElement("assetUri")]
-        public string AssetUri { get; set; }
-
-        [BsonElement("fallbackAssetUri")]
-        public string FallbackAssetUri { get; set; }
-
         [BsonElement("iconDefault")]
         public string IconDefault { get; set; }
 
@@ -77,8 +71,6 @@ namespace CodePaint.WebApi.Models
             {
                 var jVersion = (JObject) jObject.SelectToken("versions[0]", true);
                 _themeInfo.Version = jVersion.SelectToken("version", true).ToString();
-                _themeInfo.AssetUri = jVersion.SelectToken("assetUri", true).ToString();
-                _themeInfo.FallbackAssetUri = jVersion.SelectToken("fallbackAssetUri", true).ToString();
 
                 var lastUpdatedStr = (string) jVersion.SelectToken("lastUpdated", true);
                 _themeInfo.LastUpdated = DateTime.Parse(

@@ -90,8 +90,6 @@ namespace CodePaint.WebApi.Tests
             var result = ThemeInfo.FromJson(JObject.Parse(ValidJson));
 
             Assert.Equal("1.0.0", result.Version);
-            Assert.Equal("assetUri_test", result.AssetUri);
-            Assert.Equal("fallbackAssetUri_test", result.FallbackAssetUri);
             Assert.Equal(expextedDate, result.LastUpdated);
             Assert.Equal("iconDefault_test", result.IconDefault);
             Assert.Equal("iconSmall_test", result.IconSmall);

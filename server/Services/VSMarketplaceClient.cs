@@ -15,36 +15,35 @@ namespace CodePaint.WebApi.Services
 {
     public interface IVSMarketplaceClient
     {
-        Task<IEnumerable<ThemeInfo>> GetThemesInfoAsync(int pageNumber, int pageSize);
+        Task<IEnumerable<ThemeInfo>> GetGalleryInfo(int pageNumber, int pageSize);
         Task<Stream> GetVsixFileStream(string publisherName, string vsExtensionName, string version);
     }
 
     public class VSMarketplaceClient : IVSMarketplaceClient
     {
         private const string _marketplaceUri = "https://marketplace.visualstudio.com/";
+        private readonly MediaTypeWithQualityHeaderValue _extensionQueryHeader;
         private readonly HttpClient _client;
         private readonly ILogger<VSMarketplaceClient> _logger;
 
         public VSMarketplaceClient(HttpClient httpClient, ILogger<VSMarketplaceClient> logger)
         {
             httpClient.BaseAddress = new Uri(_marketplaceUri);
+            _extensionQueryHeader = new MediaTypeWithQualityHeaderValue("application/json")
+            {
+                Parameters = { new NameValueHeaderValue("api-version", "3.0-preview.1") }
+            };
 
             _client = httpClient;
             _logger = logger;
         }
 
-        public async Task<IEnumerable<ThemeInfo>> GetThemesInfoAsync(
-            int pageNumber,
-            int pageSize)
+        public async Task<IEnumerable<ThemeInfo>> GetGalleryInfo(int pageNumber, int pageSize)
         {
-            _client.DefaultRequestHeaders.Clear();
+            _client.DefaultRequestHeaders
+                .Clear();
             _client.DefaultRequestHeaders.Accept
-                .Add(
-                    new MediaTypeWithQualityHeaderValue("application/json")
-                    {
-                        Parameters = { new NameValueHeaderValue("api-version", "3.0-preview.1") }
-                    }
-                );
+                .Add(_extensionQueryHeader);
 
             try
             {

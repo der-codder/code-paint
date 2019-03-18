@@ -33,7 +33,7 @@ namespace CodePaint.WebApi.Services
         {
             _logger.LogInformation("Start Gallery Refreshing.");
 
-            var themes = await _marketplaceClient.GetThemesInfoAsync(1, 10);
+            var themes = await _marketplaceClient.GetGalleryInfo(1, 10);
             themes
                 .ToList()
                 .ForEach(async theme => await CreateOrUpdateThemeInfo(theme));

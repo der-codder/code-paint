@@ -18,7 +18,7 @@ namespace CodePaint.WebApi.Models
         public async Task<IEnumerable<ThemeInfo>> GetAllThemesInfo()
         {
             return await _context
-                .ThemesInfo
+                .GalleryInfo
                 .Find(_ => true)
                 .ToListAsync();
         }
@@ -28,21 +28,21 @@ namespace CodePaint.WebApi.Models
             var filter = Builders<ThemeInfo>.Filter.Eq(m => m.Id, id);
 
             return _context
-                .ThemesInfo
+                .GalleryInfo
                 .Find(filter)
                 .FirstOrDefaultAsync();
         }
 
         public async Task Create(ThemeInfo themeInfo)
         {
-            await _context.ThemesInfo.InsertOneAsync(themeInfo);
+            await _context.GalleryInfo.InsertOneAsync(themeInfo);
         }
 
         public async Task<bool> Update(ThemeInfo themeInfo)
         {
             ReplaceOneResult updateResult =
                 await _context
-                .ThemesInfo
+                .GalleryInfo
                 .ReplaceOneAsync(
                     filter: g => g.Id == themeInfo.Id,
                     replacement: themeInfo
@@ -56,7 +56,7 @@ namespace CodePaint.WebApi.Models
         {
             FilterDefinition<ThemeInfo> filter = Builders<ThemeInfo>.Filter.Eq(m => m.Id, id);
             DeleteResult deleteResult = await _context
-                .ThemesInfo
+                .GalleryInfo
                 .DeleteOneAsync(filter);
 
             return deleteResult.IsAcknowledged &&

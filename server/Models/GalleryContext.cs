@@ -7,12 +7,24 @@ namespace CodePaint.WebApi.Models
     {
         private readonly IMongoDatabase _db;
 
-        public IMongoCollection<ThemeInfo> ThemesInfo => _db.GetCollection<ThemeInfo>("ThemesInfo");
+        public IMongoCollection<ThemeInfo> GalleryInfo =>
+            _db.GetCollection<ThemeInfo>("GalleryInfo");
+        public IMongoCollection<ThemeStatistic> GalleryStatistics =>
+            _db.GetCollection<ThemeStatistic>("GalleryStatistics");
+        public IMongoCollection<ColorTheme> GalleryStore =>
+            _db.GetCollection<ColorTheme>("GalleryStore");
 
         public GalleryContext(MongoDBConfig config)
         {
             var client = new MongoClient(config.ConnectionString);
             _db = client.GetDatabase(config.Database);
         }
+    }
+
+    public interface IGalleryContext
+    {
+        IMongoCollection<ThemeInfo> GalleryInfo { get; }
+        IMongoCollection<ThemeStatistic> GalleryStatistics { get; }
+        IMongoCollection<ColorTheme> GalleryStore { get; }
     }
 }

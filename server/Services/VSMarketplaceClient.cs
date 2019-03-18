@@ -117,9 +117,9 @@ namespace CodePaint.WebApi.Services
                     .Select(
                         ext =>
                         {
-                            _logger.LogInformation($"Parsing Started: '{ext.ToString()}'");
+                            // _logger.LogInformation($"Parsing Started: '{ext.ToString()}'");
                             var result = ThemeInfo.FromJson((JObject) ext);
-                            _logger.LogInformation($"Parsing Completed");
+                            _logger.LogInformation($"Parsed '{result.Id}'");
 
                             return result;
                         })

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Threading.Tasks;
 using CodePaint.WebApi.Models;
 using Microsoft.Extensions.Logging;
@@ -9,7 +10,7 @@ namespace CodePaint.WebApi.Services
 {
     public class GalleryRefreshService : IGalleryRefreshService
     {
-        private readonly IGalleryRepository _repository;
+        private readonly IGalleryRepository _galleryRepository;
         private readonly IVSMarketplaceClient _marketplaceClient;
         private readonly ILogger<GalleryRefreshService> _logger;
 
@@ -18,7 +19,7 @@ namespace CodePaint.WebApi.Services
             IVSMarketplaceClient marketplaceClient,
             ILogger<GalleryRefreshService> logger)
         {
-            _repository = repository;
+            _galleryRepository = repository;
             _marketplaceClient = marketplaceClient;
             _logger = logger;
         }
@@ -27,16 +28,46 @@ namespace CodePaint.WebApi.Services
         {
             _logger.LogInformation("Start Gallery Refreshing.");
 
-            var list = await _marketplaceClient.GetThemesInfoAsync(1, 50);
-            foreach (var item in list)
-            {
-                Console.WriteLine(item.Id);
-            }
+            var themes = await _marketplaceClient.GetThemesInfoAsync(1, 10);
+            themes
+                .ToList()
+                .ForEach(async theme => await CreateOrUpdateThemeInfo(theme));
 
             // var stream = await _marketplaceClient.GetVsixFileStream("zhuangtongfa", "Material-theme", "2.19.3");
             // ProcessVsixFileStream(stream);
 
             _logger.LogInformation("Complete Gallery Refreshing.");
+        }
+
+        private async Task CreateOrUpdateThemeInfo(ThemeInfo theme)
+        {
+            try
+            {
+                var themeInfo = await _galleryRepository.GetThemeInfo(theme.Id);
+
+                if (themeInfo == null)
+                {
+                    _logger.LogInformation("Create ThemeInfo: {Id}.", theme.Id);
+                    await _galleryRepository.Create(theme);
+                }
+                else if (themeInfo.LastUpdated != theme.LastUpdated)
+                {
+                    _logger.LogInformation("Update ThemeInfo: {Id}.", theme.Id);
+                    var result = await _galleryRepository.Update(theme);
+                    if (result == true)
+                    {
+                        _logger.LogInformation("Update successful.");
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Update of '{Id}' unsuccessful.", theme.Id);
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "Caught exception");
+            }
         }
 
         private void ProcessVsixFileStream(Stream stream)

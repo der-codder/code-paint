@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
 using Newtonsoft.Json.Linq;
 
 using static CodePaint.WebApi.Utils.Extensions;
@@ -12,8 +13,7 @@ namespace CodePaint.WebApi.Models
 {
     public class ThemeInfo
     {
-        [BsonId]
-        public ObjectId InternalId { get; set; }
+        [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         public string Id { get; set; }
         public string Name { get; set; }
         public string DisplayName { get; set; }

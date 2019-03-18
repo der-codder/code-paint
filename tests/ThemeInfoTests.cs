@@ -84,21 +84,6 @@ namespace CodePaint.WebApi.Tests
         }
 
         [Fact]
-        public void FromJson_JObjectWithValidStatistics_ReturnsCorrectResult()
-        {
-            var result = ThemeInfo.FromJson(JObject.Parse(ValidJson));
-
-            Assert.Equal(101, result.InstallCount);
-            Assert.Equal(102, result.UpdateCount);
-            Assert.Equal(4.77469158172607, result.AverageRating);
-            Assert.Equal(4.7635946102485, result.WeightedRating);
-            Assert.Equal(103, result.RatingCount);
-            Assert.Equal(0.0134154704538845, result.TrendingDaily);
-            Assert.Equal(3.56943172567113, result.TrendingWeekly);
-            Assert.Equal(39.7426646124054, result.TrendingMonthly);
-        }
-
-        [Fact]
         public void FromJson_JObjectWithValidVersion_ReturnsCorrectResult()
         {
             var expextedDate = DateTime.Parse("2019-01-01T00:00:00.0Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);

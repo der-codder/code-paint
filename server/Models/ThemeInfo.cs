@@ -15,30 +15,43 @@ namespace CodePaint.WebApi.Models
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         public string Id { get; set; }
+
+        [BsonElement("name")]
         public string Name { get; set; }
+
+        [BsonElement("displayName")]
         public string DisplayName { get; set; }
+
+        [BsonElement("description")]
         public string Description { get; set; }
+
+        [BsonElement("publisherName")]
         public string PublisherName { get; set; }
+
+        [BsonElement("publisherDisplayName")]
         public string PublisherDisplayName { get; set; }
+
+        [BsonElement("version")]
         public string Version { get; set; }
+
+        [BsonElement("lastUpdated")]
         public DateTime LastUpdated { get; set; }
+
+        [BsonElement("assetUri")]
         public string AssetUri { get; set; }
+
+        [BsonElement("fallbackAssetUri")]
         public string FallbackAssetUri { get; set; }
+
+        [BsonElement("iconDefault")]
         public string IconDefault { get; set; }
+
+        [BsonElement("iconSmall")]
         public string IconSmall { get; set; }
-        public int InstallCount { get; set; }
-        public int UpdateCount { get; set; }
-        public double AverageRating { get; set; }
-        public double WeightedRating { get; set; }
-        public int RatingCount { get; set; }
-        public double TrendingDaily { get; set; }
-        public double TrendingWeekly { get; set; }
-        public double TrendingMonthly { get; set; }
 
         public static ThemeInfo FromJson(JObject jObject) => Create()
             .TakeBaseData(jObject)
-            .TakeVersionData(jObject)
-            .TakeStatistics(jObject);
+            .TakeVersionData(jObject);
 
         private static ThemeInfoParser Create() => new ThemeInfoParser(new ThemeInfo());
 
@@ -78,39 +91,6 @@ namespace CodePaint.WebApi.Models
 
                 _themeInfo.IconDefault = assets.GetValueOrDefault("Microsoft.VisualStudio.Services.Icons.Default");
                 _themeInfo.IconSmall = assets.GetValueOrDefault("Microsoft.VisualStudio.Services.Icons.Small");
-
-                return this;
-            }
-
-            public ThemeInfoParser TakeStatistics(JObject jObject)
-            {
-                var statisticDict = ((JArray) jObject.SelectToken("statistics", true))
-                    .ToDictionary<string, string>("statisticName", "value");
-
-                _themeInfo.InstallCount = Convert.ToInt32(
-                    statisticDict.GetValueOrDefault("install"),
-                    CultureInfo.InvariantCulture);
-                _themeInfo.UpdateCount = Convert.ToInt32(
-                    statisticDict.GetValueOrDefault("updateCount"),
-                    CultureInfo.InvariantCulture);
-                _themeInfo.AverageRating = Convert.ToDouble(
-                    statisticDict.GetValueOrDefault("averagerating"),
-                    CultureInfo.InvariantCulture);
-                _themeInfo.WeightedRating = Convert.ToDouble(
-                    statisticDict.GetValueOrDefault("weightedRating"),
-                    CultureInfo.InvariantCulture);
-                _themeInfo.RatingCount = Convert.ToInt32(
-                    statisticDict.GetValueOrDefault("ratingcount"),
-                    CultureInfo.InvariantCulture);
-                _themeInfo.TrendingDaily = Convert.ToDouble(
-                    statisticDict.GetValueOrDefault("trendingdaily"),
-                    CultureInfo.InvariantCulture);
-                _themeInfo.TrendingWeekly = Convert.ToDouble(
-                    statisticDict.GetValueOrDefault("trendingweekly"),
-                    CultureInfo.InvariantCulture);
-                _themeInfo.TrendingMonthly = Convert.ToDouble(
-                    statisticDict.GetValueOrDefault("trendingmonthly"),
-                    CultureInfo.InvariantCulture);
 
                 return this;
             }

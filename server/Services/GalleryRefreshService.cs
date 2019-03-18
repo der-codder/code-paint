@@ -48,12 +48,12 @@ namespace CodePaint.WebApi.Services
                 if (themeInfo == null)
                 {
                     _logger.LogInformation("Create ThemeInfo: {Id}.", theme.Id);
-                    await _galleryRepository.Create(theme);
+                    await _galleryRepository.CreateThemeInfo(theme);
                 }
                 else if (themeInfo.LastUpdated != theme.LastUpdated)
                 {
                     _logger.LogInformation("Update ThemeInfo: {Id}.", theme.Id);
-                    var result = await _galleryRepository.Update(theme);
+                    var result = await _galleryRepository.UpdateThemeInfo(theme);
                     if (result == true)
                     {
                         _logger.LogInformation("Update successful.");

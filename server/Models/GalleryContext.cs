@@ -3,6 +3,13 @@ using MongoDB.Driver;
 
 namespace CodePaint.WebApi.Models
 {
+    public interface IGalleryContext
+    {
+        IMongoCollection<ThemeInfo> GalleryInfo { get; }
+        IMongoCollection<ThemeStatistic> GalleryStatistics { get; }
+        IMongoCollection<ColorTheme> GalleryStore { get; }
+    }
+
     public class GalleryContext : IGalleryContext
     {
         private readonly IMongoDatabase _db;
@@ -19,12 +26,5 @@ namespace CodePaint.WebApi.Models
             var client = new MongoClient(config.ConnectionString);
             _db = client.GetDatabase(config.Database);
         }
-    }
-
-    public interface IGalleryContext
-    {
-        IMongoCollection<ThemeInfo> GalleryInfo { get; }
-        IMongoCollection<ThemeStatistic> GalleryStatistics { get; }
-        IMongoCollection<ColorTheme> GalleryStore { get; }
     }
 }

@@ -8,6 +8,11 @@ using Microsoft.Extensions.Logging;
 
 namespace CodePaint.WebApi.Services
 {
+    public interface IGalleryRefreshService
+    {
+        Task RefreshGallery();
+    }
+
     public class GalleryRefreshService : IGalleryRefreshService
     {
         private readonly IGalleryRepository _galleryRepository;

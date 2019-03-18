@@ -13,6 +13,12 @@ using Newtonsoft.Json.Linq;
 
 namespace CodePaint.WebApi.Services
 {
+    public interface IVSMarketplaceClient
+    {
+        Task<IEnumerable<ThemeInfo>> GetThemesInfoAsync(int pageNumber, int pageSize);
+        Task<Stream> GetVsixFileStream(string publisherName, string vsExtensionName, string version);
+    }
+
     public class VSMarketplaceClient : IVSMarketplaceClient
     {
         private const string _marketplaceUri = "https://marketplace.visualstudio.com/";

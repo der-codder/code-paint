@@ -8,37 +8,25 @@ namespace CodePaint.WebApi.Models
 {
     public class TokenColorSettings
     {
-        [BsonElement("foreground")]
         public string Foreground { get; set; }
 
-        [BsonElement("fontStyle")]
         public string FontStyle { get; set; }
     }
 
     public class TokenColor
     {
-        [BsonElement("name")]
         public string Name { get; set; }
 
-        [BsonElement("scope")]
         public string Scope { get; set; }
 
-        [BsonElement("settings")]
         public TokenColorSettings Settings { get; set; }
     }
 
     public class Theme
     {
-        [BsonElement("label")]
         public string Label { get; set; }
-
-        [BsonElement("themeType")]
         public string ThemeType { get; set; }
-
-        [BsonElement("colors")]
         public Dictionary<string, string> Colors { get; set; }
-
-        [BsonElement("tokenColors")]
         public List<TokenColor> TokenColors { get; set; }
 
         public Theme()
@@ -66,9 +54,9 @@ namespace CodePaint.WebApi.Models
                 foreach (var jTokenColor in jTokenColors)
                 {
                     var tokenColor = ParseTokenColor((JObject) jTokenColor);
-                    if (!string.IsNullOrWhiteSpace(tokenColor.Scope)
-                        && ( !string.IsNullOrWhiteSpace(tokenColor.Settings.FontStyle)
-                            || !string.IsNullOrWhiteSpace(tokenColor.Settings.Foreground) ))
+                    if (!string.IsNullOrWhiteSpace(tokenColor.Scope) &&
+                        (!string.IsNullOrWhiteSpace(tokenColor.Settings.FontStyle) ||
+                            !string.IsNullOrWhiteSpace(tokenColor.Settings.Foreground)))
                     {
                         theme.TokenColors.Add(tokenColor);
                     }
@@ -94,7 +82,7 @@ namespace CodePaint.WebApi.Models
                     tokenColor.Scope = string
                         .Join(
                             ',',
-                            ( (JArray) jScope ).Select(item => item.ToString())
+                            ((JArray) jScope).Select(item => item.ToString())
                         );
                 }
                 else

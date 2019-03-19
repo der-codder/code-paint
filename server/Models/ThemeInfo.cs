@@ -15,32 +15,14 @@ namespace CodePaint.WebApi.Models
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         public string Id { get; set; }
-
-        [BsonElement("name")]
         public string Name { get; set; }
-
-        [BsonElement("displayName")]
         public string DisplayName { get; set; }
-
-        [BsonElement("description")]
         public string Description { get; set; }
-
-        [BsonElement("publisherName")]
         public string PublisherName { get; set; }
-
-        [BsonElement("publisherDisplayName")]
         public string PublisherDisplayName { get; set; }
-
-        [BsonElement("version")]
         public string Version { get; set; }
-
-        [BsonElement("lastUpdated")]
         public DateTime LastUpdated { get; set; }
-
-        [BsonElement("iconDefault")]
         public string IconDefault { get; set; }
-
-        [BsonElement("iconSmall")]
         public string IconSmall { get; set; }
 
         public static ThemeInfo FromJson(JObject jObject) => Create()

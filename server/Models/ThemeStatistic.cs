@@ -11,32 +11,14 @@ namespace CodePaint.WebApi.Models
     public class ThemeStatistic
     {
         public ObjectId Id { get; set; }
-
-        [BsonElement("themeId")]
         public string ThemeId { get; set; }
-
-        [BsonElement("installCount")]
         public int InstallCount { get; set; }
-
-        [BsonElement("updateCount")]
         public int UpdateCount { get; set; }
-
-        [BsonElement("averageRating")]
         public double AverageRating { get; set; }
-
-        [BsonElement("weightedRating")]
         public double WeightedRating { get; set; }
-
-        [BsonElement("ratingCount")]
         public int RatingCount { get; set; }
-
-        [BsonElement("trendingDaily")]
         public double TrendingDaily { get; set; }
-
-        [BsonElement("trendingWeekly")]
         public double TrendingWeekly { get; set; }
-
-        [BsonElement("trendingMonthly")]
         public double TrendingMonthly { get; set; }
 
         public static ThemeStatistic FromJson(JObject jObject, string themeId)

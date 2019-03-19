@@ -15,7 +15,7 @@ namespace CodePaint.WebApi.Controllers
         private IGalleryRefreshService _galleryRefreshService;
 
         public ValuesController(
-            IGalleryRepository repository,
+            IGalleryInfoRepository repository,
             IVSMarketplaceClient marketplaceClient,
             IGalleryRefreshService galleryRefreshService)
         {

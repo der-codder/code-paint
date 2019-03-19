@@ -15,16 +15,16 @@ namespace CodePaint.WebApi.Services
 
     public class GalleryRefreshService : IGalleryRefreshService
     {
-        private readonly IGalleryRepository _galleryRepository;
+        private readonly IGalleryInfoRepository _galleryInfoRepository;
         private readonly IVSMarketplaceClient _marketplaceClient;
         private readonly ILogger<GalleryRefreshService> _logger;
 
         public GalleryRefreshService(
-            IGalleryRepository repository,
+            IGalleryInfoRepository repository,
             IVSMarketplaceClient marketplaceClient,
             ILogger<GalleryRefreshService> logger)
         {
-            _galleryRepository = repository;
+            _galleryInfoRepository = repository;
             _marketplaceClient = marketplaceClient;
             _logger = logger;
         }
@@ -48,17 +48,17 @@ namespace CodePaint.WebApi.Services
         {
             try
             {
-                var themeInfo = await _galleryRepository.GetThemeInfo(theme.Id);
+                var themeInfo = await _galleryInfoRepository.GetThemeInfo(theme.Id);
 
                 if (themeInfo == null)
                 {
                     _logger.LogInformation("Create ThemeInfo: {Id}.", theme.Id);
-                    await _galleryRepository.CreateThemeInfo(theme);
+                    await _galleryInfoRepository.Create(theme);
                 }
                 else if (themeInfo.LastUpdated != theme.LastUpdated)
                 {
                     _logger.LogInformation("Update ThemeInfo: {Id}.", theme.Id);
-                    var result = await _galleryRepository.UpdateThemeInfo(theme);
+                    var result = await _galleryInfoRepository.Update(theme);
                     if (result == true)
                     {
                         _logger.LogInformation("Update successful.");

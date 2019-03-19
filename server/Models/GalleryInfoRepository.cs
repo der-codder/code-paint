@@ -1,29 +1,23 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace CodePaint.WebApi.Models
 {
-    public interface IGalleryRepository
+    public interface IGalleryInfoRepository
     {
         Task<IEnumerable<ThemeInfo>> GetAllThemesInfo();
-
         Task<ThemeInfo> GetThemeInfo(string id);
-
-        Task CreateThemeInfo(ThemeInfo themeInfo);
-
-        Task<bool> UpdateThemeInfo(ThemeInfo themeInfo);
-
-        Task<bool> DeleteThemeInfo(string id);
+        Task Create(ThemeInfo themeInfo);
+        Task<bool> Update(ThemeInfo themeInfo);
+        Task<bool> Delete(string id);
     }
 
-    public class GalleryRepository : IGalleryRepository
+    public class GalleryInfoRepository : IGalleryInfoRepository
     {
         private readonly IGalleryContext _context;
 
-        public GalleryRepository(IGalleryContext context)
+        public GalleryInfoRepository(IGalleryContext context)
         {
             _context = context;
         }
@@ -46,12 +40,12 @@ namespace CodePaint.WebApi.Models
                 .FirstOrDefaultAsync();
         }
 
-        public async Task CreateThemeInfo(ThemeInfo themeInfo)
+        public async Task Create(ThemeInfo themeInfo)
         {
             await _context.GalleryInfo.InsertOneAsync(themeInfo);
         }
 
-        public async Task<bool> UpdateThemeInfo(ThemeInfo themeInfo)
+        public async Task<bool> Update(ThemeInfo themeInfo)
         {
             ReplaceOneResult updateResult =
                 await _context
@@ -65,7 +59,7 @@ namespace CodePaint.WebApi.Models
                 updateResult.ModifiedCount > 0;
         }
 
-        public async Task<bool> DeleteThemeInfo(string id)
+        public async Task<bool> Delete(string id)
         {
             FilterDefinition<ThemeInfo> filter = Builders<ThemeInfo>.Filter.Eq(m => m.Id, id);
             DeleteResult deleteResult = await _context

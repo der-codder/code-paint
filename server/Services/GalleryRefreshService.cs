@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -16,16 +17,19 @@ namespace CodePaint.WebApi.Services
     public class GalleryRefreshService : IGalleryRefreshService
     {
         private readonly IGalleryInfoRepository _galleryInfoRepository;
+        private readonly IGalleryStatisticsRepository _galleryStatisticsRepository;
         private readonly IVSMarketplaceClient _marketplaceClient;
         private readonly ILogger<GalleryRefreshService> _logger;
 
         public GalleryRefreshService(
-            IGalleryInfoRepository repository,
             IVSMarketplaceClient marketplaceClient,
+            IGalleryInfoRepository galleryInfoRepository,
+            IGalleryStatisticsRepository galleryStatisticsRepository,
             ILogger<GalleryRefreshService> logger)
         {
-            _galleryInfoRepository = repository;
             _marketplaceClient = marketplaceClient;
+            _galleryInfoRepository = galleryInfoRepository;
+            _galleryStatisticsRepository = galleryStatisticsRepository;
             _logger = logger;
         }
 
@@ -33,15 +37,49 @@ namespace CodePaint.WebApi.Services
         {
             _logger.LogInformation("Start Gallery Refreshing.");
 
-            var themes = await _marketplaceClient.GetGalleryInfo(1, 10);
-            themes
-                .ToList()
-                .ForEach(async theme => await CreateOrUpdateThemeInfo(theme));
+            var metadata = await _marketplaceClient.GetGalleryMetadata(1, 10);
+            await UpdateGalleryInfo(metadata);
+            await UpdateGalleryStatistics(metadata);
 
             // var stream = await _marketplaceClient.GetVsixFileStream("zhuangtongfa", "Material-theme", "2.19.3");
             // ProcessVsixFileStream(stream);
 
             _logger.LogInformation("Complete Gallery Refreshing.");
+        }
+
+        private async Task UpdateGalleryInfo(List<GalleryItemMetadata> metadata)
+        {
+            foreach (var meta in metadata)
+            {
+                await CreateOrUpdateThemeInfo(meta.ThemeInfo);
+            }
+        }
+
+        private async Task UpdateGalleryStatistics(List<GalleryItemMetadata> metadata)
+        {
+            _logger.LogInformation($"---- Before");
+            foreach (var meta in metadata)
+            {
+                var result = await _galleryStatisticsRepository
+                    .UpdateThemeStatistics(
+                        meta.ThemeStatistic
+                    );
+
+                if (result.IsAcknowledged && result.ModifiedCount == 1)
+                {
+                    _logger.LogInformation($"Statistics of '{meta.ThemeStatistic.ThemeId}' is modified.");
+                }
+                else if (result.IsAcknowledged && result.UpsertedId != null)
+                {
+                    _logger.LogInformation($"Statistics of '{meta.ThemeStatistic.ThemeId}' is upserted (Id = '{result.UpsertedId.ToString()}').");
+                }
+                else
+                {
+                    _logger.LogInformation($"Statistics of '{meta.ThemeStatistic.ThemeId}' does not modified.");
+                }
+            }
+
+            _logger.LogInformation($"---- After");
         }
 
         private async Task CreateOrUpdateThemeInfo(ThemeInfo theme)

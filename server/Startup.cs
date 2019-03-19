@@ -47,8 +47,12 @@ namespace CodePaint.WebApi
                 );
 
             var galleryContext = new GalleryContext(config.MongoDB);
-            var repo = new GalleryInfoRepository(galleryContext);
-            services.AddSingleton<IGalleryInfoRepository>(repo);
+            services.AddSingleton<IGalleryInfoRepository>(
+                new GalleryInfoRepository(galleryContext)
+            );
+            services.AddSingleton<IGalleryStatisticsRepository>(
+                new GalleryStatisticsRepository(galleryContext)
+            );
 
             services.AddTransient<IGalleryRefreshService, GalleryRefreshService>();
 

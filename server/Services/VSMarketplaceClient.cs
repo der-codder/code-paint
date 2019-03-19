@@ -15,7 +15,7 @@ namespace CodePaint.WebApi.Services
 {
     public interface IVSMarketplaceClient
     {
-        Task<IEnumerable<ThemeInfo>> GetGalleryInfo(int pageNumber, int pageSize);
+        Task<List<GalleryItemMetadata>> GetGalleryMetadata(int pageNumber, int pageSize);
         Task<Stream> GetVsixFileStream(string publisherName, string vsExtensionName, string version);
     }
 
@@ -38,7 +38,7 @@ namespace CodePaint.WebApi.Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<ThemeInfo>> GetGalleryInfo(int pageNumber, int pageSize)
+        public async Task<List<GalleryItemMetadata>> GetGalleryMetadata(int pageNumber, int pageSize)
         {
             _client.DefaultRequestHeaders
                 .Clear();
@@ -57,7 +57,7 @@ namespace CodePaint.WebApi.Services
                 if (!response.IsSuccessStatusCode)
                 {
                     _logger.LogInformation($"Response is unsuccessful: {response.StatusCode}, {response.RequestMessage}");
-                    return await Task.FromResult(new List<ThemeInfo>());
+                    return await Task.FromResult(new List<GalleryItemMetadata>());
                 }
 
                 var result = await ProcessResponseContent(response.Content);
@@ -68,7 +68,7 @@ namespace CodePaint.WebApi.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Caught exception");
-                return await Task.FromResult(new List<ThemeInfo>());
+                return await Task.FromResult(new List<GalleryItemMetadata>());
             }
         }
 
@@ -110,7 +110,7 @@ namespace CodePaint.WebApi.Services
             }
         }
 
-        private async Task<IEnumerable<ThemeInfo>> ProcessResponseContent(HttpContent content)
+        private async Task<List<GalleryItemMetadata>> ProcessResponseContent(HttpContent content)
         {
             using(var s = await content.ReadAsStreamAsync())
             using(var sr = new StreamReader(s))
@@ -123,8 +123,15 @@ namespace CodePaint.WebApi.Services
                         ext =>
                         {
                             // _logger.LogInformation($"Parsing Started: '{ext.ToString()}'");
-                            var result = ThemeInfo.FromJson((JObject) ext);
-                            _logger.LogInformation($"Parsed '{result.Id}'");
+                            var themeInfo = ThemeInfo.FromJson((JObject) ext);
+                            var themeStatistic = ThemeStatistic.FromJson((JObject) ext, themeInfo.Id);
+                            var result = new GalleryItemMetadata
+                            {
+                                ThemeInfo = themeInfo,
+                                ThemeStatistic = themeStatistic
+                            };
+
+                            _logger.LogInformation($"Parsed '{themeInfo.Id}'");
 
                             return result;
                         })

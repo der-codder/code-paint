@@ -22,11 +22,6 @@ namespace CodePaint.WebApi
     {
         public Startup(IConfiguration configuration)
         {
-            // Init Serilog configuration
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(configuration)
-                .CreateLogger();
-
             Configuration = configuration;
         }
 
@@ -72,8 +67,6 @@ namespace CodePaint.WebApi
                 app.UseHsts();
             }
 
-            // logging
-            loggerFactory.AddSerilog();
             app.UseHttpsRedirection();
             app.UseMvc();
         }

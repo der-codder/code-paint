@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using CodePaint.WebApi.Domain.Models;
 using CodePaint.WebApi.Domain.Repositories;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace CodePaint.WebApi.Services
 {
@@ -20,23 +21,20 @@ namespace CodePaint.WebApi.Services
         private readonly IGalleryInfoRepository _galleryInfoRepository;
         private readonly IGalleryStatisticsRepository _galleryStatisticsRepository;
         private readonly IVSMarketplaceClient _marketplaceClient;
-        private readonly ILogger<GalleryRefreshService> _logger;
 
         public GalleryRefreshService(
             IVSMarketplaceClient marketplaceClient,
             IGalleryInfoRepository galleryInfoRepository,
-            IGalleryStatisticsRepository galleryStatisticsRepository,
-            ILogger<GalleryRefreshService> logger)
+            IGalleryStatisticsRepository galleryStatisticsRepository)
         {
             _marketplaceClient = marketplaceClient;
             _galleryInfoRepository = galleryInfoRepository;
             _galleryStatisticsRepository = galleryStatisticsRepository;
-            _logger = logger;
         }
 
         public async Task RefreshGallery()
         {
-            _logger.LogInformation("Start Gallery Refreshing.");
+            Log.Information("Gallery Refreshing Started.");
 
             var metadata = await _marketplaceClient.GetGalleryMetadata(1, 10);
             await UpdateGalleryInfo(metadata);
@@ -45,7 +43,7 @@ namespace CodePaint.WebApi.Services
             // var stream = await _marketplaceClient.GetVsixFileStream("zhuangtongfa", "Material-theme", "2.19.3");
             // ProcessVsixFileStream(stream);
 
-            _logger.LogInformation("Complete Gallery Refreshing.");
+            Log.Information("Gallery Refreshing Completed.");
         }
 
         private async Task UpdateGalleryInfo(List<GalleryItemMetadata> metadata)
@@ -58,7 +56,6 @@ namespace CodePaint.WebApi.Services
 
         private async Task UpdateGalleryStatistics(List<GalleryItemMetadata> metadata)
         {
-            _logger.LogInformation($"---- Before");
             foreach (var meta in metadata)
             {
                 var result = await _galleryStatisticsRepository
@@ -68,19 +65,17 @@ namespace CodePaint.WebApi.Services
 
                 if (result.IsAcknowledged && result.ModifiedCount == 1)
                 {
-                    _logger.LogInformation($"Statistics of '{meta.ThemeStatistic.ThemeId}' is modified.");
+                    Log.Information($"Modified statistics for '{meta.ThemeStatistic.ThemeId}'.");
                 }
                 else if (result.IsAcknowledged && result.UpsertedId != null)
                 {
-                    _logger.LogInformation($"Statistics of '{meta.ThemeStatistic.ThemeId}' is upserted (Id = '{result.UpsertedId}').");
+                    Log.Information($"Upserted (Id='{result.UpsertedId}') statistics for '{meta.ThemeStatistic.ThemeId}'.");
                 }
-                else
-                {
-                    _logger.LogInformation($"Statistics of '{meta.ThemeStatistic.ThemeId}' does not modified.");
-                }
+                // else
+                // {
+                //     Log.Information($"Statistics for '{meta.ThemeStatistic.ThemeId}' does not changed.");
+                // }
             }
-
-            _logger.LogInformation($"---- After");
         }
 
         private async Task CreateOrUpdateThemeInfo(ThemeInfo theme)
@@ -91,63 +86,66 @@ namespace CodePaint.WebApi.Services
 
                 if (themeInfo == null)
                 {
-                    _logger.LogInformation("Create ThemeInfo: {Id}.", theme.Id);
+                    Log.Information($"Create ThemeInfo: '{theme.Id}'.");
                     await _galleryInfoRepository.Create(theme);
                 }
                 else if (themeInfo.LastUpdated != theme.LastUpdated)
                 {
-                    _logger.LogInformation("Update ThemeInfo: {Id}.", theme.Id);
-
                     var result = await _galleryInfoRepository.Update(theme);
+
                     if (result)
                     {
-                        _logger.LogInformation("Update successful.");
+                        Log.Information($"Successfuly updated '{theme.Id}'.");
                     }
                     else
                     {
-                        _logger.LogWarning("Update of '{Id}' unsuccessful.", theme.Id);
+                        Log.Warning($"Unsuccessfuly updated '{theme.Id}'.");
                     }
                 }
+                // else
+                // {
+                //     Log.Information($"ThemeInfo: '{theme.Id}' does not changed.");
+                // }
             }
             catch (System.Exception ex)
             {
-                _logger.LogError(ex, "Caught exception");
+                Log.Error(ex, "Caught exception");
             }
         }
 
         private void ProcessVsixFileStream(Stream stream)
         {
-            _logger.LogInformation("Start Processing Extension.");
+            Log.Information("Start Processing Extension.");
 
             var tempFolder = Path.Combine(
                 Path.GetTempPath(),
                 Convert.ToString(Guid.NewGuid()));
-            _logger.LogInformation("Create temp folder: '{TempFolder}'", tempFolder);
+            Log.Information("Create temp folder: '{TempFolder}'", tempFolder);
             Directory.CreateDirectory(tempFolder);
 
             try
             {
                 using (ZipArchive archive = new ZipArchive(stream))
                 {
-                    _logger.LogInformation("Extracting archive.");
+                    Log.Information("Extracting archive.");
                     archive.ExtractToDirectory(tempFolder);
                 }
 
                 string readText = File.ReadAllText(Path.Combine(tempFolder, "extension", "package.json"));
-                _logger.LogInformation("-- extension.package.json: '{}'", readText);
+                Log.Information("---- extension.package.json: '{}'", readText);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Caught exception");
+                Log.Error(ex, "Caught exception");
                 throw;
             }
             finally
             {
-                _logger.LogInformation("Remove temp folder: '{TempFolder}'", tempFolder);
+                Log.Information("Remove temp folder: '{TempFolder}'", tempFolder);
                 RemoveFolder(tempFolder);
             }
 
-            _logger.LogInformation("Complete Processing Extension.");
+            Log.Information("Complete Processing Extension.");
         }
 
         private void RemoveFolder(string path)
@@ -162,7 +160,7 @@ namespace CodePaint.WebApi.Services
             {
                 dir.Delete(true);
             }
-            _logger.LogInformation("Folder removed: '{Path}'", path);
+            Log.Information("Folder removed: '{Path}'", path);
         }
     }
 }

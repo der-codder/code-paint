@@ -10,6 +10,7 @@ using CodePaint.WebApi.Domain.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Serilog;
 
 namespace CodePaint.WebApi.Services
 {
@@ -24,9 +25,8 @@ namespace CodePaint.WebApi.Services
         private const string _marketplaceUri = "https://marketplace.visualstudio.com/";
         private readonly MediaTypeWithQualityHeaderValue _extensionQueryHeader;
         private readonly HttpClient _client;
-        private readonly ILogger<VSMarketplaceClient> _logger;
 
-        public VSMarketplaceClient(HttpClient httpClient, ILogger<VSMarketplaceClient> logger)
+        public VSMarketplaceClient(HttpClient httpClient)
         {
             httpClient.BaseAddress = new Uri(_marketplaceUri);
             _extensionQueryHeader = new MediaTypeWithQualityHeaderValue("application/json")
@@ -35,7 +35,6 @@ namespace CodePaint.WebApi.Services
             };
 
             _client = httpClient;
-            _logger = logger;
         }
 
         public async Task<List<GalleryItemMetadata>> GetGalleryMetadata(int pageNumber, int pageSize)
@@ -47,7 +46,7 @@ namespace CodePaint.WebApi.Services
 
             try
             {
-                _logger.LogInformation($"Sending Post request to get gallery items. Requesting: pageNumber={pageNumber}, pageSize={pageSize}");
+                Log.Information($"Requesting: pageNumber={pageNumber} & pageSize={pageSize}");
 
                 var response = await _client.PostAsync(
                     "/_apis/public/gallery/extensionquery",
@@ -56,18 +55,18 @@ namespace CodePaint.WebApi.Services
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogInformation($"Response is unsuccessful: {response.StatusCode}, {response.RequestMessage}");
+                    Log.Information($"Response is unsuccessful: {response.StatusCode}, {response.RequestMessage}");
                     return await Task.FromResult(new List<GalleryItemMetadata>());
                 }
 
                 var result = await ProcessResponseContent(response.Content);
-                _logger.LogInformation($"Response is successful.");
+                Log.Information($"Response is successful.");
 
                 return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Caught exception");
+                Log.Error(ex, "Caught exception");
                 return await Task.FromResult(new List<GalleryItemMetadata>());
             }
         }
@@ -99,13 +98,13 @@ namespace CodePaint.WebApi.Services
                 var uri = $"/_apis/public/gallery/publishers/{publisherName}" +
                     $"/vsextensions/{vsExtensionName}/{version}/vspackage";
 
-                _logger.LogInformation("Sending reguest to: {Uri}", uri);
+                Log.Information("Sending reguest to: {Uri}", uri);
 
                 return await _client.GetStreamAsync(uri);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Caught exception");
+                Log.Error(ex, "Caught exception");
                 throw;
             }
         }
@@ -122,7 +121,7 @@ namespace CodePaint.WebApi.Services
                     .Select(
                         ext =>
                         {
-                            // _logger.LogInformation($"Parsing Started: '{ext.ToString()}'");
+                            // Log.Information($"Parsing Started: '{ext.ToString()}'");
                             var themeInfo = ThemeInfo.FromJson((JObject) ext);
                             var themeStatistic = ThemeStatistic.FromJson((JObject) ext, themeInfo.Id);
                             var result = new GalleryItemMetadata
@@ -131,7 +130,7 @@ namespace CodePaint.WebApi.Services
                                 ThemeStatistic = themeStatistic
                             };
 
-                            _logger.LogInformation($"Parsed '{themeInfo.Id}'");
+                            Log.Information($"Parsed metadata for '{themeInfo.Id}'");
 
                             return result;
                         })

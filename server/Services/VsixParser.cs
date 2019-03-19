@@ -61,7 +61,7 @@ namespace CodePaint.WebApi.Services
         private List<ThemeMetadata> ParseThemesMetadata(JObject jObject)
         {
             var metadata = new List<ThemeMetadata>();
-            var jThemes = (JArray)jObject.SelectToken("contributes.themes");
+            var jThemes = (JArray) jObject.SelectToken("contributes.themes");
 
             if (jThemes == null)
             {
@@ -122,7 +122,7 @@ namespace CodePaint.WebApi.Services
         private async Task<JObject> MergeExternalThemeFile(JObject jTheme, string rootThemeFileFolder)
         {
             Console.WriteLine("---- Started merging external theme file.");
-            var include = (string)jTheme.SelectToken("include");
+            var include = (string) jTheme.SelectToken("include");
             if (include != null)
             {
                 var includeFile = Path

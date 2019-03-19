@@ -54,9 +54,9 @@ namespace CodePaint.WebApi.Models
                 foreach (var jTokenColor in jTokenColors)
                 {
                     var tokenColor = ParseTokenColor((JObject) jTokenColor);
-                    if (!string.IsNullOrWhiteSpace(tokenColor.Scope) &&
-                        (!string.IsNullOrWhiteSpace(tokenColor.Settings.FontStyle) ||
-                            !string.IsNullOrWhiteSpace(tokenColor.Settings.Foreground)))
+                    if (!string.IsNullOrWhiteSpace(tokenColor.Scope)
+                        && (!string.IsNullOrWhiteSpace(tokenColor.Settings.FontStyle)
+                            || !string.IsNullOrWhiteSpace(tokenColor.Settings.Foreground)))
                     {
                         theme.TokenColors.Add(tokenColor);
                     }
@@ -87,7 +87,7 @@ namespace CodePaint.WebApi.Models
                 }
                 else
                 {
-                    throw new FormatException($"Scope contains inappropriate formate: {jScope.ToString()}");
+                    throw new FormatException($"Scope contains inappropriate formate: {jScope}");
                 }
             }
 

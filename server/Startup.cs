@@ -40,7 +40,7 @@ namespace CodePaint.WebApi
 
             services.AddHttpClient<IVSMarketplaceClient, VSMarketplaceClient>()
                 .ConfigurePrimaryHttpMessageHandler(
-                    conf => new HttpClientHandler
+                    _ => new HttpClientHandler
                     {
                         AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
                     }

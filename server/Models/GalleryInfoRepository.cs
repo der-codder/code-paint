@@ -24,8 +24,7 @@ namespace CodePaint.WebApi.Models
 
         public async Task<IEnumerable<ThemeInfo>> GetAllThemesInfo()
         {
-            return await _context
-                .GalleryInfo
+            return await _context.GalleryInfo
                 .Find(_ => true)
                 .ToListAsync();
         }
@@ -34,8 +33,7 @@ namespace CodePaint.WebApi.Models
         {
             var filter = Builders<ThemeInfo>.Filter.Eq(m => m.Id, id);
 
-            return _context
-                .GalleryInfo
+            return _context.GalleryInfo
                 .Find(filter)
                 .FirstOrDefaultAsync();
         }
@@ -48,26 +46,25 @@ namespace CodePaint.WebApi.Models
         public async Task<bool> Update(ThemeInfo themeInfo)
         {
             ReplaceOneResult updateResult =
-                await _context
-                .GalleryInfo
-                .ReplaceOneAsync(
-                    filter: g => g.Id == themeInfo.Id,
-                    replacement: themeInfo
-                );
+                await _context.GalleryInfo
+                    .ReplaceOneAsync(
+                        filter: g => g.Id == themeInfo.Id,
+                        replacement: themeInfo
+                    );
 
-            return updateResult.IsAcknowledged &&
-                updateResult.ModifiedCount > 0;
+            return updateResult.IsAcknowledged
+                && updateResult.ModifiedCount > 0;
         }
 
         public async Task<bool> Delete(string id)
         {
-            FilterDefinition<ThemeInfo> filter = Builders<ThemeInfo>.Filter.Eq(m => m.Id, id);
-            DeleteResult deleteResult = await _context
-                .GalleryInfo
+            FilterDefinition<ThemeInfo> filter = Builders<ThemeInfo>.Filter
+                .Eq(m => m.Id, id);
+            DeleteResult deleteResult = await _context.GalleryInfo
                 .DeleteOneAsync(filter);
 
-            return deleteResult.IsAcknowledged &&
-                deleteResult.DeletedCount > 0;
+            return deleteResult.IsAcknowledged
+                && deleteResult.DeletedCount > 0;
         }
     }
 }

@@ -12,12 +12,9 @@ namespace CodePaint.WebApi.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
-        private IGalleryRefreshService _galleryRefreshService;
+        private readonly IGalleryRefreshService _galleryRefreshService;
 
-        public ValuesController(
-            IGalleryInfoRepository repository,
-            IVSMarketplaceClient marketplaceClient,
-            IGalleryRefreshService galleryRefreshService)
+        public ValuesController(IGalleryRefreshService galleryRefreshService)
         {
             _galleryRefreshService = galleryRefreshService;
         }
@@ -30,24 +27,5 @@ namespace CodePaint.WebApi.Controllers
 
             return new string[] { "value1", "value3", "value2" };
         }
-
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
-        {
-            return "value";
-        }
-
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody] string value) { }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value) { }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id) { }
     }
 }

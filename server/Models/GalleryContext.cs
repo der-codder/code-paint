@@ -16,8 +16,10 @@ namespace CodePaint.WebApi.Models
 
         public IMongoCollection<ThemeInfo> GalleryInfo =>
             _db.GetCollection<ThemeInfo>("GalleryInfo");
+
         public IMongoCollection<ThemeStatistic> GalleryStatistics =>
             _db.GetCollection<ThemeStatistic>("GalleryStatistics");
+
         public IMongoCollection<ColorTheme> GalleryStore =>
             _db.GetCollection<ColorTheme>("GalleryStore");
 

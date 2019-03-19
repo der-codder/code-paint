@@ -112,9 +112,9 @@ namespace CodePaint.WebApi.Services
 
         private async Task<List<GalleryItemMetadata>> ProcessResponseContent(HttpContent content)
         {
-            using(var s = await content.ReadAsStreamAsync())
-            using(var sr = new StreamReader(s))
-            using(JsonReader reader = new JsonTextReader(sr))
+            using (var s = await content.ReadAsStreamAsync())
+            using (var sr = new StreamReader(s))
+            using (JsonReader reader = new JsonTextReader(sr))
             {
                 var jObject = await JObject.LoadAsync(reader);
 

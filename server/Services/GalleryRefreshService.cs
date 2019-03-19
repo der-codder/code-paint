@@ -71,7 +71,7 @@ namespace CodePaint.WebApi.Services
                 }
                 else if (result.IsAcknowledged && result.UpsertedId != null)
                 {
-                    _logger.LogInformation($"Statistics of '{meta.ThemeStatistic.ThemeId}' is upserted (Id = '{result.UpsertedId.ToString()}').");
+                    _logger.LogInformation($"Statistics of '{meta.ThemeStatistic.ThemeId}' is upserted (Id = '{result.UpsertedId}').");
                 }
                 else
                 {
@@ -96,8 +96,9 @@ namespace CodePaint.WebApi.Services
                 else if (themeInfo.LastUpdated != theme.LastUpdated)
                 {
                     _logger.LogInformation("Update ThemeInfo: {Id}.", theme.Id);
+
                     var result = await _galleryInfoRepository.Update(theme);
-                    if (result == true)
+                    if (result)
                     {
                         _logger.LogInformation("Update successful.");
                     }
@@ -125,7 +126,7 @@ namespace CodePaint.WebApi.Services
 
             try
             {
-                using(ZipArchive archive = new ZipArchive(stream))
+                using (ZipArchive archive = new ZipArchive(stream))
                 {
                     _logger.LogInformation("Extracting archive.");
                     archive.ExtractToDirectory(tempFolder);

@@ -15,19 +15,29 @@ namespace CodePaint.WebApi.Models
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         public string Id { get; set; }
+
         public string Name { get; set; }
+
         public string DisplayName { get; set; }
+
         public string Description { get; set; }
+
         public string PublisherName { get; set; }
+
         public string PublisherDisplayName { get; set; }
+
         public string Version { get; set; }
+
         public DateTime LastUpdated { get; set; }
+
         public string IconDefault { get; set; }
+
         public string IconSmall { get; set; }
 
-        public static ThemeInfo FromJson(JObject jObject) => Create()
-            .TakeBaseData(jObject)
-            .TakeVersionData(jObject);
+        public static ThemeInfo FromJson(JObject jObject) =>
+            Create()
+                .TakeBaseData(jObject)
+                .TakeVersionData(jObject);
 
         private static ThemeInfoParser Create() => new ThemeInfoParser(new ThemeInfo());
 
@@ -63,8 +73,10 @@ namespace CodePaint.WebApi.Models
                 var assets = ((JArray) jVersion.SelectToken("files"))
                     .ToDictionary<string, string>("assetType", "source");
 
-                _themeInfo.IconDefault = assets.GetValueOrDefault("Microsoft.VisualStudio.Services.Icons.Default");
-                _themeInfo.IconSmall = assets.GetValueOrDefault("Microsoft.VisualStudio.Services.Icons.Small");
+                _themeInfo.IconDefault = assets
+                    .GetValueOrDefault("Microsoft.VisualStudio.Services.Icons.Default");
+                _themeInfo.IconSmall = assets
+                    .GetValueOrDefault("Microsoft.VisualStudio.Services.Icons.Small");
 
                 return this;
             }

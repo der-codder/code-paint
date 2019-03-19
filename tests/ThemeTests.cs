@@ -10,17 +10,10 @@ namespace CodePaint.WebApi.Tests
 {
     public class ThemeTests
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-
-        public ThemeTests(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
-
         [Fact]
         public void FromJson_SimpleValidJObject_ReturnsCorrectResult()
         {
-            var jsonString = @"{
+            const string jsonString = @"{
                 'colors': {
                     'activityBar.background': '#ff0000'
                 },
@@ -53,7 +46,7 @@ namespace CodePaint.WebApi.Tests
         [Fact]
         public void FromJson_TokenColorWithOnlyRequiredProperies_ReturnsCorrectResult()
         {
-            var jsonString = @"{
+            const string jsonString = @"{
                 'tokenColors': [{
                         'scope': 'tokenColor_scope',
                         'settings': {

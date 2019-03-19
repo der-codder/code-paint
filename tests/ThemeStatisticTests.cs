@@ -8,6 +8,8 @@ namespace CodePaint.WebApi.Tests
 {
     public class ThemeStatisticTests
     {
+        private const string expectedThemeId = "themeId_test";
+
         private const string ValidJson = @"{
                 'statistics': [
                     {
@@ -48,10 +50,9 @@ namespace CodePaint.WebApi.Tests
         [Fact]
         public void FromJson_JObjectWithValidBaseProperties_ReturnsCorrectResult()
         {
-            var themeId = "themeId_test";
-            var result = ThemeStatistic.FromJson(JObject.Parse(ValidJson), themeId);
+            var result = ThemeStatistic.FromJson(JObject.Parse(ValidJson), expectedThemeId);
 
-            Assert.Equal(themeId, result.ThemeId);
+            Assert.Equal(expectedThemeId, result.ThemeId);
             Assert.Equal(101, result.InstallCount);
             Assert.Equal(102, result.UpdateCount);
             Assert.Equal(4.77469158172607, result.AverageRating);

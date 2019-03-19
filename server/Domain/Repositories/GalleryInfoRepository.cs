@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CodePaint.WebApi.Domain.Models;
 using MongoDB.Driver;
 
-namespace CodePaint.WebApi.Models
+namespace CodePaint.WebApi.Domain.Repositories
 {
     public interface IGalleryInfoRepository
     {

@@ -4,7 +4,7 @@ using System.Linq;
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json.Linq;
 
-namespace CodePaint.WebApi.Models
+namespace CodePaint.WebApi.Domain.Models
 {
     public class TokenColorSettings
     {

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using CodePaint.WebApi.Models;
+using CodePaint.WebApi.Domain.Models;
 using Newtonsoft.Json.Linq;
 using Xunit;
 using Xunit.Abstractions;

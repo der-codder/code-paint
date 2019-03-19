@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using CodePaint.WebApi.Models;
+using CodePaint.WebApi.Domain.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

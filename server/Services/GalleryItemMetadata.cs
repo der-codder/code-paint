@@ -1,5 +1,5 @@
 using System;
-using CodePaint.WebApi.Models;
+using CodePaint.WebApi.Domain.Models;
 
 namespace CodePaint.WebApi.Services
 {

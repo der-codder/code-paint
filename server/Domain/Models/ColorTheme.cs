@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace CodePaint.WebApi.Models
+namespace CodePaint.WebApi.Domain.Models
 {
     public class ColorTheme
     {

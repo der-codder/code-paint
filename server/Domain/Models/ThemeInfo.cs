@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 
 using static CodePaint.WebApi.Utils.Extensions;
 
-namespace CodePaint.WebApi.Models
+namespace CodePaint.WebApi.Domain.Models
 {
     public class ThemeInfo
     {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CodePaint.WebApi.Models;
+﻿using System.Collections.Generic;
 using CodePaint.WebApi.Services;
 using Microsoft.AspNetCore.Mvc;
 

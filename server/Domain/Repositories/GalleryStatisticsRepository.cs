@@ -10,7 +10,7 @@ namespace CodePaint.WebApi.Domain.Repositories
 {
     public interface IGalleryStatisticsRepository
     {
-        Task<UpdateResult> UpdateThemeStatistics(ThemeStatistic statistics);
+        Task<UpdateResult> UpdateThemeStatistics(GalleryItemStatistic statistics);
     }
 
     public class GalleryStatisticsRepository : IGalleryStatisticsRepository
@@ -19,12 +19,12 @@ namespace CodePaint.WebApi.Domain.Repositories
 
         public GalleryStatisticsRepository(IGalleryContext context) => _context = context;
 
-        public async Task<UpdateResult> UpdateThemeStatistics(ThemeStatistic statistics)
+        public async Task<UpdateResult> UpdateThemeStatistics(GalleryItemStatistic statistics)
         {
             var updateOptions = new UpdateOptions { IsUpsert = true };
-            var filter = Builders<ThemeStatistic>.Filter
-                .Where(s => s.ThemeId == statistics.ThemeId);
-            var updater = Builders<ThemeStatistic>.Update
+            var filter = Builders<GalleryItemStatistic>.Filter
+                .Where(s => s.GalleryItemId == statistics.GalleryItemId);
+            var updater = Builders<GalleryItemStatistic>.Update
                 .Set(s => s.InstallCount, statistics.InstallCount)
                 .Set(s => s.UpdateCount, statistics.UpdateCount)
                 .Set(s => s.AverageRating, statistics.AverageRating)

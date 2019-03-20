@@ -5,49 +5,41 @@ using MongoDB.Driver;
 
 namespace CodePaint.WebApi.Domain.Repositories
 {
-    public interface IGalleryInfoRepository
+    public interface IGalleryItemsRepository
     {
-        Task<IEnumerable<ThemeInfo>> GetAllThemesInfo();
-        Task<ThemeInfo> GetThemeInfo(string id);
-        Task Create(ThemeInfo themeInfo);
-        Task<bool> Update(ThemeInfo themeInfo);
+        Task<IEnumerable<GalleryItem>> GetAllItems();
+        Task<GalleryItem> GetGalleryItem(string id);
+        Task Create(GalleryItem themeInfo);
+        Task<bool> Update(GalleryItem themeInfo);
         Task<bool> Delete(string id);
     }
 
-    public class GalleryInfoRepository : IGalleryInfoRepository
+    public class GalleryItemsRepository : IGalleryItemsRepository
     {
         private readonly IGalleryContext _context;
 
-        public GalleryInfoRepository(IGalleryContext context)
-        {
-            _context = context;
-        }
+        public GalleryItemsRepository(IGalleryContext context) => _context = context;
 
-        public async Task<IEnumerable<ThemeInfo>> GetAllThemesInfo()
-        {
-            return await _context.GalleryInfo
+        public async Task<IEnumerable<GalleryItem>> GetAllItems() =>
+            await _context.GalleryItems
                 .Find(_ => true)
                 .ToListAsync();
-        }
 
-        public Task<ThemeInfo> GetThemeInfo(string id)
+        public Task<GalleryItem> GetGalleryItem(string id)
         {
-            var filter = Builders<ThemeInfo>.Filter.Eq(m => m.Id, id);
+            var filter = Builders<GalleryItem>.Filter.Eq(m => m.Id, id);
 
-            return _context.GalleryInfo
+            return _context.GalleryItems
                 .Find(filter)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task Create(ThemeInfo themeInfo)
-        {
-            await _context.GalleryInfo.InsertOneAsync(themeInfo);
-        }
+        public async Task Create(GalleryItem themeInfo) => await _context.GalleryItems.InsertOneAsync(themeInfo);
 
-        public async Task<bool> Update(ThemeInfo themeInfo)
+        public async Task<bool> Update(GalleryItem themeInfo)
         {
-            ReplaceOneResult updateResult =
-                await _context.GalleryInfo
+            var updateResult =
+                await _context.GalleryItems
                     .ReplaceOneAsync(
                         filter: g => g.Id == themeInfo.Id,
                         replacement: themeInfo
@@ -59,9 +51,9 @@ namespace CodePaint.WebApi.Domain.Repositories
 
         public async Task<bool> Delete(string id)
         {
-            FilterDefinition<ThemeInfo> filter = Builders<ThemeInfo>.Filter
+            FilterDefinition<GalleryItem> filter = Builders<GalleryItem>.Filter
                 .Eq(m => m.Id, id);
-            DeleteResult deleteResult = await _context.GalleryInfo
+            DeleteResult deleteResult = await _context.GalleryItems
                 .DeleteOneAsync(filter);
 
             return deleteResult.IsAcknowledged

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using CodePaint.WebApi.Domain.Models;
 using MongoDB.Driver;
 
@@ -6,23 +6,23 @@ namespace CodePaint.WebApi.Domain.Repositories
 {
     public interface IGalleryContext
     {
-        IMongoCollection<ThemeInfo> GalleryInfo { get; }
-        IMongoCollection<ThemeStatistic> GalleryStatistics { get; }
-        IMongoCollection<ColorTheme> GalleryStore { get; }
+        IMongoCollection<GalleryItem> GalleryItems { get; }
+        IMongoCollection<GalleryItemStatistic> GalleryStatistics { get; }
+        IMongoCollection<VSCodeTheme> GalleryStore { get; }
     }
 
     public class GalleryContext : IGalleryContext
     {
         private readonly IMongoDatabase _db;
 
-        public IMongoCollection<ThemeInfo> GalleryInfo =>
-            _db.GetCollection<ThemeInfo>("GalleryInfo");
+        public IMongoCollection<GalleryItem> GalleryItems =>
+            _db.GetCollection<GalleryItem>("GalleryItems");
 
-        public IMongoCollection<ThemeStatistic> GalleryStatistics =>
-            _db.GetCollection<ThemeStatistic>("GalleryStatistics");
+        public IMongoCollection<GalleryItemStatistic> GalleryStatistics =>
+            _db.GetCollection<GalleryItemStatistic>("GalleryStatistics");
 
-        public IMongoCollection<ColorTheme> GalleryStore =>
-            _db.GetCollection<ColorTheme>("GalleryStore");
+        public IMongoCollection<VSCodeTheme> GalleryStore =>
+            _db.GetCollection<VSCodeTheme>("GalleryStore");
 
         public GalleryContext(MongoDBConfig config)
         {

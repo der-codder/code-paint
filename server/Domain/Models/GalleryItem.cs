@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 using Newtonsoft.Json.Linq;
@@ -11,7 +10,7 @@ using static CodePaint.WebApi.Utils.Extensions;
 
 namespace CodePaint.WebApi.Domain.Models
 {
-    public class ThemeInfo
+    public class GalleryItem
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         public string Id { get; set; }
@@ -34,20 +33,20 @@ namespace CodePaint.WebApi.Domain.Models
 
         public string IconSmall { get; set; }
 
-        public static ThemeInfo FromJson(JObject jObject) =>
+        public static GalleryItem FromJson(JObject jObject) =>
             Create()
                 .TakeBaseData(jObject)
                 .TakeVersionData(jObject);
 
-        private static ThemeInfoParser Create() => new ThemeInfoParser(new ThemeInfo());
+        private static GalleryItemParser Create() => new GalleryItemParser(new GalleryItem());
 
-        private class ThemeInfoParser
+        private class GalleryItemParser
         {
-            private readonly ThemeInfo _themeInfo;
+            private readonly GalleryItem _themeInfo;
 
-            public ThemeInfoParser(ThemeInfo themeInfo) => _themeInfo = themeInfo;
+            public GalleryItemParser(GalleryItem themeInfo) => _themeInfo = themeInfo;
 
-            public ThemeInfoParser TakeBaseData(JObject jObject)
+            public GalleryItemParser TakeBaseData(JObject jObject)
             {
                 _themeInfo.Name = jObject.SelectToken("extensionName", true).ToString();
                 _themeInfo.DisplayName = jObject.SelectToken("displayName", true).ToString();
@@ -59,7 +58,7 @@ namespace CodePaint.WebApi.Domain.Models
                 return this;
             }
 
-            public ThemeInfoParser TakeVersionData(JObject jObject)
+            public GalleryItemParser TakeVersionData(JObject jObject)
             {
                 var jVersion = (JObject) jObject.SelectToken("versions[0]", true);
                 _themeInfo.Version = jVersion.SelectToken("version", true).ToString();
@@ -81,7 +80,7 @@ namespace CodePaint.WebApi.Domain.Models
                 return this;
             }
 
-            public static implicit operator ThemeInfo(ThemeInfoParser themeInfo) => themeInfo._themeInfo;
+            public static implicit operator GalleryItem(GalleryItemParser themeInfo) => themeInfo._themeInfo;
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using CodePaint.WebApi.Domain.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Serilog;
 
 namespace CodePaint.WebApi.Services
 {
@@ -22,9 +23,9 @@ namespace CodePaint.WebApi.Services
 
         public VsixParser(string pathToExtension) => _pathToExtension = pathToExtension;
 
-        public async Task<ColorTheme> ParseColorTheme()
+        public async Task<VSCodeTheme> ParseColorTheme()
         {
-            Console.WriteLine($"---- Started processing folder: {_pathToExtension}");
+            Log.Information($"Started processing folder: {_pathToExtension}.");
 
             try
             {
@@ -34,25 +35,29 @@ namespace CodePaint.WebApi.Services
 
                 var colorTheme = ParseColorThemeMetadata(jPackageJson);
 
-                return await ParseThemesAndUpdateColorTheme(
+                var result = await ParseThemesAndUpdateColorTheme(
                     colorTheme,
                     ParseThemesMetadata(jPackageJson)
                 );
+
+                Log.Information($"Completed processing folder: {_pathToExtension}.");
+
+                return result;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"---- Caught exception : {ex}");
+                Log.Error(ex, $"Error while handling '{_pathToExtension}' folder.");
                 throw;
             }
         }
 
-        private ColorTheme ParseColorThemeMetadata(JObject jObject)
+        private VSCodeTheme ParseColorThemeMetadata(JObject jObject)
         {
-            var colorTheme = new ColorTheme();
+            var colorTheme = new VSCodeTheme();
 
             var extPublisher = jObject.SelectToken("publisher", true).ToString();
             var extName = jObject.SelectToken("name", true).ToString();
-            colorTheme.ThemeId = $"{extPublisher}.{extName}";
+            colorTheme.GalleryItemId = $"{extPublisher}.{extName}";
             colorTheme.Version = jObject.SelectToken("version", true).ToString();
 
             return colorTheme;
@@ -90,8 +95,8 @@ namespace CodePaint.WebApi.Services
             return metadata;
         }
 
-        private async Task<ColorTheme> ParseThemesAndUpdateColorTheme(
-            ColorTheme colorThemeToUpdate,
+        private async Task<VSCodeTheme> ParseThemesAndUpdateColorTheme(
+            VSCodeTheme colorThemeToUpdate,
             List<ThemeMetadata> themesMetadata)
         {
             foreach (var metadata in themesMetadata)
@@ -99,12 +104,12 @@ namespace CodePaint.WebApi.Services
                 try
                 {
                     var theme = await ParseTheme(metadata);
-                    colorThemeToUpdate.Themes
-                        .Add(theme);
+                    colorThemeToUpdate
+                        .Themes.Add(theme);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"---- Caught exception : {ex}");
+                    Log.Error(ex, "Error while handling {MessageType} message with id {MessageId}.");
                 }
             }
             return colorThemeToUpdate;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -18,13 +18,13 @@ namespace CodePaint.WebApi.Services
 
     public class GalleryRefreshService : IGalleryRefreshService
     {
-        private readonly IGalleryInfoRepository _galleryInfoRepository;
+        private readonly IGalleryItemsRepository _galleryInfoRepository;
         private readonly IGalleryStatisticsRepository _galleryStatisticsRepository;
         private readonly IVSMarketplaceClient _marketplaceClient;
 
         public GalleryRefreshService(
             IVSMarketplaceClient marketplaceClient,
-            IGalleryInfoRepository galleryInfoRepository,
+            IGalleryItemsRepository galleryInfoRepository,
             IGalleryStatisticsRepository galleryStatisticsRepository)
         {
             _marketplaceClient = marketplaceClient;
@@ -37,7 +37,7 @@ namespace CodePaint.WebApi.Services
             Log.Information("Gallery Refreshing Started.");
 
             var metadata = await _marketplaceClient.GetGalleryMetadata(1, 10);
-            await UpdateGalleryInfo(metadata);
+            await RefreshGalleryInfo(metadata);
             await UpdateGalleryStatistics(metadata);
 
             // var stream = await _marketplaceClient.GetVsixFileStream("zhuangtongfa", "Material-theme", "2.19.3");
@@ -46,7 +46,7 @@ namespace CodePaint.WebApi.Services
             Log.Information("Gallery Refreshing Completed.");
         }
 
-        private async Task UpdateGalleryInfo(List<GalleryItemMetadata> metadata)
+        private async Task RefreshGalleryInfo(List<GalleryItemMetadata> metadata)
         {
             foreach (var meta in metadata)
             {
@@ -65,28 +65,28 @@ namespace CodePaint.WebApi.Services
 
                 if (result.IsAcknowledged && result.ModifiedCount == 1)
                 {
-                    Log.Information($"Modified statistics for '{meta.ThemeStatistic.ThemeId}'.");
+                    Log.Information($"Modified statistics for '{meta.ThemeStatistic.GalleryItemId}'.");
                 }
                 else if (result.IsAcknowledged && result.UpsertedId != null)
                 {
-                    Log.Information($"Upserted (Id='{result.UpsertedId}') statistics for '{meta.ThemeStatistic.ThemeId}'.");
+                    Log.Information($"Upserted (Id='{result.UpsertedId}') statistics for '{meta.ThemeStatistic.GalleryItemId}'.");
                 }
                 // else
                 // {
-                //     Log.Information($"Statistics for '{meta.ThemeStatistic.ThemeId}' does not changed.");
+                //     Log.Information($"Statistics for '{meta.GalleryItemStatistic.GalleryItemId}' does not changed.");
                 // }
             }
         }
 
-        private async Task CreateOrUpdateThemeInfo(ThemeInfo theme)
+        private async Task CreateOrUpdateThemeInfo(GalleryItem theme)
         {
             try
             {
-                var themeInfo = await _galleryInfoRepository.GetThemeInfo(theme.Id);
+                var themeInfo = await _galleryInfoRepository.GetGalleryItem(theme.Id);
 
                 if (themeInfo == null)
                 {
-                    Log.Information($"Create ThemeInfo: '{theme.Id}'.");
+                    Log.Information($"Create GalleryItem: '{theme.Id}'.");
                     await _galleryInfoRepository.Create(theme);
                 }
                 else if (themeInfo.LastUpdated != theme.LastUpdated)
@@ -104,10 +104,10 @@ namespace CodePaint.WebApi.Services
                 }
                 // else
                 // {
-                //     Log.Information($"ThemeInfo: '{theme.Id}' does not changed.");
+                //     Log.Information($"GalleryItem: '{theme.Id}' does not changed.");
                 // }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Log.Error(ex, "Caught exception");
             }

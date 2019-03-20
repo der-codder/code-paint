@@ -5,20 +5,17 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace CodePaint.WebApi.Domain.Models
 {
-    public class ColorTheme
+    public class VSCodeTheme
     {
         [BsonId]
         public ObjectId Id { get; set; }
 
-        public string ThemeId { get; set; }
+        public string GalleryItemId { get; set; }
 
         public string Version { get; set; }
 
         public List<Theme> Themes { get; set; }
 
-        public ColorTheme()
-        {
-            Themes = new List<Theme>();
-        }
+        public VSCodeTheme() => Themes = new List<Theme>();
     }
 }

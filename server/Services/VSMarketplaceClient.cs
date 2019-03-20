@@ -50,7 +50,7 @@ namespace CodePaint.WebApi.Services
 
                 var response = await _client.PostAsync(
                     "/_apis/public/gallery/extensionquery",
-                    GetRequestContent(pageNumber, pageSize)
+                    GetExtensionQueryRequestContent(pageNumber, pageSize)
                 );
 
                 if (!response.IsSuccessStatusCode)
@@ -122,8 +122,8 @@ namespace CodePaint.WebApi.Services
                         ext =>
                         {
                             // Log.Information($"Parsing Started: '{ext.ToString()}'");
-                            var themeInfo = ThemeInfo.FromJson((JObject) ext);
-                            var themeStatistic = ThemeStatistic.FromJson((JObject) ext, themeInfo.Id);
+                            var themeInfo = GalleryItem.FromJson((JObject) ext);
+                            var themeStatistic = GalleryItemStatistic.FromJson((JObject) ext, themeInfo.Id);
                             var result = new GalleryItemMetadata
                             {
                                 ThemeInfo = themeInfo,
@@ -138,7 +138,7 @@ namespace CodePaint.WebApi.Services
             }
         }
 
-        private StringContent GetRequestContent(int pageNumber, int pageSize)
+        private StringContent GetExtensionQueryRequestContent(int pageNumber, int pageSize)
         {
             var body = "{\"filters\":[{\"criteria\":[{\"filterType\":8,\"value\":\"Microsoft.VisualStudio.Code\"}," +
                 "{\"filterType\":12,\"value\":\"4096\"},{\"filterType\":5,\"value\":\"themes\"}]," +

@@ -8,10 +8,10 @@ using static CodePaint.WebApi.Utils.Extensions;
 
 namespace CodePaint.WebApi.Domain.Models
 {
-    public class ThemeStatistic
+    public class GalleryItemStatistic
     {
         public ObjectId Id { get; set; }
-        public string ThemeId { get; set; }
+        public string GalleryItemId { get; set; }
         public int InstallCount { get; set; }
         public int UpdateCount { get; set; }
         public double AverageRating { get; set; }
@@ -21,12 +21,14 @@ namespace CodePaint.WebApi.Domain.Models
         public double TrendingWeekly { get; set; }
         public double TrendingMonthly { get; set; }
 
-        public static ThemeStatistic FromJson(JObject jObject, string themeId)
+        public static GalleryItemStatistic FromJson(JObject jObject, string themeId)
         {
             if (string.IsNullOrWhiteSpace(themeId))
+            {
                 throw new ArgumentNullException(nameof(themeId));
+            }
 
-            var statistics = new ThemeStatistic() { ThemeId = themeId };
+            var statistics = new GalleryItemStatistic() { GalleryItemId = themeId };
 
             var statisticDict = ((JArray) jObject.SelectToken("statistics", true))
                 .ToDictionary<string, string>("statisticName", "value");

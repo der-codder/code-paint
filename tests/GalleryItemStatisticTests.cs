@@ -6,9 +6,9 @@ using Xunit;
 
 namespace CodePaint.WebApi.Tests
 {
-    public class ThemeStatisticTests
+    public class GalleryItemStatisticTests
     {
-        private const string expectedThemeId = "themeId_test";
+        private const string ExpectedThemeId = "themeId_test";
 
         private const string ValidJson = @"{
                 'statistics': [
@@ -50,9 +50,9 @@ namespace CodePaint.WebApi.Tests
         [Fact]
         public void FromJson_JObjectWithValidBaseProperties_ReturnsCorrectResult()
         {
-            var result = ThemeStatistic.FromJson(JObject.Parse(ValidJson), expectedThemeId);
+            var result = GalleryItemStatistic.FromJson(JObject.Parse(ValidJson), ExpectedThemeId);
 
-            Assert.Equal(expectedThemeId, result.ThemeId);
+            Assert.Equal(ExpectedThemeId, result.GalleryItemId);
             Assert.Equal(101, result.InstallCount);
             Assert.Equal(102, result.UpdateCount);
             Assert.Equal(4.77469158172607, result.AverageRating);
@@ -70,14 +70,14 @@ namespace CodePaint.WebApi.Tests
         public void FromJson_ThemeIdIsEmpty_ThrowsArgumentNullException(string themeId)
         {
             Assert.Throws<ArgumentNullException>(() =>
-                ThemeStatistic.FromJson(JObject.Parse(ValidJson), themeId));
+                GalleryItemStatistic.FromJson(JObject.Parse(ValidJson), themeId));
         }
 
         [Fact]
         public void FromJson_JObjectWithoutStatistics_ThrowsJsonException()
         {
             var ex = Assert.Throws<JsonException>(() =>
-                ThemeStatistic.FromJson(JObject.Parse("{}"), "themeId_test"));
+                GalleryItemStatistic.FromJson(JObject.Parse("{}"), "themeId_test"));
 
             Assert.Equal("Property 'statistics' does not exist on JObject.", ex.Message);
         }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -37,8 +37,14 @@ namespace CodePaint.WebApi.Services
             Log.Information("Gallery Refreshing Started.");
 
             var metadata = await _marketplaceClient.GetGalleryMetadata(1, 10);
-            await RefreshGalleryInfo(metadata);
-            await UpdateGalleryStatistics(metadata);
+
+            metadata.ForEach(
+                async m =>
+                {
+                    await RefreshGalleryInfo(m.GalleryItem);
+                    await UpdateGalleryStatistics(m.GalleryItemStatistic);
+                }
+            );
 
             // var stream = await _marketplaceClient.GetVsixFileStream("zhuangtongfa", "Material-theme", "2.19.3");
             // ProcessVsixFileStream(stream);
@@ -46,70 +52,74 @@ namespace CodePaint.WebApi.Services
             Log.Information("Gallery Refreshing Completed.");
         }
 
-        private async Task RefreshGalleryInfo(List<GalleryItemMetadata> metadata)
-        {
-            foreach (var meta in metadata)
-            {
-                await CreateOrUpdateThemeInfo(meta.ThemeInfo);
-            }
-        }
-
-        private async Task UpdateGalleryStatistics(List<GalleryItemMetadata> metadata)
-        {
-            foreach (var meta in metadata)
-            {
-                var result = await _galleryStatisticsRepository
-                    .UpdateThemeStatistics(
-                        meta.ThemeStatistic
-                    );
-
-                if (result.IsAcknowledged && result.ModifiedCount == 1)
-                {
-                    Log.Information($"Modified statistics for '{meta.ThemeStatistic.GalleryItemId}'.");
-                }
-                else if (result.IsAcknowledged && result.UpsertedId != null)
-                {
-                    Log.Information($"Upserted (Id='{result.UpsertedId}') statistics for '{meta.ThemeStatistic.GalleryItemId}'.");
-                }
-                // else
-                // {
-                //     Log.Information($"Statistics for '{meta.GalleryItemStatistic.GalleryItemId}' does not changed.");
-                // }
-            }
-        }
-
-        private async Task CreateOrUpdateThemeInfo(GalleryItem theme)
+        private async Task RefreshGalleryInfo(GalleryItem galleryItem)
         {
             try
             {
-                var themeInfo = await _galleryInfoRepository.GetGalleryItem(theme.Id);
+                var themeInfo = await _galleryInfoRepository.GetGalleryItem(galleryItem.Id);
 
                 if (themeInfo == null)
                 {
-                    Log.Information($"Create GalleryItem: '{theme.Id}'.");
-                    await _galleryInfoRepository.Create(theme);
+                    await CreateGalleryItem(galleryItem);
                 }
-                else if (themeInfo.LastUpdated != theme.LastUpdated)
+                else if (themeInfo.LastUpdated != galleryItem.LastUpdated)
                 {
-                    var result = await _galleryInfoRepository.Update(theme);
-
-                    if (result)
-                    {
-                        Log.Information($"Successfuly updated '{theme.Id}'.");
-                    }
-                    else
-                    {
-                        Log.Warning($"Unsuccessfuly updated '{theme.Id}'.");
-                    }
+                    await UpdateGalleryItem(galleryItem);
                 }
                 // else
                 // {
-                //     Log.Information($"GalleryItem: '{theme.Id}' does not changed.");
+                //     Log.Information($"GalleryItem: '{galleryItem.Id}' does not changed.");
                 // }
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Caught exception");
+                Log.Error(ex, $"Error while refreshing gallery item: '{galleryItem.Id}'.");
+            }
+        }
+
+        private async Task UpdateGalleryStatistics(GalleryItemStatistic statistic)
+        {
+            try
+            {
+                var result = await _galleryStatisticsRepository
+                    .UpdateThemeStatistics(statistic);
+
+                if (result.IsAcknowledged && result.ModifiedCount == 1)
+                {
+                    Log.Information($"Modified statistics for '{statistic.GalleryItemId}'.");
+                }
+                else if (result.IsAcknowledged && result.UpsertedId != null)
+                {
+                    Log.Information($"Upserted (Id='{result.UpsertedId}') statistics for '{statistic.GalleryItemId}'.");
+                }
+                // else
+                // {
+                //     Log.Information($"Statistics for '{statistic.GalleryItemId}' does not changed.");
+                // }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error while refreshing gallery item statistic for '{statistic.GalleryItemId}'.");
+            }
+        }
+
+        private async Task CreateGalleryItem(GalleryItem galleryItem)
+        {
+            Log.Information($"Create gallery item: '{galleryItem.Id}'.");
+            await _galleryInfoRepository.Create(galleryItem);
+        }
+
+        private async Task UpdateGalleryItem(GalleryItem theme)
+        {
+            var result = await _galleryInfoRepository.Update(theme);
+
+            if (result)
+            {
+                Log.Information($"Successfuly updated '{theme.Id}'.");
+            }
+            else
+            {
+                Log.Warning($"Unsuccessfuly updated '{theme.Id}'.");
             }
         }
 

@@ -59,14 +59,11 @@ namespace CodePaint.WebApi.Services
                     return await Task.FromResult(new List<GalleryItemMetadata>());
                 }
 
-                var result = await ProcessResponseContent(response.Content);
-                Log.Information($"Response is successful.");
-
-                return result;
+                return await ProcessResponseContent(response.Content);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Caught exception");
+                Log.Error(ex, $"Error while requesting gallery metadata (pageNumber={pageNumber} & pageSize={pageSize}).");
                 return await Task.FromResult(new List<GalleryItemMetadata>());
             }
         }
@@ -93,18 +90,18 @@ namespace CodePaint.WebApi.Services
 
             _client.DefaultRequestHeaders.Clear();
 
+            var uri = $"/_apis/public/gallery/publishers/{publisherName}" +
+                $"/vsextensions/{vsExtensionName}/{version}/vspackage";
+
             try
             {
-                var uri = $"/_apis/public/gallery/publishers/{publisherName}" +
-                    $"/vsextensions/{vsExtensionName}/{version}/vspackage";
-
-                Log.Information("Sending reguest to: {Uri}", uri);
+                Log.Information($"Requesting vsix file stream from: {uri}");
 
                 return await _client.GetStreamAsync(uri);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Caught exception");
+                Log.Error(ex, $"Error while requesting vsix file stream from: '{uri}'.");
                 throw;
             }
         }
@@ -118,24 +115,25 @@ namespace CodePaint.WebApi.Services
                 var jObject = await JObject.LoadAsync(reader);
 
                 return ((JArray) jObject.SelectToken("results[0].extensions"))
-                    .Select(
-                        ext =>
-                        {
-                            // Log.Information($"Parsing Started: '{ext.ToString()}'");
-                            var themeInfo = GalleryItem.FromJson((JObject) ext);
-                            var themeStatistic = GalleryItemStatistic.FromJson((JObject) ext, themeInfo.Id);
-                            var result = new GalleryItemMetadata
-                            {
-                                ThemeInfo = themeInfo,
-                                ThemeStatistic = themeStatistic
-                            };
-
-                            Log.Information($"Parsed metadata for '{themeInfo.Id}'");
-
-                            return result;
-                        })
+                    .Select(ext => ParseGalleryItemMetadata((JObject) ext))
                     .ToList();
             }
+        }
+
+        private GalleryItemMetadata ParseGalleryItemMetadata(JObject jObject)
+        {
+            // Log.Information($"Parsing Started: '{ext.ToString()}'");
+            var itemInfo = GalleryItem.FromJson(jObject);
+            var itemStatistic = GalleryItemStatistic.FromJson(jObject, itemInfo.Id);
+            var result = new GalleryItemMetadata
+            {
+                GalleryItem = itemInfo,
+                GalleryItemStatistic = itemStatistic
+            };
+
+            Log.Information($"Parsed metadata for '{itemInfo.Id}'");
+
+            return result;
         }
 
         private StringContent GetExtensionQueryRequestContent(int pageNumber, int pageSize)

@@ -5,7 +5,7 @@ namespace CodePaint.WebApi.Services
 {
     public class GalleryItemMetadata
     {
-        public GalleryItem ThemeInfo { get; set; }
-        public GalleryItemStatistic ThemeStatistic { get; set; }
+        public GalleryItem GalleryItem { get; set; }
+        public GalleryItemStatistic GalleryItemStatistic { get; set; }
     }
 }

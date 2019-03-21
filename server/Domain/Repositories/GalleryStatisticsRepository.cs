@@ -23,7 +23,7 @@ namespace CodePaint.WebApi.Domain.Repositories
         {
             var updateOptions = new UpdateOptions { IsUpsert = true };
             var filter = Builders<GalleryItemStatistic>.Filter
-                .Where(s => s.GalleryItemId == statistics.GalleryItemId);
+                .Where(s => s.Id == statistics.Id);
             var updater = Builders<GalleryItemStatistic>.Update
                 .Set(s => s.InstallCount, statistics.InstallCount)
                 .Set(s => s.UpdateCount, statistics.UpdateCount)

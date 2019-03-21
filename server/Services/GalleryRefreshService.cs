@@ -37,6 +37,7 @@ namespace CodePaint.WebApi.Services
             Log.Information("Gallery Refreshing Started.");
 
             var metadata = await _marketplaceClient.GetGalleryMetadata(1, 10);
+            Log.Information($"RequestResultTotalCount = {metadata.RequestResultTotalCount}.");
 
             RefreshGalleryInfo(metadata);
 
@@ -56,11 +57,11 @@ namespace CodePaint.WebApi.Services
 
         // }
 
-        private void RefreshGalleryInfo(List<GalleryItemMetadata> metadata)
+        private void RefreshGalleryInfo(ExtensionQueryResponseMetadata metadata)
         {
             Log.Information("Gallery Items Refreshing Started.");
             Task.WaitAll(
-                metadata
+                metadata.Items
                     .Select(m => RefreshGalleryItem(m.GalleryItem))
                     .ToArray()
             );
@@ -68,37 +69,11 @@ namespace CodePaint.WebApi.Services
 
             Log.Information("Gallery Statistics Refreshing Started.");
             Task.WaitAll(
-                metadata
-                    .Select(m => UpdateGalleryStatistics(m.GalleryItemStatistic))
+                metadata.Items
+                    .Select(m => UpdateGalleryStatistics(m.Statistic))
                     .ToArray()
             );
             Log.Information("Gallery Statistics Refreshing Completed.");
-        }
-
-        private async Task UpdateGalleryStatistics(GalleryItemStatistic freshStatistic)
-        {
-            try
-            {
-                var result = await _galleryStatisticsRepository
-                    .UpdateThemeStatistics(freshStatistic);
-
-                if (result.IsAcknowledged && result.ModifiedCount == 1)
-                {
-                    Log.Information($"Modified statistics for '{freshStatistic.GalleryItemId}'.");
-                }
-                else if (result.IsAcknowledged && result.UpsertedId != null)
-                {
-                    Log.Information($"Upserted (Id='{result.UpsertedId}') statistics for '{freshStatistic.GalleryItemId}'.");
-                }
-                // else
-                // {
-                //     Log.Information($"Statistics for '{freshStatistic.GalleryItemId}' does not changed.");
-                // }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, $"Error while refreshing gallery item statistic for '{freshStatistic.GalleryItemId}'.");
-            }
         }
 
         private async Task RefreshGalleryItem(GalleryItem freshGalleryItem)
@@ -143,6 +118,32 @@ namespace CodePaint.WebApi.Services
             else
             {
                 Log.Warning($"Update unsuccessful '{theme.Id}'.");
+            }
+        }
+
+        private async Task UpdateGalleryStatistics(GalleryItemStatistic freshStatistic)
+        {
+            try
+            {
+                var result = await _galleryStatisticsRepository
+                    .UpdateThemeStatistics(freshStatistic);
+
+                if (result.IsAcknowledged && result.ModifiedCount == 1)
+                {
+                    Log.Information($"Modified statistics for '{freshStatistic.Id}'.");
+                }
+                else if (result.IsAcknowledged && result.UpsertedId != null)
+                {
+                    Log.Information($"Upserted (Id='{result.UpsertedId}') statistics for '{freshStatistic.Id}'.");
+                }
+                // else
+                // {
+                //     Log.Information($"Statistics for '{freshStatistic.Id}' does not changed.");
+                // }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error while refreshing gallery item statistic for '{freshStatistic.Id}'.");
             }
         }
     }

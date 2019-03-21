@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -16,7 +17,7 @@ namespace CodePaint.WebApi.Services
 {
     public interface IVSMarketplaceClient
     {
-        Task<List<GalleryItemMetadata>> GetGalleryMetadata(int pageNumber, int pageSize);
+        Task<ExtensionQueryResponseMetadata> GetGalleryMetadata(int pageNumber, int pageSize);
         Task<Stream> GetVsixFileStream(string publisherName, string vsExtensionName, string version);
     }
 
@@ -37,7 +38,7 @@ namespace CodePaint.WebApi.Services
             _client = httpClient;
         }
 
-        public async Task<List<GalleryItemMetadata>> GetGalleryMetadata(int pageNumber, int pageSize)
+        public async Task<ExtensionQueryResponseMetadata> GetGalleryMetadata(int pageNumber, int pageSize)
         {
             _client.DefaultRequestHeaders
                 .Clear();
@@ -56,15 +57,18 @@ namespace CodePaint.WebApi.Services
                 if (!response.IsSuccessStatusCode)
                 {
                     Log.Information($"Response is unsuccessful: {response.StatusCode}, {response.RequestMessage}");
-                    return await Task.FromResult(new List<GalleryItemMetadata>());
+                    throw new Exception("Ooooops!");
                 }
 
-                return await ProcessResponseContent(response.Content);
+                var result = await ProcessResponseContent(response.Content);
+                Log.Information($"Successfully processed {result.Items.Count} gallery items");
+
+                return result;
             }
             catch (Exception ex)
             {
                 Log.Error(ex, $"Error while requesting gallery metadata (pageNumber={pageNumber} & pageSize={pageSize}).");
-                return await Task.FromResult(new List<GalleryItemMetadata>());
+                throw;
             }
         }
 
@@ -106,34 +110,38 @@ namespace CodePaint.WebApi.Services
             }
         }
 
-        private async Task<List<GalleryItemMetadata>> ProcessResponseContent(HttpContent content)
+        private async Task<ExtensionQueryResponseMetadata> ProcessResponseContent(HttpContent content)
         {
             using (var s = await content.ReadAsStreamAsync())
             using (var sr = new StreamReader(s))
-            using (JsonReader reader = new JsonTextReader(sr))
+            using (var reader = new JsonTextReader(sr))
             {
                 var jObject = await JObject.LoadAsync(reader);
 
-                return ((JArray) jObject.SelectToken("results[0].extensions"))
-                    .Select(ext => ParseGalleryItemMetadata((JObject) ext))
-                    .ToList();
+                var requestResultCount = Convert.ToInt32(
+                    jObject.SelectToken("results[0].resultMetadata[0].metadataItems[0].count"),
+                    CultureInfo.InvariantCulture
+                );
+
+                var items = ((JArray) jObject.SelectToken("results[0].extensions"))
+                    .Select(ext => ParseGalleryItemMetadata((JObject) ext));
+
+                var metadata = new ExtensionQueryResponseMetadata { RequestResultTotalCount = requestResultCount };
+                metadata.Items.AddRange(items);
+
+                return metadata;
             }
         }
 
-        private GalleryItemMetadata ParseGalleryItemMetadata(JObject jObject)
+        private (GalleryItem, GalleryItemStatistic) ParseGalleryItemMetadata(JObject jObject)
         {
             // Log.Information($"Parsing Started: '{ext.ToString()}'");
             var itemInfo = GalleryItem.FromJson(jObject);
-            var itemStatistic = GalleryItemStatistic.FromJson(jObject, itemInfo.Id);
-            var result = new GalleryItemMetadata
-            {
-                GalleryItem = itemInfo,
-                GalleryItemStatistic = itemStatistic
-            };
+            var itemStatistic = GalleryItemStatistic.FromJson(jObject);
 
             Log.Information($"Parsed metadata for '{itemInfo.Id}'");
 
-            return result;
+            return (itemInfo, itemStatistic);
         }
 
         private StringContent GetExtensionQueryRequestContent(int pageNumber, int pageSize)

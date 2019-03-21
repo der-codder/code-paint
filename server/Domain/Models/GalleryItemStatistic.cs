@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
 using Newtonsoft.Json.Linq;
 
 using static CodePaint.WebApi.Utils.Extensions;
@@ -10,8 +11,8 @@ namespace CodePaint.WebApi.Domain.Models
 {
     public class GalleryItemStatistic
     {
-        public ObjectId Id { get; set; }
-        public string GalleryItemId { get; set; }
+        [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
+        public string Id { get; set; }
         public int InstallCount { get; set; }
         public int UpdateCount { get; set; }
         public double AverageRating { get; set; }
@@ -21,14 +22,12 @@ namespace CodePaint.WebApi.Domain.Models
         public double TrendingWeekly { get; set; }
         public double TrendingMonthly { get; set; }
 
-        public static GalleryItemStatistic FromJson(JObject jObject, string themeId)
+        public static GalleryItemStatistic FromJson(JObject jObject)
         {
-            if (string.IsNullOrWhiteSpace(themeId))
-            {
-                throw new ArgumentNullException(nameof(themeId));
-            }
+            var publisherName = jObject.SelectToken("publisher.publisherName", true).ToString();
+            var name = jObject.SelectToken("extensionName", true).ToString();
 
-            var statistics = new GalleryItemStatistic() { GalleryItemId = themeId };
+            var statistics = new GalleryItemStatistic { Id = $"{publisherName}.{name}" };
 
             var statisticDict = ((JArray) jObject.SelectToken("statistics", true))
                 .ToDictionary<string, string>("statisticName", "value");

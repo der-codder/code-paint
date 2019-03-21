@@ -8,9 +8,11 @@ namespace CodePaint.WebApi.Tests
 {
     public class GalleryItemStatisticTests
     {
-        private const string ExpectedThemeId = "themeId_test";
-
         private const string ValidJson = @"{
+                'publisher': {
+                    'publisherName': 'publisherName_test'
+                },
+                'extensionName': 'extensionName_test',
                 'statistics': [
                     {
                         'statisticName': 'install',
@@ -50,9 +52,9 @@ namespace CodePaint.WebApi.Tests
         [Fact]
         public void FromJson_JObjectWithValidBaseProperties_ReturnsCorrectResult()
         {
-            var result = GalleryItemStatistic.FromJson(JObject.Parse(ValidJson), ExpectedThemeId);
+            var result = GalleryItemStatistic.FromJson(JObject.Parse(ValidJson));
 
-            Assert.Equal(ExpectedThemeId, result.GalleryItemId);
+            Assert.Equal("publisherName_test.extensionName_test", result.Id);
             Assert.Equal(101, result.InstallCount);
             Assert.Equal(102, result.UpdateCount);
             Assert.Equal(4.77469158172607, result.AverageRating);
@@ -63,23 +65,90 @@ namespace CodePaint.WebApi.Tests
             Assert.Equal(39.7426646124054, result.TrendingMonthly);
         }
 
-        [Theory]
-        [InlineData("")]
-        [InlineData("  ")]
-        [InlineData(null)]
-        public void FromJson_ThemeIdIsEmpty_ThrowsArgumentNullException(string themeId)
-        {
-            Assert.Throws<ArgumentNullException>(() =>
-                GalleryItemStatistic.FromJson(JObject.Parse(ValidJson), themeId));
-        }
+        // [Theory]
+        // [InlineData("")]
+        // [InlineData("  ")]
+        // [InlineData(null)]
+        // public void FromJson_ThemeIdIsEmpty_ThrowsArgumentNullException(string themeId)
+        // {
+        //     Assert.Throws<ArgumentNullException>(() =>
+        //         GalleryItemStatistic.FromJson(JObject.Parse(ValidJson)));
+        // }
 
         [Fact]
         public void FromJson_JObjectWithoutStatistics_ThrowsJsonException()
         {
+            const string json = @"{
+                'publisher': {
+                    'publisherName': 'publisherName_test'
+                },
+                'extensionName': 'extensionName_test'
+            }";
+
             var ex = Assert.Throws<JsonException>(() =>
-                GalleryItemStatistic.FromJson(JObject.Parse("{}"), "themeId_test"));
+                GalleryItemStatistic.FromJson(JObject.Parse(json)));
 
             Assert.Equal("Property 'statistics' does not exist on JObject.", ex.Message);
+        }
+
+        [Fact]
+        public void FromJson_JObjectWithoutPublisher_ThrowsJsonException()
+        {
+            const string json = @"{
+                'extensionName': 'extensionName_test',
+                'statistics': [
+                    {
+                        'statisticName': 'install',
+                        'value': 101
+                    }
+                ]
+            }";
+
+            var ex = Assert.Throws<JsonException>(() =>
+                GalleryItemStatistic.FromJson(JObject.Parse(json)));
+
+            Assert.Equal("Property 'publisher' does not exist on JObject.", ex.Message);
+        }
+
+        [Fact]
+        public void FromJson_JObjectWithoutPublisherName_ThrowsJsonException()
+        {
+            const string json = @"{
+                'publisher': {},
+                'extensionName': 'extensionName_test',
+                'statistics': [
+                    {
+                        'statisticName': 'install',
+                        'value': 101
+                    }
+                ]
+            }";
+
+            var ex = Assert.Throws<JsonException>(() =>
+                GalleryItemStatistic.FromJson(JObject.Parse(json)));
+
+            Assert.Equal("Property 'publisherName' does not exist on JObject.", ex.Message);
+        }
+
+        [Fact]
+        public void FromJson_JObjectWithoutExtensionName_ThrowsJsonException()
+        {
+            const string json = @"{
+                'publisher': {
+                    'publisherName': 'publisherName_test'
+                },
+                'statistics': [
+                    {
+                        'statisticName': 'install',
+                        'value': 101
+                    }
+                ]
+            }";
+
+            var ex = Assert.Throws<JsonException>(() =>
+                GalleryItemStatistic.FromJson(JObject.Parse(json)));
+
+            Assert.Equal("Property 'extensionName' does not exist on JObject.", ex.Message);
         }
     }
 }

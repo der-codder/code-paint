@@ -23,7 +23,7 @@ namespace CodePaint.WebApi.Services
 
         public VsixParser(string pathToExtension) => _pathToExtension = pathToExtension;
 
-        public async Task<VSCodeTheme> ParseColorTheme()
+        public async Task<VSCodeTheme> ParseVSCodeTheme()
         {
             Log.Information($"Started processing folder: {_pathToExtension}.");
 
@@ -57,7 +57,7 @@ namespace CodePaint.WebApi.Services
 
             var extPublisher = jObject.SelectToken("publisher", true).ToString();
             var extName = jObject.SelectToken("name", true).ToString();
-            colorTheme.GalleryItemId = $"{extPublisher}.{extName}";
+            colorTheme.Id = $"{extPublisher}.{extName}";
             colorTheme.Version = jObject.SelectToken("version", true).ToString();
 
             return colorTheme;

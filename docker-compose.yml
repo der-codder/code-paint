@@ -10,7 +10,7 @@ services:
       context: ./server
       dockerfile: dev.dockerfile
     ports:
-      - 5000:5000
+      - 5021:5021
     volumes:
       - './server:/app/server'
     environment:

@@ -29,6 +29,10 @@ services:
     ports:
     - 27017:27017
 
+    # disable output
+    logging:
+      driver: "none"
+
   mongo-express:
     image: mongo-express
     restart: always
@@ -39,6 +43,10 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
     depends_on:
       - mongo
+
+    # disable output
+    logging:
+      driver: "none"
 
 volumes:
   mongodata:

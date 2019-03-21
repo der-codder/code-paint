@@ -33,6 +33,10 @@ namespace CodePaint.WebApi.Domain.Models
 
         public string IconSmall { get; set; }
 
+        public GalleryItemType Type { get; set; }
+
+        public GalleryItem() => Type = GalleryItemType.Default;
+
         public static GalleryItem FromJson(JObject jObject) =>
             Create()
                 .TakeBaseData(jObject)
@@ -82,5 +86,12 @@ namespace CodePaint.WebApi.Domain.Models
 
             public static implicit operator GalleryItem(GalleryItemParser themeInfo) => themeInfo._themeInfo;
         }
+    }
+
+    public enum GalleryItemType
+    {
+        Default,
+        NoThemes,
+        NeedAttention
     }
 }

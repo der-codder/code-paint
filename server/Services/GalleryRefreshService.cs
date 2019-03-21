@@ -18,7 +18,7 @@ namespace CodePaint.WebApi.Services
 
     public class GalleryRefreshService : IGalleryRefreshService
     {
-        private readonly IGalleryItemsRepository _galleryInfoRepository;
+        private readonly IGalleryItemsRepository _galleryItemsRepository;
         private readonly IGalleryStatisticsRepository _galleryStatisticsRepository;
         private readonly IVSMarketplaceClient _marketplaceClient;
 
@@ -28,7 +28,7 @@ namespace CodePaint.WebApi.Services
             IGalleryStatisticsRepository galleryStatisticsRepository)
         {
             _marketplaceClient = marketplaceClient;
-            _galleryInfoRepository = galleryInfoRepository;
+            _galleryItemsRepository = galleryInfoRepository;
             _galleryStatisticsRepository = galleryStatisticsRepository;
         }
 
@@ -38,13 +38,12 @@ namespace CodePaint.WebApi.Services
 
             var metadata = await _marketplaceClient.GetGalleryMetadata(1, 10);
 
-            metadata.ForEach(
-                async m =>
-                {
-                    await RefreshGalleryInfo(m.GalleryItem);
-                    await UpdateGalleryStatistics(m.GalleryItemStatistic);
-                }
-            );
+            RefreshGalleryInfo(metadata);
+
+            // if (await _galleryItemsRepository.ChangeGalleryItemType("vscode-icons-team.vscode-icons", GalleryItemType.NoThemes))
+            // {
+            //     Log.Information("Changed GalleryItem 'vscode-icons-team.vscode-icons' type to GalleryItemType.NoThemes.");
+            // }
 
             // var stream = await _marketplaceClient.GetVsixFileStream("zhuangtongfa", "Material-theme", "2.19.3");
             // ProcessVsixFileStream(stream);
@@ -52,19 +51,69 @@ namespace CodePaint.WebApi.Services
             Log.Information("Gallery Refreshing Completed.");
         }
 
-        private async Task RefreshGalleryInfo(GalleryItem galleryItem)
+        // private async Task RefreshGalleryStore(List<GalleryItem> galleryItems)
+        // {
+
+        // }
+
+        private void RefreshGalleryInfo(List<GalleryItemMetadata> metadata)
+        {
+            Log.Information("Gallery Items Refreshing Started.");
+            Task.WaitAll(
+                metadata
+                    .Select(m => RefreshGalleryItem(m.GalleryItem))
+                    .ToArray()
+            );
+            Log.Information("Gallery Items Refreshing Completed.");
+
+            Log.Information("Gallery Statistics Refreshing Started.");
+            Task.WaitAll(
+                metadata
+                    .Select(m => UpdateGalleryStatistics(m.GalleryItemStatistic))
+                    .ToArray()
+            );
+            Log.Information("Gallery Statistics Refreshing Completed.");
+        }
+
+        private async Task UpdateGalleryStatistics(GalleryItemStatistic freshStatistic)
         {
             try
             {
-                var themeInfo = await _galleryInfoRepository.GetGalleryItem(galleryItem.Id);
+                var result = await _galleryStatisticsRepository
+                    .UpdateThemeStatistics(freshStatistic);
 
-                if (themeInfo == null)
+                if (result.IsAcknowledged && result.ModifiedCount == 1)
                 {
-                    await CreateGalleryItem(galleryItem);
+                    Log.Information($"Modified statistics for '{freshStatistic.GalleryItemId}'.");
                 }
-                else if (themeInfo.LastUpdated != galleryItem.LastUpdated)
+                else if (result.IsAcknowledged && result.UpsertedId != null)
                 {
-                    await UpdateGalleryItem(galleryItem);
+                    Log.Information($"Upserted (Id='{result.UpsertedId}') statistics for '{freshStatistic.GalleryItemId}'.");
+                }
+                // else
+                // {
+                //     Log.Information($"Statistics for '{freshStatistic.GalleryItemId}' does not changed.");
+                // }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error while refreshing gallery item statistic for '{freshStatistic.GalleryItemId}'.");
+            }
+        }
+
+        private async Task RefreshGalleryItem(GalleryItem freshGalleryItem)
+        {
+            try
+            {
+                var galleryItem = await _galleryItemsRepository.GetGalleryItem(freshGalleryItem.Id);
+
+                if (galleryItem == null)
+                {
+                    await CreateGalleryItem(freshGalleryItem);
+                }
+                else if (galleryItem.LastUpdated != freshGalleryItem.LastUpdated)
+                {
+                    await UpdateGalleryItem(freshGalleryItem);
                 }
                 // else
                 // {
@@ -73,45 +122,19 @@ namespace CodePaint.WebApi.Services
             }
             catch (Exception ex)
             {
-                Log.Error(ex, $"Error while refreshing gallery item: '{galleryItem.Id}'.");
-            }
-        }
-
-        private async Task UpdateGalleryStatistics(GalleryItemStatistic statistic)
-        {
-            try
-            {
-                var result = await _galleryStatisticsRepository
-                    .UpdateThemeStatistics(statistic);
-
-                if (result.IsAcknowledged && result.ModifiedCount == 1)
-                {
-                    Log.Information($"Modified statistics for '{statistic.GalleryItemId}'.");
-                }
-                else if (result.IsAcknowledged && result.UpsertedId != null)
-                {
-                    Log.Information($"Upserted (Id='{result.UpsertedId}') statistics for '{statistic.GalleryItemId}'.");
-                }
-                // else
-                // {
-                //     Log.Information($"Statistics for '{statistic.GalleryItemId}' does not changed.");
-                // }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, $"Error while refreshing gallery item statistic for '{statistic.GalleryItemId}'.");
+                Log.Error(ex, $"Error while refreshing gallery item: '{freshGalleryItem.Id}'.");
             }
         }
 
         private async Task CreateGalleryItem(GalleryItem galleryItem)
         {
             Log.Information($"Create gallery item: '{galleryItem.Id}'.");
-            await _galleryInfoRepository.Create(galleryItem);
+            await _galleryItemsRepository.Create(galleryItem);
         }
 
         private async Task UpdateGalleryItem(GalleryItem theme)
         {
-            var result = await _galleryInfoRepository.Update(theme);
+            var result = await _galleryItemsRepository.Update(theme);
 
             if (result)
             {
@@ -119,58 +142,8 @@ namespace CodePaint.WebApi.Services
             }
             else
             {
-                Log.Warning($"Unsuccessfuly updated '{theme.Id}'.");
+                Log.Warning($"Update unsuccessful '{theme.Id}'.");
             }
-        }
-
-        private void ProcessVsixFileStream(Stream stream)
-        {
-            Log.Information("Start Processing Extension.");
-
-            var tempFolder = Path.Combine(
-                Path.GetTempPath(),
-                Convert.ToString(Guid.NewGuid()));
-            Log.Information("Create temp folder: '{TempFolder}'", tempFolder);
-            Directory.CreateDirectory(tempFolder);
-
-            try
-            {
-                using (ZipArchive archive = new ZipArchive(stream))
-                {
-                    Log.Information("Extracting archive.");
-                    archive.ExtractToDirectory(tempFolder);
-                }
-
-                string readText = File.ReadAllText(Path.Combine(tempFolder, "extension", "package.json"));
-                Log.Information("---- extension.package.json: '{}'", readText);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, "Caught exception");
-                throw;
-            }
-            finally
-            {
-                Log.Information("Remove temp folder: '{TempFolder}'", tempFolder);
-                RemoveFolder(tempFolder);
-            }
-
-            Log.Information("Complete Processing Extension.");
-        }
-
-        private void RemoveFolder(string path)
-        {
-            var di = new DirectoryInfo(path);
-
-            foreach (FileInfo file in di.EnumerateFiles())
-            {
-                file.Delete();
-            }
-            foreach (DirectoryInfo dir in di.EnumerateDirectories())
-            {
-                dir.Delete(true);
-            }
-            Log.Information("Folder removed: '{Path}'", path);
         }
     }
 }

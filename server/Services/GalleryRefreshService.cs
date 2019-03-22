@@ -6,7 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using CodePaint.WebApi.Domain.Models;
 using CodePaint.WebApi.Domain.Repositories;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Polly;
 using Serilog;
 
 namespace CodePaint.WebApi.Services
@@ -34,12 +36,37 @@ namespace CodePaint.WebApi.Services
 
         public async Task RefreshGallery()
         {
-            Log.Information("Gallery Refreshing Started.");
+            Log.Information("---- Gallery Refreshing Started.");
 
-            var metadata = await _marketplaceClient.GetGalleryMetadata(1, 10);
-            Log.Information($"RequestResultTotalCount = {metadata.RequestResultTotalCount}.");
+            var policy = Policy
+                .Handle<Exception>()
+                .WaitAndRetryAsync(
+                    5,
+                    _ => TimeSpan.FromSeconds(5),
+                    (_, ts) => Log.Error($"Error connecting to 'https://marketplace.visualstudio.com/'. Retrying in {ts.Seconds} sec.")
+                );
 
-            RefreshGalleryInfo(metadata);
+            var pageNumber = 1;
+            const int pageSize = 50;
+            var requestResultTotalCount = (pageNumber * pageSize);
+
+            while (requestResultTotalCount - (pageNumber * pageSize) >= 0)
+            {
+                var responseMetadata = await policy.ExecuteAsync(
+                    async () => await _marketplaceClient.GetGalleryMetadata(pageNumber, pageSize)
+                );
+
+                RefreshGalleryInfo(responseMetadata);
+
+                Log.Information("---- Refreshed {UpdatedCount} of {TotalCount} items.",
+                    ((pageNumber - 1) * pageSize) + responseMetadata.Items.Count,
+                    responseMetadata.RequestResultTotalCount
+                );
+
+                pageNumber++;
+                requestResultTotalCount = responseMetadata.RequestResultTotalCount;
+                break;
+            }
 
             // if (await _galleryItemsRepository.ChangeGalleryItemType("vscode-icons-team.vscode-icons", GalleryItemType.NoThemes))
             // {
@@ -49,7 +76,7 @@ namespace CodePaint.WebApi.Services
             // var stream = await _marketplaceClient.GetVsixFileStream("zhuangtongfa", "Material-theme", "2.19.3");
             // ProcessVsixFileStream(stream);
 
-            Log.Information("Gallery Refreshing Completed.");
+            Log.Information("---- Gallery Refreshing Completed.");
         }
 
         // private async Task RefreshGalleryStore(List<GalleryItem> galleryItems)

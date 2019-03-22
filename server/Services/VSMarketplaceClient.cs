@@ -47,7 +47,7 @@ namespace CodePaint.WebApi.Services
 
             try
             {
-                Log.Information($"Requesting: pageNumber={pageNumber} & pageSize={pageSize}");
+                Log.Information($"-- Requesting: pageNumber={pageNumber} & pageSize={pageSize}");
 
                 var response = await _client.PostAsync(
                     "/_apis/public/gallery/extensionquery",
@@ -123,11 +123,22 @@ namespace CodePaint.WebApi.Services
                     CultureInfo.InvariantCulture
                 );
 
-                var items = ((JArray) jObject.SelectToken("results[0].extensions"))
-                    .Select(ext => ParseGalleryItemMetadata((JObject) ext));
+                var metadata = new ExtensionQueryResponseMetadata
+                {
+                    RequestResultTotalCount = requestResultCount
+                };
 
-                var metadata = new ExtensionQueryResponseMetadata { RequestResultTotalCount = requestResultCount };
-                metadata.Items.AddRange(items);
+                foreach (var jExt in (JArray) jObject.SelectToken("results[0].extensions"))
+                {
+                    try
+                    {
+                        metadata.Items.Add(ParseGalleryItemMetadata((JObject) jExt));
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, $"Error while parsing json: '{jExt}'");
+                    }
+                }
 
                 return metadata;
             }
@@ -135,11 +146,8 @@ namespace CodePaint.WebApi.Services
 
         private (GalleryItem, GalleryItemStatistic) ParseGalleryItemMetadata(JObject jObject)
         {
-            // Log.Information($"Parsing Started: '{ext.ToString()}'");
             var itemInfo = GalleryItem.FromJson(jObject);
             var itemStatistic = GalleryItemStatistic.FromJson(jObject);
-
-            Log.Information($"Parsed metadata for '{itemInfo.Id}'");
 
             return (itemInfo, itemStatistic);
         }

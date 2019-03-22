@@ -53,11 +53,12 @@ namespace CodePaint.WebApi.Domain.Models
             public GalleryItemParser TakeBaseData(JObject jObject)
             {
                 _themeInfo.Name = jObject.SelectToken("extensionName", true).ToString();
-                _themeInfo.DisplayName = jObject.SelectToken("displayName", true).ToString();
-                _themeInfo.Description = jObject.SelectToken("shortDescription", true).ToString();
                 _themeInfo.PublisherName = jObject.SelectToken("publisher.publisherName", true).ToString();
-                _themeInfo.PublisherDisplayName = jObject.SelectToken("publisher.displayName", true).ToString();
                 _themeInfo.Id = $"{_themeInfo.PublisherName}.{_themeInfo.Name}";
+
+                _themeInfo.DisplayName = jObject.SelectToken("displayName", true).ToString();
+                _themeInfo.PublisherDisplayName = jObject.SelectToken("publisher.displayName", true).ToString();
+                _themeInfo.Description = (string) jObject.SelectToken("shortDescription");
 
                 return this;
             }

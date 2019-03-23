@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace CodePaint.WebApi.Tests
+namespace CodePaint.WebApi.Tests.Domain
 {
     public class GalleryItemStatisticTests
     {
@@ -64,16 +64,6 @@ namespace CodePaint.WebApi.Tests
             Assert.Equal(3.56943172567113, result.TrendingWeekly);
             Assert.Equal(39.7426646124054, result.TrendingMonthly);
         }
-
-        // [Theory]
-        // [InlineData("")]
-        // [InlineData("  ")]
-        // [InlineData(null)]
-        // public void FromJson_ThemeIdIsEmpty_ThrowsArgumentNullException(string themeId)
-        // {
-        //     Assert.Throws<ArgumentNullException>(() =>
-        //         GalleryItemStatistic.FromJson(JObject.Parse(ValidJson)));
-        // }
 
         [Fact]
         public void FromJson_JObjectWithoutStatistics_ThrowsJsonException()

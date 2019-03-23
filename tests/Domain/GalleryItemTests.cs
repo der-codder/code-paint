@@ -4,7 +4,7 @@ using CodePaint.WebApi.Domain.Models;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace CodePaint.WebApi.Tests
+namespace CodePaint.WebApi.Tests.Domain
 {
     public class GalleryItemTests
     {

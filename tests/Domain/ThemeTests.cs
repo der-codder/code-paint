@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace CodePaint.WebApi.Tests
+namespace CodePaint.WebApi.Tests.Domain
 {
     public class ThemeTests
     {

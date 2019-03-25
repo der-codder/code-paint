@@ -33,12 +33,16 @@ namespace CodePaint.WebApi.Services
 
                 var jPackageJson = await LoadJsonFile(pathToPackageJson);
 
-                var colorTheme = ParseColorThemeMetadata(jPackageJson);
+                var extensionMetadata = ParseExtensionMetadata(jPackageJson);
 
-                var result = await ParseThemesAndUpdateColorTheme(
-                    colorTheme,
-                    ParseThemesMetadata(jPackageJson)
-                );
+                var themes = await ParseColorThemes(ParseThemesMetadata(jPackageJson));
+
+                var result = new VSCodeTheme
+                {
+                    Id = extensionMetadata.Id,
+                    Version = extensionMetadata.Version,
+                    Themes = themes
+                };
 
                 Log.Information($"Completed processing folder: {_pathToExtension}.");
 
@@ -61,6 +65,15 @@ namespace CodePaint.WebApi.Services
             colorTheme.Version = jObject.SelectToken("version", true).ToString();
 
             return colorTheme;
+        }
+
+        private (string Id, string Version) ParseExtensionMetadata(JObject jObject)
+        {
+            var extPublisher = jObject.SelectToken("publisher", true).ToString();
+            var extName = jObject.SelectToken("name", true).ToString();
+            var extVersion = jObject.SelectToken("version", true).ToString();
+
+            return ($"{extPublisher}.{extName}", extVersion);
         }
 
         private List<ThemeMetadata> ParseThemesMetadata(JObject jObject)
@@ -95,38 +108,57 @@ namespace CodePaint.WebApi.Services
             return metadata;
         }
 
-        private async Task<VSCodeTheme> ParseThemesAndUpdateColorTheme(
-            VSCodeTheme colorThemeToUpdate,
-            List<ThemeMetadata> themesMetadata)
+        private async Task<List<Theme>> ParseColorThemes(List<ThemeMetadata> themesMetadata)
         {
+            var themes = new List<Theme>();
             foreach (var metadata in themesMetadata)
             {
-                try
-                {
-                    var theme = await ParseTheme(metadata);
-                    colorThemeToUpdate
-                        .Themes.Add(theme);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error(ex, "Error while handling {MessageType} message with id {MessageId}.");
-                }
+                themes.Add(await LoadTheme(metadata));
             }
-            return colorThemeToUpdate;
+            return themes;
         }
 
-        private async Task<Theme> ParseTheme(ThemeMetadata metadata)
+        private async Task<Theme> LoadTheme(ThemeMetadata metadata)
         {
-            var jTheme = await LoadJsonFile(metadata.Path);
-            var rootThemeFileFolder = Path.GetDirectoryName(metadata.Path);
-            jTheme = await MergeExternalThemeFile(jTheme, rootThemeFileFolder);
+            var theme = new Theme
+            {
+                Label = metadata.Label,
+                ThemeType = metadata.ThemeType
+            };
 
-            return Theme.FromJson(jTheme, metadata.Label, metadata.ThemeType);
+            try
+            {
+                if (Path.GetExtension(metadata.Path) == ".json")
+                {
+                    var jTheme = await LoadJsonThemesWithIncludes(metadata.Path);
+
+                    theme.Colors = Theme.ParseColors(jTheme);
+                    theme.TokenColors = Theme.ParseTokenColors(jTheme);
+                }
+                else
+                {
+                    Log.Warning($"It is not a json file: '{metadata.Path}'.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error while processing VSCode extension theme: Label='{metadata.Label}'; Path='{metadata.Path}'.");
+            }
+
+            return theme;
+        }
+
+        private async Task<JObject> LoadJsonThemesWithIncludes(string pathToJson)
+        {
+            var jTheme = await LoadJsonFile(pathToJson);
+            var rootThemeFileFolder = Path.GetDirectoryName(pathToJson);
+
+            return await MergeExternalThemeFile(jTheme, rootThemeFileFolder);
         }
 
         private async Task<JObject> MergeExternalThemeFile(JObject jTheme, string rootThemeFileFolder)
         {
-            Console.WriteLine("---- Started merging external theme file.");
+            Log.Information("Started merging external theme file.");
             var include = (string) jTheme.SelectToken("include");
             if (include != null)
             {
@@ -134,18 +166,19 @@ namespace CodePaint.WebApi.Services
                     .GetFullPath(
                         Path.Combine(rootThemeFileFolder, include)
                     );
+                Log.Information($"------ rootThemeFileFolder: '{rootThemeFileFolder}'; include: '{include}'; includeFile: '{includeFile}'");
 
-                Console.WriteLine($"---- Merging external theme file: '{includeFile}'.");
+                Log.Information($"Merging external theme file: '{includeFile}'.");
                 var jThemeToInclude = await LoadJsonFile(includeFile);
 
                 jThemeToInclude = await MergeExternalThemeFile(jThemeToInclude, rootThemeFileFolder);
 
                 jTheme.Merge(jThemeToInclude);
 
-                Console.WriteLine($"---- Merging with '{includeFile}' completed.");
+                Log.Information($"Merging with '{includeFile}' completed.");
                 return jTheme;
             }
-            Console.WriteLine("---- Finished merging external theme file.");
+            Log.Information("Finished merging external theme file.");
             return jTheme;
         }
 

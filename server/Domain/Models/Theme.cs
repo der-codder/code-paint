@@ -22,33 +22,54 @@ namespace CodePaint.WebApi.Domain.Models
         public TokenColorSettings Settings { get; set; }
     }
 
+    public class ColorCustomization
+    {
+        public string PropertyName { get; set; }
+        public string Value { get; set; }
+    }
+
+    // TODO: Change Theme to ColorTheme
     public class Theme
     {
         public string Label { get; set; }
         public string ThemeType { get; set; }
-        public Dictionary<string, string> Colors { get; set; }
+        public List<ColorCustomization> Colors { get; set; }
         public List<TokenColor> TokenColors { get; set; }
 
         public Theme()
         {
-            Colors = new Dictionary<string, string>();
+            Colors = new List<ColorCustomization>();
             TokenColors = new List<TokenColor>();
         }
 
-        public static Theme FromJson(
-            JObject jObject,
-            string label,
-            string themeType)
+        public static List<ColorCustomization> ParseColors(JObject jObject)
         {
-            var theme = new Theme { Label = label, ThemeType = themeType };
+            var colors = new List<ColorCustomization>();
 
             var jColors = jObject.SelectToken("colors");
             if (jColors != null)
             {
-                theme.Colors = jColors.ToObject<Dictionary<string, string>>();
+                var dictionary = jColors.ToObject<Dictionary<string, string>>();
+
+                foreach (var item in dictionary)
+                {
+                    var colorCustomization = new ColorCustomization
+                    {
+                        PropertyName = item.Key,
+                        Value = item.Value
+                    };
+                    colors.Add(colorCustomization);
+                }
             }
 
+            return colors;
+        }
+
+        public static List<TokenColor> ParseTokenColors(JObject jObject)
+        {
+            var tokenColors = new List<TokenColor>();
             var jTokenColors = jObject.SelectToken("tokenColors");
+
             if (jTokenColors != null)
             {
                 foreach (var jTokenColor in jTokenColors)
@@ -58,15 +79,15 @@ namespace CodePaint.WebApi.Domain.Models
                         && (!string.IsNullOrWhiteSpace(tokenColor.Settings.FontStyle)
                             || !string.IsNullOrWhiteSpace(tokenColor.Settings.Foreground)))
                     {
-                        theme.TokenColors.Add(tokenColor);
+                        tokenColors.Add(tokenColor);
                     }
                 }
             }
 
-            return theme;
+            return tokenColors;
         }
 
-        public static TokenColor ParseTokenColor(JObject jObject)
+        private static TokenColor ParseTokenColor(JObject jObject)
         {
             var tokenColor = new TokenColor { Settings = new TokenColorSettings() };
 

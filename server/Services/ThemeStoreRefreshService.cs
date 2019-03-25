@@ -50,6 +50,8 @@ namespace CodePaint.WebApi.Services
 
         public async Task RefreshGalleryStoreTheme(GalleryItem freshThemeMetadata)
         {
+            Log.Information($"Start extension refreshing: Id='{freshThemeMetadata.Id}'.");
+
             var savedGalleryItemType = await _refresher.GetSavedGalleryItemType(freshThemeMetadata.Id);
             if (savedGalleryItemType != GalleryItemType.Default)
             {

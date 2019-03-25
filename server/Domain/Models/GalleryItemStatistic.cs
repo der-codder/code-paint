@@ -9,6 +9,7 @@ using static CodePaint.WebApi.Utils.Extensions;
 
 namespace CodePaint.WebApi.Domain.Models
 {
+    // TODO: Change GalleryItemStatistic to ExtensionStatistic
     public class GalleryItemStatistic
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]

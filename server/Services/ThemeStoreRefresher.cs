@@ -57,7 +57,7 @@ namespace CodePaint.WebApi.Services
             VSCodeTheme freshTheme;
             using (var stream = await _marketplaceClient.GetVsixFileStream(metadata))
             {
-                freshTheme = await _extensionHandler.ProcessExtension(stream);
+                freshTheme = await _extensionHandler.ProcessExtension(metadata.Id, stream);
             }
 
             return freshTheme;

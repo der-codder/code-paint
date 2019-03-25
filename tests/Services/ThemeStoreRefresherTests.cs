@@ -160,13 +160,14 @@ namespace CodePaint.WebApi.Tests.Services
         {
             var metadata = new GalleryItem
             {
-                PublisherName = "espectedPublisherName_test",
+                Id = "espectedPublisher_test.espectedName_test",
+                PublisherName = "espectedPublisher_test",
                 Name = "espectedName_test",
                 Version = "espectedVersion_test"
             };
             var expectedTheme = new VSCodeTheme
             {
-                Id = $"{metadata.PublisherName}.{metadata.Name}",
+                Id = metadata.Id,
                 Version = metadata.Version
             };
             var stream = new MemoryStream(Encoding.UTF8.GetBytes(""));
@@ -175,7 +176,7 @@ namespace CodePaint.WebApi.Tests.Services
                 .Setup(x => x.GetVsixFileStream(metadata))
                 .ReturnsAsync(stream);
             _mock.Mock<IVSExtensionHandler>()
-                .Setup(x => x.ProcessExtension(stream))
+                .Setup(x => x.ProcessExtension(expectedTheme.Id, stream))
                 .ReturnsAsync(expectedTheme);
             var mockRefresher = _mock.Create<ThemeStoreRefresher>();
 

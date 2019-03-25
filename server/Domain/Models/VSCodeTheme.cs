@@ -6,6 +6,7 @@ using MongoDB.Bson.Serialization.IdGenerators;
 
 namespace CodePaint.WebApi.Domain.Models
 {
+    // TODO: Change VSCodeTheme to VSCodeExtension
     public class VSCodeTheme
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
@@ -13,8 +14,6 @@ namespace CodePaint.WebApi.Domain.Models
 
         public string Version { get; set; }
 
-        public List<Theme> Themes { get; set; }
-
-        public VSCodeTheme() => Themes = new List<Theme>();
+        public List<Theme> Themes { get; set; } = new List<Theme>();
     }
 }

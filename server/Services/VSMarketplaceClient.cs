@@ -18,7 +18,7 @@ namespace CodePaint.WebApi.Services
     public interface IVSMarketplaceClient
     {
         Task<ExtensionQueryResponseMetadata> GetGalleryMetadata(int pageNumber, int pageSize);
-        Task<Stream> GetVsixFileStream(string publisherName, string vsExtensionName, string version);
+        Task<Stream> GetVsixFileStream(GalleryItem metadata);
     }
 
     public class VSMarketplaceClient : IVSMarketplaceClient
@@ -72,30 +72,27 @@ namespace CodePaint.WebApi.Services
             }
         }
 
-        public async Task<Stream> GetVsixFileStream(
-            string publisherName,
-            string vsExtensionName,
-            string version)
+        public async Task<Stream> GetVsixFileStream(GalleryItem metadata)
         {
-            if (string.IsNullOrWhiteSpace(publisherName))
+            if (string.IsNullOrWhiteSpace(metadata.PublisherName))
             {
-                throw new ArgumentNullException(nameof(publisherName));
+                throw new ArgumentNullException(nameof(metadata.PublisherName));
             }
 
-            if (string.IsNullOrWhiteSpace(vsExtensionName))
+            if (string.IsNullOrWhiteSpace(metadata.Name))
             {
-                throw new ArgumentNullException(nameof(vsExtensionName));
+                throw new ArgumentNullException(nameof(metadata.Name));
             }
 
-            if (string.IsNullOrWhiteSpace(version))
+            if (string.IsNullOrWhiteSpace(metadata.Version))
             {
-                throw new ArgumentNullException(nameof(version));
+                throw new ArgumentNullException(nameof(metadata.Version));
             }
 
             _client.DefaultRequestHeaders.Clear();
 
-            var uri = $"/_apis/public/gallery/publishers/{publisherName}" +
-                $"/vsextensions/{vsExtensionName}/{version}/vspackage";
+            var uri = $"/_apis/public/gallery/publishers/{metadata.PublisherName}" +
+                $"/vsextensions/{metadata.Name}/{metadata.Version}/vspackage";
 
             try
             {

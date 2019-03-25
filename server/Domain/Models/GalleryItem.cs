@@ -10,8 +10,10 @@ using static CodePaint.WebApi.Utils.Extensions;
 
 namespace CodePaint.WebApi.Domain.Models
 {
+    // TODO: Change GalleryItem to ExtensionMetadata
     public class GalleryItem
     {
+        // TODO: add ExtensionId to identify it?
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         public string Id { get; set; }
 
@@ -91,6 +93,7 @@ namespace CodePaint.WebApi.Domain.Models
 
     public enum GalleryItemType
     {
+        // TODO: Change GalleryItemType to ExtensionType
         Default,
         NoThemes,
         NeedAttention

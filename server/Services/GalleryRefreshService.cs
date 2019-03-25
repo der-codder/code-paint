@@ -20,18 +20,21 @@ namespace CodePaint.WebApi.Services
 
     public class GalleryRefreshService : IGalleryRefreshService
     {
+        private readonly IVSMarketplaceClient _marketplaceClient;
         private readonly IGalleryItemsRepository _galleryItemsRepository;
         private readonly IGalleryStatisticsRepository _galleryStatisticsRepository;
-        private readonly IVSMarketplaceClient _marketplaceClient;
+        private readonly IThemeStoreRefreshService _themeStoreRefreshService;
 
         public GalleryRefreshService(
             IVSMarketplaceClient marketplaceClient,
             IGalleryItemsRepository galleryInfoRepository,
-            IGalleryStatisticsRepository galleryStatisticsRepository)
+            IGalleryStatisticsRepository galleryStatisticsRepository,
+            IThemeStoreRefreshService themeStoreRefreshService)
         {
             _marketplaceClient = marketplaceClient;
             _galleryItemsRepository = galleryInfoRepository;
             _galleryStatisticsRepository = galleryStatisticsRepository;
+            _themeStoreRefreshService = themeStoreRefreshService;
         }
 
         public async Task RefreshGallery()
@@ -46,8 +49,8 @@ namespace CodePaint.WebApi.Services
                     (_, ts) => Log.Error($"Error connecting to 'https://marketplace.visualstudio.com/'. Retrying in {ts.Seconds} sec.")
                 );
 
-            var pageNumber = 1;
-            const int pageSize = 50;
+            var pageNumber = 3;
+            const int pageSize = 10;
             var requestResultTotalCount = (pageNumber * pageSize);
 
             while (requestResultTotalCount - (pageNumber * pageSize) >= 0)
@@ -56,9 +59,15 @@ namespace CodePaint.WebApi.Services
                     async () => await _marketplaceClient.GetGalleryMetadata(pageNumber, pageSize)
                 );
 
-                RefreshGalleryInfo(responseMetadata);
+                await RefreshGalleryInfo(responseMetadata);
 
-                Log.Information("---- Refreshed {UpdatedCount} of {TotalCount} items.",
+                await _themeStoreRefreshService.RefreshGalleryStore(
+                    responseMetadata.Items
+                        .Select(i => i.GalleryItem)
+                        .ToList()
+                );
+
+                Log.Information("---- Processed {UpdatedCount} of {TotalCount} items.",
                     ((pageNumber - 1) * pageSize) + responseMetadata.Items.Count,
                     responseMetadata.RequestResultTotalCount
                 );
@@ -79,15 +88,10 @@ namespace CodePaint.WebApi.Services
             Log.Information("---- Gallery Refreshing Completed.");
         }
 
-        // private async Task RefreshGalleryStore(List<GalleryItem> galleryItems)
-        // {
-
-        // }
-
-        private void RefreshGalleryInfo(ExtensionQueryResponseMetadata metadata)
+        private async Task RefreshGalleryInfo(ExtensionQueryResponseMetadata metadata)
         {
             Log.Information("Gallery Items Refreshing Started.");
-            Task.WaitAll(
+            await Task.WhenAll(
                 metadata.Items
                     .Select(m => RefreshGalleryItem(m.GalleryItem))
                     .ToArray()
@@ -95,7 +99,7 @@ namespace CodePaint.WebApi.Services
             Log.Information("Gallery Items Refreshing Completed.");
 
             Log.Information("Gallery Statistics Refreshing Started.");
-            Task.WaitAll(
+            await Task.WhenAll(
                 metadata.Items
                     .Select(m => UpdateGalleryStatistics(m.Statistic))
                     .ToArray()
@@ -140,7 +144,7 @@ namespace CodePaint.WebApi.Services
 
             if (result)
             {
-                Log.Information($"Successfuly updated '{theme.Id}'.");
+                Log.Information($"Successfully updated '{theme.Id}'.");
             }
             else
             {

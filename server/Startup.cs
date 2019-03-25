@@ -41,14 +41,15 @@ namespace CodePaint.WebApi
                     }
                 );
 
-            var galleryContext = new GalleryContext(config.MongoDB);
-            services.AddSingleton<IGalleryItemsRepository>(
-                new GalleryItemsRepository(galleryContext)
-            );
-            services.AddSingleton<IGalleryStatisticsRepository>(
-                new GalleryStatisticsRepository(galleryContext)
-            );
+            services.AddSingleton<IGalleryContext>(new GalleryContext(config.MongoDB));
+            services.AddSingleton<IGalleryItemsRepository, GalleryItemsRepository>();
+            services.AddSingleton<IGalleryItemsRepository, GalleryItemsRepository>();
+            services.AddSingleton<IGalleryStatisticsRepository, GalleryStatisticsRepository>();
+            services.AddSingleton<IVSCodeThemeStoreRepository, VSCodeThemeStoreRepository>();
 
+            services.AddTransient<IVSExtensionHandler, VSExtensionHandler>();
+            services.AddTransient<IThemeStoreRefresher, ThemeStoreRefresher>();
+            services.AddTransient<IThemeStoreRefreshService, ThemeStoreRefreshService>();
             services.AddTransient<IGalleryRefreshService, GalleryRefreshService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);

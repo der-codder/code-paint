@@ -23,13 +23,13 @@ namespace CodePaint.WebApi.Services
             .Handle<Exception>()
             .WaitAndRetryAsync(new[]
                 {
+                    TimeSpan.FromSeconds(20),
+                    TimeSpan.FromSeconds(30),
+                    TimeSpan.FromSeconds(50),
                     TimeSpan.FromSeconds(70),
-                    TimeSpan.FromSeconds(90),
-                    TimeSpan.FromSeconds(110),
-                    TimeSpan.FromSeconds(130),
-                    TimeSpan.FromSeconds(130)
+                    TimeSpan.FromSeconds(90)
                 },
-                (_, ts, retryCount, __) => Log.Error($"Error while processing fresh theme. Retrying in {ts.Seconds} sec. retryCount:{retryCount}")
+                (_, ts, retryCount, __) => Log.Error($"Error while processing fresh theme. RetryCount: {retryCount}.")
             );
 
         public ThemeStoreRefreshService(IThemeStoreRefresher refresher) => _refresher = refresher;

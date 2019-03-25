@@ -40,7 +40,7 @@ namespace CodePaint.WebApi.Services
                     await Task.Run(() => archive.ExtractToDirectory(tempFolder));
                 }
 
-                return await _extensionParsingServise.ParseExtension(tempFolder);
+                return await _extensionParsingServise.ParseExtension(extensionId, tempFolder);
             }
             catch (Exception ex)
             {

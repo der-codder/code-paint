@@ -12,19 +12,15 @@ namespace CodePaint.WebApi.Services
 {
     public interface IExtensionMetadataParser
     {
-        (string Id, string Version) GetExtensionMetadata(JObject jObject);
+        string GetExtensionVersion(JObject jObject);
         List<ThemeMetadata> GetThemesMetadata(JObject jObject, string pathToExtension);
     }
 
     public class ExtensionMetadataParser : IExtensionMetadataParser
     {
-        public (string Id, string Version) GetExtensionMetadata(JObject jObject)
+        public string GetExtensionVersion(JObject jObject)
         {
-            var extPublisher = jObject.SelectToken("publisher", true).ToString();
-            var extName = jObject.SelectToken("name", true).ToString();
-            var extVersion = jObject.SelectToken("version", true).ToString();
-
-            return ($"{extPublisher}.{extName}", extVersion);
+            return jObject.SelectToken("version", true).ToString();
         }
 
         public List<ThemeMetadata> GetThemesMetadata(JObject jObject, string pathToExtension)
@@ -51,10 +47,11 @@ namespace CodePaint.WebApi.Services
                     );
                 }
                 var themeType = (string) jTheme.SelectToken("uiTheme") ?? "vs-dark";
+                var label = (string) jTheme.SelectToken("label") ?? Path.GetFileName(path);
 
                 var themeMetadata = new ThemeMetadata
                 {
-                    Label = jTheme.SelectToken("label", true).ToString(),
+                    Label = label,
                     ThemeType = themeType,
                     Path = path
                 };

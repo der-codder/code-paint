@@ -9,7 +9,7 @@ namespace CodePaint.WebApi.Services
 {
     public interface IExtensionParsingService
     {
-        Task<VSCodeTheme> ParseExtension(string pathToExtension);
+        Task<VSCodeTheme> ParseExtension(string extensionId, string pathToExtension);
     }
 
     public class ExtensionParsingService : IExtensionParsingService
@@ -28,7 +28,7 @@ namespace CodePaint.WebApi.Services
             _vsCodeThemeParser = vsCodeThemeParser;
         }
 
-        public async Task<VSCodeTheme> ParseExtension(string pathToExtension)
+        public async Task<VSCodeTheme> ParseExtension(string extensionId, string pathToExtension)
         {
             Log.Information($"Started processing folder: {pathToExtension}.");
 
@@ -38,8 +38,6 @@ namespace CodePaint.WebApi.Services
 
                 var jPackageJson = await _jsonFileLoader.Load(pathToPackageJson);
 
-                var extensionMetadata = _extensionMetadataParser.GetExtensionMetadata(jPackageJson);
-
                 var themesMetadata = _extensionMetadataParser.GetThemesMetadata(
                     jPackageJson,
                     pathToExtension
@@ -48,8 +46,8 @@ namespace CodePaint.WebApi.Services
 
                 var result = new VSCodeTheme
                 {
-                    Id = extensionMetadata.Id,
-                    Version = extensionMetadata.Version,
+                    Id = extensionId,
+                    Version = _extensionMetadataParser.GetExtensionVersion(jPackageJson),
                     Themes = themes
                 };
 

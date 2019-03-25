@@ -93,6 +93,7 @@ namespace CodePaint.WebApi.Tests.Domain
             Assert.Equal(expextedDate, result.LastUpdated);
             Assert.Equal("iconDefault_test", result.IconDefault);
             Assert.Equal("iconSmall_test", result.IconSmall);
+            Assert.Equal("fallbackAssetUri_test/Microsoft.VisualStudio.Services.VSIXPackage", result.AssetUri);
         }
     }
 }

@@ -35,6 +35,8 @@ namespace CodePaint.WebApi.Domain.Models
 
         public string IconSmall { get; set; }
 
+        public string AssetUri { get; set; }
+
         public GalleryItemType Type { get; set; }
 
         public GalleryItem() => Type = GalleryItemType.Default;
@@ -69,6 +71,8 @@ namespace CodePaint.WebApi.Domain.Models
             {
                 var jVersion = (JObject) jObject.SelectToken("versions[0]", true);
                 _themeInfo.Version = jVersion.SelectToken("version", true).ToString();
+                _themeInfo.AssetUri = jVersion.SelectToken("fallbackAssetUri", true).ToString()
+                    + "/Microsoft.VisualStudio.Services.VSIXPackage";
 
                 var lastUpdatedStr = (string) jVersion.SelectToken("lastUpdated", true);
                 _themeInfo.LastUpdated = DateTime.Parse(

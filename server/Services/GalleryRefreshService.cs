@@ -68,7 +68,7 @@ namespace CodePaint.WebApi.Services
                         .ToList()
                 );
 
-                Log.Information("---- Processed {UpdatedCount} of {TotalCount} items.",
+                Log.Information("------------------ Processed {UpdatedCount} of {TotalCount} items.",
                     ((pageNumber - 1) * pageSize) + responseMetadata.Items.Count,
                     responseMetadata.RequestResultTotalCount
                 );
@@ -76,8 +76,6 @@ namespace CodePaint.WebApi.Services
                 pageNumber++;
                 requestResultTotalCount = responseMetadata.RequestResultTotalCount;
                 // break;
-                Log.Information("------------------ Wait 60 sec -------------------------------");
-                await Task.Delay(60 * 1000);
             }
 
             // if (await _galleryItemsRepository.ChangeGalleryItemType("vscode-icons-team.vscode-icons", GalleryItemType.NoThemes))

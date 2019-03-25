@@ -91,19 +91,18 @@ namespace CodePaint.WebApi.Services
 
             _client.DefaultRequestHeaders.Clear();
 
-            var uri = $"/_apis/public/gallery/publishers/{metadata.PublisherName}" +
-                $"/vsextensions/{metadata.Name}/{metadata.Version}/vspackage";
+            // var uri = $"/_apis/public/gallery/publishers/{metadata.PublisherName}" +
+            //     $"/vsextensions/{metadata.Name}/{metadata.Version}/vspackage";
 
             try
             {
-                Log.Information($"Requesting vsix file stream from: {uri}");
+                Log.Information($"Requesting vsix file stream from: {metadata.AssetUri}");
 
-                // return await _client.GetStreamAsync(uri);
-                return await _client.GetStreamAsync(uri);
+                return await _client.GetStreamAsync(metadata.AssetUri);
             }
             catch (Exception ex)
             {
-                Log.Error(ex, $"Error while requesting vsix file stream from: '{uri}'.");
+                Log.Error(ex, $"Error while requesting vsix file stream from: '{metadata.AssetUri}'.");
                 throw;
             }
         }

@@ -96,7 +96,7 @@ namespace CodePaint.WebApi.Services
 
                 if (result)
                 {
-                    Log.Information($"Successfully changed Type to {themeType}.");
+                    Log.Warning($"Successfully changed Type to {themeType}.");
                 }
                 else
                 {

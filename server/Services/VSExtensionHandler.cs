@@ -14,6 +14,11 @@ namespace CodePaint.WebApi.Services
 
     public class VSExtensionHandler : IVSExtensionHandler
     {
+        private readonly IExtensionParsingService _extensionParsingServise;
+
+        public VSExtensionHandler(IExtensionParsingService extensionParsingServise) =>
+            _extensionParsingServise = extensionParsingServise;
+
         public async Task<VSCodeTheme> ProcessExtension(string extensionId, Stream vsixStream)
         {
             Log.Information("Start Processing Extension.");
@@ -35,8 +40,7 @@ namespace CodePaint.WebApi.Services
                     await Task.Run(() => archive.ExtractToDirectory(tempFolder));
                 }
 
-                var parser = new VsixParser(tempFolder);
-                return await parser.ParseVSCodeTheme();
+                return await _extensionParsingServise.ParseExtension(tempFolder);
             }
             catch (Exception ex)
             {

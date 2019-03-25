@@ -9,17 +9,26 @@ using CodePaint.WebApi.Domain.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Polly;
+using Polly.Retry;
 using Serilog;
 
 namespace CodePaint.WebApi.Services
 {
     public interface IGalleryRefreshService
     {
-        Task RefreshGallery();
+        Task RefreshGallery(int pageNumber);
     }
 
     public class GalleryRefreshService : IGalleryRefreshService
     {
+        private readonly AsyncRetryPolicy _transientExceptionHandlingPolicy = Policy
+            .Handle<Exception>()
+            .WaitAndRetryAsync(
+                5,
+                _ => TimeSpan.FromSeconds(5),
+                (_, ts) => Log.Error($"Error while connecting to 'https://marketplace.visualstudio.com/'. Retrying in {ts.Seconds} sec.")
+            );
+
         private readonly IVSMarketplaceClient _marketplaceClient;
         private readonly IGalleryItemsRepository _galleryItemsRepository;
         private readonly IGalleryStatisticsRepository _galleryStatisticsRepository;
@@ -37,25 +46,17 @@ namespace CodePaint.WebApi.Services
             _themeStoreRefreshService = themeStoreRefreshService;
         }
 
-        public async Task RefreshGallery()
+        public async Task RefreshGallery(int pageNumber)
         {
             Log.Information("---- Gallery Refreshing Started.");
 
-            var policy = Policy
-                .Handle<Exception>()
-                .WaitAndRetryAsync(
-                    5,
-                    _ => TimeSpan.FromSeconds(5),
-                    (_, ts) => Log.Error($"Error connecting to 'https://marketplace.visualstudio.com/'. Retrying in {ts.Seconds} sec.")
-                );
-
-            var pageNumber = 3;
-            const int pageSize = 10;
+            // var pageNumber = 12;
+            const int pageSize = 20;
             var requestResultTotalCount = (pageNumber * pageSize);
 
             while (requestResultTotalCount - (pageNumber * pageSize) >= 0)
             {
-                var responseMetadata = await policy.ExecuteAsync(
+                var responseMetadata = await _transientExceptionHandlingPolicy.ExecuteAsync(
                     async () => await _marketplaceClient.GetGalleryMetadata(pageNumber, pageSize)
                 );
 
@@ -74,7 +75,9 @@ namespace CodePaint.WebApi.Services
 
                 pageNumber++;
                 requestResultTotalCount = responseMetadata.RequestResultTotalCount;
-                break;
+                // break;
+                Log.Information("------------------ Wait 60 sec -------------------------------");
+                await Task.Delay(60 * 1000);
             }
 
             // if (await _galleryItemsRepository.ChangeGalleryItemType("vscode-icons-team.vscode-icons", GalleryItemType.NoThemes))

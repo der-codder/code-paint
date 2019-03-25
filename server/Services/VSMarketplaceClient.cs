@@ -98,6 +98,7 @@ namespace CodePaint.WebApi.Services
             {
                 Log.Information($"Requesting vsix file stream from: {uri}");
 
+                // return await _client.GetStreamAsync(uri);
                 return await _client.GetStreamAsync(uri);
             }
             catch (Exception ex)

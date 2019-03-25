@@ -47,6 +47,10 @@ namespace CodePaint.WebApi
             services.AddSingleton<IGalleryStatisticsRepository, GalleryStatisticsRepository>();
             services.AddSingleton<IVSCodeThemeStoreRepository, VSCodeThemeStoreRepository>();
 
+            services.AddTransient<IJsonFileLoader, JsonFileLoader>();
+            services.AddTransient<IExtensionParsingService, ExtensionParsingService>();
+            services.AddTransient<IExtensionMetadataParser, ExtensionMetadataParser>();
+            services.AddTransient<IVSCodeThemeParser, VSCodeThemeParser>();
             services.AddTransient<IVSExtensionHandler, VSExtensionHandler>();
             services.AddTransient<IThemeStoreRefresher, ThemeStoreRefresher>();
             services.AddTransient<IThemeStoreRefreshService, ThemeStoreRefreshService>();

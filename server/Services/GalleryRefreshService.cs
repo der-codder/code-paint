@@ -83,13 +83,13 @@ namespace CodePaint.WebApi.Services
 
         private async Task RefreshGalleryInfo(ExtensionQueryResponseMetadata metadata)
         {
-            Log.Information("Gallery Items Refreshing Started.");
+            Log.Information("Metadata Refreshing Started.");
             await Task.WhenAll(
                 metadata.Items
                     .Select(m => RefreshExtensionMetadata(m.Metadata))
                     .ToArray()
             );
-            Log.Information("Gallery Items Refreshing Completed.");
+            Log.Information("Metadata Refreshing Completed.");
 
             Log.Information("Gallery Statistics Refreshing Started.");
             await Task.WhenAll(
@@ -122,13 +122,13 @@ namespace CodePaint.WebApi.Services
             }
             catch (Exception ex)
             {
-                Log.Error(ex, $"Error while refreshing gallery item: '{freshExtensionMetadata.Id}'.");
+                Log.Error(ex, $"Error while refreshing extension metadata: '{freshExtensionMetadata.Id}'.");
             }
         }
 
         private async Task CreateExtensionMetadata(ExtensionMetadata extensionMetadata)
         {
-            Log.Information($"Create gallery item: '{extensionMetadata.Id}'.");
+            Log.Information($"Create extension metadata: '{extensionMetadata.Id}'.");
             await _galleryMetadataRepository.Create(extensionMetadata);
         }
 
@@ -146,7 +146,7 @@ namespace CodePaint.WebApi.Services
             }
         }
 
-        private async Task UpdateGalleryStatistics(GalleryItemStatistic freshStatistic)
+        private async Task UpdateGalleryStatistics(ExtensionStatistic freshStatistic)
         {
             try
             {
@@ -168,7 +168,7 @@ namespace CodePaint.WebApi.Services
             }
             catch (Exception ex)
             {
-                Log.Error(ex, $"Error while refreshing gallery item statistic for '{freshStatistic.Id}'.");
+                Log.Error(ex, $"Error while refreshing statistic for '{freshStatistic.Id}'.");
             }
         }
     }

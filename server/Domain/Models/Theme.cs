@@ -28,7 +28,6 @@ namespace CodePaint.WebApi.Domain.Models
         public string Value { get; set; }
     }
 
-    // TODO: Change Theme to ColorTheme
     public class Theme
     {
         public string Label { get; set; }

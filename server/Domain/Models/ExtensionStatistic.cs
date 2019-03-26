@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -9,8 +9,7 @@ using static CodePaint.WebApi.Utils.Extensions;
 
 namespace CodePaint.WebApi.Domain.Models
 {
-    // TODO: Change GalleryItemStatistic to ExtensionStatistic
-    public class GalleryItemStatistic
+    public class ExtensionStatistic
     {
         [BsonId(IdGenerator = typeof(StringObjectIdGenerator))]
         public string Id { get; set; }
@@ -23,12 +22,12 @@ namespace CodePaint.WebApi.Domain.Models
         public double TrendingWeekly { get; set; }
         public double TrendingMonthly { get; set; }
 
-        public static GalleryItemStatistic FromJson(JObject jObject)
+        public static ExtensionStatistic FromJson(JObject jObject)
         {
             var publisherName = jObject.SelectToken("publisher.publisherName", true).ToString();
             var name = jObject.SelectToken("extensionName", true).ToString();
 
-            var statistics = new GalleryItemStatistic { Id = $"{publisherName}.{name}" };
+            var statistics = new ExtensionStatistic { Id = $"{publisherName}.{name}" };
 
             var statisticDict = ((JArray) jObject.SelectToken("statistics", true))
                 .ToDictionary<string, string>("statisticName", "value");

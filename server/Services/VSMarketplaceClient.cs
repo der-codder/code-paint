@@ -61,7 +61,7 @@ namespace CodePaint.WebApi.Services
                 }
 
                 var result = await ProcessResponseContent(response.Content);
-                Log.Information($"Successfully processed {result.Items.Count} gallery items");
+                Log.Information($"Successfully processed {result.Items.Count} items");
 
                 return result;
             }
@@ -141,10 +141,10 @@ namespace CodePaint.WebApi.Services
             }
         }
 
-        private (ExtensionMetadata, GalleryItemStatistic) ParseExtensionMetadata(JObject jObject)
+        private (ExtensionMetadata, ExtensionStatistic) ParseExtensionMetadata(JObject jObject)
         {
             var itemInfo = ExtensionMetadata.FromJson(jObject);
-            var itemStatistic = GalleryItemStatistic.FromJson(jObject);
+            var itemStatistic = ExtensionStatistic.FromJson(jObject);
 
             return (itemInfo, itemStatistic);
         }

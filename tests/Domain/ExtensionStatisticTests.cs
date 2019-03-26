@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using CodePaint.WebApi.Domain.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -6,7 +6,7 @@ using Xunit;
 
 namespace CodePaint.WebApi.Tests.Domain
 {
-    public class GalleryItemStatisticTests
+    public class ExtensionStatisticTests
     {
         private const string ValidJson = @"{
                 'publisher': {
@@ -52,7 +52,7 @@ namespace CodePaint.WebApi.Tests.Domain
         [Fact]
         public void FromJson_JObjectWithValidBaseProperties_ReturnsCorrectResult()
         {
-            var result = GalleryItemStatistic.FromJson(JObject.Parse(ValidJson));
+            var result = ExtensionStatistic.FromJson(JObject.Parse(ValidJson));
 
             Assert.Equal("publisherName_test.extensionName_test", result.Id);
             Assert.Equal(101, result.InstallCount);
@@ -76,7 +76,7 @@ namespace CodePaint.WebApi.Tests.Domain
             }";
 
             var ex = Assert.Throws<JsonException>(() =>
-                GalleryItemStatistic.FromJson(JObject.Parse(json)));
+                ExtensionStatistic.FromJson(JObject.Parse(json)));
 
             Assert.Equal("Property 'statistics' does not exist on JObject.", ex.Message);
         }
@@ -95,7 +95,7 @@ namespace CodePaint.WebApi.Tests.Domain
             }";
 
             var ex = Assert.Throws<JsonException>(() =>
-                GalleryItemStatistic.FromJson(JObject.Parse(json)));
+                ExtensionStatistic.FromJson(JObject.Parse(json)));
 
             Assert.Equal("Property 'publisher' does not exist on JObject.", ex.Message);
         }
@@ -115,7 +115,7 @@ namespace CodePaint.WebApi.Tests.Domain
             }";
 
             var ex = Assert.Throws<JsonException>(() =>
-                GalleryItemStatistic.FromJson(JObject.Parse(json)));
+                ExtensionStatistic.FromJson(JObject.Parse(json)));
 
             Assert.Equal("Property 'publisherName' does not exist on JObject.", ex.Message);
         }
@@ -136,7 +136,7 @@ namespace CodePaint.WebApi.Tests.Domain
             }";
 
             var ex = Assert.Throws<JsonException>(() =>
-                GalleryItemStatistic.FromJson(JObject.Parse(json)));
+                ExtensionStatistic.FromJson(JObject.Parse(json)));
 
             Assert.Equal("Property 'extensionName' does not exist on JObject.", ex.Message);
         }

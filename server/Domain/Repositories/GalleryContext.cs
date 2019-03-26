@@ -6,7 +6,7 @@ namespace CodePaint.WebApi.Domain.Repositories
 {
     public interface IGalleryContext
     {
-        IMongoCollection<GalleryItem> GalleryItems { get; }
+        IMongoCollection<ExtensionMetadata> GalleryMetadata { get; }
         IMongoCollection<GalleryItemStatistic> GalleryStatistics { get; }
         IMongoCollection<VSCodeTheme> VSCodeThemeStore { get; }
     }
@@ -15,8 +15,8 @@ namespace CodePaint.WebApi.Domain.Repositories
     {
         private readonly IMongoDatabase _db;
 
-        public IMongoCollection<GalleryItem> GalleryItems =>
-            _db.GetCollection<GalleryItem>("GalleryItems");
+        public IMongoCollection<ExtensionMetadata> GalleryMetadata =>
+            _db.GetCollection<ExtensionMetadata>("GalleryMetadata");
 
         public IMongoCollection<GalleryItemStatistic> GalleryStatistics =>
             _db.GetCollection<GalleryItemStatistic>("GalleryStatistics");

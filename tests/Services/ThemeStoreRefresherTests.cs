@@ -27,18 +27,18 @@ namespace CodePaint.WebApi.Tests.Services
         }
 
         [Fact]
-        public void GetSavedGalleryItemType_ReturnsProperType()
+        public void GetSavedExtensionType_ReturnsProperType()
         {
             const string expectedId = "expectedId_test";
-            const GalleryItemType expectedGalleryItemType = GalleryItemType.NoThemes;
-            _mock.Mock<IGalleryItemsRepository>()
-                .Setup(x => x.GetGalleryItem(expectedId))
-                .ReturnsAsync(new GalleryItem { Type = expectedGalleryItemType });
+            const ExtensionType expectedExtensionType = ExtensionType.NoThemes;
+            _mock.Mock<IGalleryMetadataRepository>()
+                .Setup(x => x.GetExtensionMetadata(expectedId))
+                .ReturnsAsync(new ExtensionMetadata { Type = expectedExtensionType });
             var mockRefresher = _mock.Create<ThemeStoreRefresher>();
 
-            var actual = mockRefresher.GetSavedGalleryItemType(expectedId).Result;
+            var actual = mockRefresher.GetSavedExtensionType(expectedId).Result;
 
-            Assert.True(expectedGalleryItemType == actual);
+            Assert.True(expectedExtensionType == actual);
         }
 
         [Fact]
@@ -56,7 +56,7 @@ namespace CodePaint.WebApi.Tests.Services
         }
 
         [Fact]
-        public void CheckAndUpdateFreshThemeType_FreshThemeContainsTokenColors_ReturnsDefaultType()
+        public void CheckAndUpdateFreshExtensionType_FreshThemeContainsTokenColors_ReturnsDefaultType()
         {
             var freshTheme = new VSCodeTheme
             {
@@ -73,16 +73,16 @@ namespace CodePaint.WebApi.Tests.Services
             };
             var mockRefresher = _mock.Create<ThemeStoreRefresher>();
 
-            var actualType = mockRefresher.CheckAndUpdateFreshThemeType(freshTheme).Result;
+            var actualType = mockRefresher.CheckAndUpdateFreshExtensionType(freshTheme).Result;
 
-            Assert.Equal(GalleryItemType.Default, actualType);
+            Assert.Equal(ExtensionType.Default, actualType);
         }
 
         [Fact]
-        public void CheckAndUpdateFreshThemeType_FreshThemeDoesNotContainsAnyTokenColors_ReturnsNeedAttentionType_And_UpdatesMetadata()
+        public void CheckAndUpdateFreshExtensionType_FreshThemeDoesNotContainsAnyTokenColors_ReturnsNeedAttentionType_And_UpdatesMetadata()
         {
             const string expectedId = "expectedId_test";
-            const GalleryItemType expectedType = GalleryItemType.NeedAttention;
+            const ExtensionType expectedType = ExtensionType.NeedAttention;
             var freshTheme = new VSCodeTheme
             {
                 Id = expectedId,
@@ -92,12 +92,12 @@ namespace CodePaint.WebApi.Tests.Services
                 }
             };
 
-            _mock.Mock<IGalleryItemsRepository>()
-                .Setup(x => x.ChangeGalleryItemType(expectedId, expectedType))
+            _mock.Mock<IGalleryMetadataRepository>()
+                .Setup(x => x.ChangeExtensionType(expectedId, expectedType))
                 .ReturnsAsync(true);
             var mockRefresher = _mock.Create<ThemeStoreRefresher>();
 
-            var actualType = mockRefresher.CheckAndUpdateFreshThemeType(freshTheme).Result;
+            var actualType = mockRefresher.CheckAndUpdateFreshExtensionType(freshTheme).Result;
 
             Assert.Equal(expectedType, actualType);
         }
@@ -106,19 +106,19 @@ namespace CodePaint.WebApi.Tests.Services
         public void CheckAndUpdateFreshThemeType_FreshThemeDoesNotContributesAnyThemes_ReturnsNoThemesType_And_UpdatesMetadata()
         {
             const string expectedId = "expectedId_test";
-            const GalleryItemType expectedType = GalleryItemType.NoThemes;
+            const ExtensionType expectedType = ExtensionType.NoThemes;
             var freshTheme = new VSCodeTheme
             {
                 Id = expectedId,
                 Themes = new List<Theme>()
             };
 
-            _mock.Mock<IGalleryItemsRepository>()
-                .Setup(x => x.ChangeGalleryItemType(expectedId, expectedType))
+            _mock.Mock<IGalleryMetadataRepository>()
+                .Setup(x => x.ChangeExtensionType(expectedId, expectedType))
                 .ReturnsAsync(true);
             var mockRefresher = _mock.Create<ThemeStoreRefresher>();
 
-            var actualType = mockRefresher.CheckAndUpdateFreshThemeType(freshTheme).Result;
+            var actualType = mockRefresher.CheckAndUpdateFreshExtensionType(freshTheme).Result;
 
             Assert.Equal(expectedType, actualType);
         }
@@ -158,7 +158,7 @@ namespace CodePaint.WebApi.Tests.Services
         [Fact]
         public void DownloadFreshTheme_ReturnsProperTheme()
         {
-            var metadata = new GalleryItem
+            var metadata = new ExtensionMetadata
             {
                 Id = "espectedPublisher_test.espectedName_test",
                 PublisherName = "espectedPublisher_test",

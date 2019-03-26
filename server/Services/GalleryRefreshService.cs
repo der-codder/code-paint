@@ -30,18 +30,18 @@ namespace CodePaint.WebApi.Services
             );
 
         private readonly IVSMarketplaceClient _marketplaceClient;
-        private readonly IGalleryItemsRepository _galleryItemsRepository;
+        private readonly IGalleryMetadataRepository _galleryMetadataRepository;
         private readonly IGalleryStatisticsRepository _galleryStatisticsRepository;
         private readonly IThemeStoreRefreshService _themeStoreRefreshService;
 
         public GalleryRefreshService(
             IVSMarketplaceClient marketplaceClient,
-            IGalleryItemsRepository galleryInfoRepository,
+            IGalleryMetadataRepository galleryMetadataRepository,
             IGalleryStatisticsRepository galleryStatisticsRepository,
             IThemeStoreRefreshService themeStoreRefreshService)
         {
             _marketplaceClient = marketplaceClient;
-            _galleryItemsRepository = galleryInfoRepository;
+            _galleryMetadataRepository = galleryMetadataRepository;
             _galleryStatisticsRepository = galleryStatisticsRepository;
             _themeStoreRefreshService = themeStoreRefreshService;
         }
@@ -64,7 +64,7 @@ namespace CodePaint.WebApi.Services
 
                 await _themeStoreRefreshService.RefreshGalleryStore(
                     responseMetadata.Items
-                        .Select(i => i.GalleryItem)
+                        .Select(i => i.Metadata)
                         .ToList()
                 );
 
@@ -75,16 +75,8 @@ namespace CodePaint.WebApi.Services
 
                 pageNumber++;
                 requestResultTotalCount = responseMetadata.RequestResultTotalCount;
-                // break;
+                break;
             }
-
-            // if (await _galleryItemsRepository.ChangeGalleryItemType("vscode-icons-team.vscode-icons", GalleryItemType.NoThemes))
-            // {
-            //     Log.Information("Changed GalleryItem 'vscode-icons-team.vscode-icons' type to GalleryItemType.NoThemes.");
-            // }
-
-            // var stream = await _marketplaceClient.GetVsixFileStream("zhuangtongfa", "Material-theme", "2.19.3");
-            // ProcessVsixFileStream(stream);
 
             Log.Information("---- Gallery Refreshing Completed.");
         }
@@ -94,7 +86,7 @@ namespace CodePaint.WebApi.Services
             Log.Information("Gallery Items Refreshing Started.");
             await Task.WhenAll(
                 metadata.Items
-                    .Select(m => RefreshGalleryItem(m.GalleryItem))
+                    .Select(m => RefreshExtensionMetadata(m.Metadata))
                     .ToArray()
             );
             Log.Information("Gallery Items Refreshing Completed.");
@@ -108,40 +100,41 @@ namespace CodePaint.WebApi.Services
             Log.Information("Gallery Statistics Refreshing Completed.");
         }
 
-        private async Task RefreshGalleryItem(GalleryItem freshGalleryItem)
+        private async Task RefreshExtensionMetadata(ExtensionMetadata freshExtensionMetadata)
         {
             try
             {
-                var galleryItem = await _galleryItemsRepository.GetGalleryItem(freshGalleryItem.Id);
+                var extensionMetadata = await _galleryMetadataRepository
+                    .GetExtensionMetadata(freshExtensionMetadata.Id);
 
-                if (galleryItem == null)
+                if (extensionMetadata == null)
                 {
-                    await CreateGalleryItem(freshGalleryItem);
+                    await CreateExtensionMetadata(freshExtensionMetadata);
                 }
-                else if (galleryItem.LastUpdated != freshGalleryItem.LastUpdated)
+                else if (extensionMetadata.LastUpdated != freshExtensionMetadata.LastUpdated)
                 {
-                    await UpdateGalleryItem(freshGalleryItem);
+                    await UpdateExtensionMetadata(freshExtensionMetadata);
                 }
                 // else
                 // {
-                //     Log.Information($"GalleryItem: '{galleryItem.Id}' does not changed.");
+                //     Log.Information($"Extension: '{extensionMetadata.Id}' does not changed.");
                 // }
             }
             catch (Exception ex)
             {
-                Log.Error(ex, $"Error while refreshing gallery item: '{freshGalleryItem.Id}'.");
+                Log.Error(ex, $"Error while refreshing gallery item: '{freshExtensionMetadata.Id}'.");
             }
         }
 
-        private async Task CreateGalleryItem(GalleryItem galleryItem)
+        private async Task CreateExtensionMetadata(ExtensionMetadata extensionMetadata)
         {
-            Log.Information($"Create gallery item: '{galleryItem.Id}'.");
-            await _galleryItemsRepository.Create(galleryItem);
+            Log.Information($"Create gallery item: '{extensionMetadata.Id}'.");
+            await _galleryMetadataRepository.Create(extensionMetadata);
         }
 
-        private async Task UpdateGalleryItem(GalleryItem theme)
+        private async Task UpdateExtensionMetadata(ExtensionMetadata theme)
         {
-            var result = await _galleryItemsRepository.Update(theme);
+            var result = await _galleryMetadataRepository.Update(theme);
 
             if (result)
             {

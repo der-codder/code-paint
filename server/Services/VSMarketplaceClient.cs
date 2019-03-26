@@ -18,7 +18,7 @@ namespace CodePaint.WebApi.Services
     public interface IVSMarketplaceClient
     {
         Task<ExtensionQueryResponseMetadata> GetGalleryMetadata(int pageNumber, int pageSize);
-        Task<Stream> GetVsixFileStream(GalleryItem metadata);
+        Task<Stream> GetVsixFileStream(ExtensionMetadata metadata);
     }
 
     public class VSMarketplaceClient : IVSMarketplaceClient
@@ -72,7 +72,7 @@ namespace CodePaint.WebApi.Services
             }
         }
 
-        public async Task<Stream> GetVsixFileStream(GalleryItem metadata)
+        public async Task<Stream> GetVsixFileStream(ExtensionMetadata metadata)
         {
             if (string.IsNullOrWhiteSpace(metadata.PublisherName))
             {
@@ -129,7 +129,7 @@ namespace CodePaint.WebApi.Services
                 {
                     try
                     {
-                        metadata.Items.Add(ParseGalleryItemMetadata((JObject) jExt));
+                        metadata.Items.Add(ParseExtensionMetadata((JObject) jExt));
                     }
                     catch (Exception ex)
                     {
@@ -141,9 +141,9 @@ namespace CodePaint.WebApi.Services
             }
         }
 
-        private (GalleryItem, GalleryItemStatistic) ParseGalleryItemMetadata(JObject jObject)
+        private (ExtensionMetadata, GalleryItemStatistic) ParseExtensionMetadata(JObject jObject)
         {
-            var itemInfo = GalleryItem.FromJson(jObject);
+            var itemInfo = ExtensionMetadata.FromJson(jObject);
             var itemStatistic = GalleryItemStatistic.FromJson(jObject);
 
             return (itemInfo, itemStatistic);

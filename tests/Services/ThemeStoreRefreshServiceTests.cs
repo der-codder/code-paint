@@ -26,61 +26,61 @@ namespace CodePaint.WebApi.Tests.Services
         [Fact]
         public void RefreshGalleryStore_ProcessesAllGivenItems()
         {
-            var items = new List<GalleryItem>();
+            var items = new List<ExtensionMetadata>();
             const int itemsCount = 12;
             for (int i = 0; i < itemsCount; i++)
             {
-                items.Add(new GalleryItem { Id = $"test_{i}" });
+                items.Add(new ExtensionMetadata { Id = $"test_{i}" });
             }
 
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.GetSavedGalleryItemType(It.IsAny<string>()))
-                .ReturnsAsync(GalleryItemType.NoThemes);
+                .Setup(x => x.GetSavedExtensionType(It.IsAny<string>()))
+                .ReturnsAsync(ExtensionType.NoThemes);
             var mockRefreshService = _mock.Create<ThemeStoreRefreshService>();
 
             mockRefreshService.RefreshGalleryStore(items).Wait();
 
             _mock.Mock<IThemeStoreRefresher>()
                 .Verify(
-                    x => x.GetSavedGalleryItemType(It.IsAny<string>()),
+                    x => x.GetSavedExtensionType(It.IsAny<string>()),
                     Times.Exactly(itemsCount)
                 );
         }
 
         [Theory]
-        [InlineData(GalleryItemType.NoThemes)]
-        [InlineData(GalleryItemType.NeedAttention)]
+        [InlineData(ExtensionType.NoThemes)]
+        [InlineData(ExtensionType.NeedAttention)]
         public void RefreshGalleryStoreTheme_TakesThemeWithNonDefaultType_DoesNotDownloadsFreshTheme(
-            GalleryItemType extensionType)
+            ExtensionType extensionType)
         {
-            var galleryItem = new GalleryItem { Id = "expectedId_test" };
+            var extensionMetadata = new ExtensionMetadata { Id = "expectedId_test" };
 
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.GetSavedGalleryItemType(galleryItem.Id))
+                .Setup(x => x.GetSavedExtensionType(extensionMetadata.Id))
                 .ReturnsAsync(extensionType);
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.DownloadFreshTheme(galleryItem))
+                .Setup(x => x.DownloadFreshTheme(extensionMetadata))
                 .ReturnsAsync(new VSCodeTheme());
             var mockRefreshService = _mock.Create<ThemeStoreRefreshService>();
 
-            mockRefreshService.RefreshGalleryStoreTheme(galleryItem).Wait();
+            mockRefreshService.RefreshGalleryStoreTheme(extensionMetadata).Wait();
 
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.GetSavedGalleryItemType(galleryItem.Id), Times.Once);
+                .Verify(x => x.GetSavedExtensionType(extensionMetadata.Id), Times.Once);
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.DownloadFreshTheme(galleryItem), Times.Never);
+                .Verify(x => x.DownloadFreshTheme(extensionMetadata), Times.Never);
         }
 
         [Theory]
-        [InlineData(GalleryItemType.NoThemes)]
-        [InlineData(GalleryItemType.NeedAttention)]
+        [InlineData(ExtensionType.NoThemes)]
+        [InlineData(ExtensionType.NeedAttention)]
         public void RefreshGalleryStoreTheme_TakesNonDefaultTypeTheme_DoesNotRefreshTheme(
-            GalleryItemType extensionType)
+            ExtensionType extensionType)
         {
-            var galleryItem = new GalleryItem { Id = "expectedId_test" };
+            var extensionMetadata = new ExtensionMetadata { Id = "expectedId_test" };
 
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.GetSavedGalleryItemType(galleryItem.Id))
+                .Setup(x => x.GetSavedExtensionType(extensionMetadata.Id))
                 .ReturnsAsync(extensionType);
             _mock.Mock<IThemeStoreRefresher>()
                 .Setup(x => x.CreateTheme(It.IsAny<VSCodeTheme>()));
@@ -88,10 +88,10 @@ namespace CodePaint.WebApi.Tests.Services
                 .Setup(x => x.UpdateTheme(It.IsAny<VSCodeTheme>()));
             var mockRefreshService = _mock.Create<ThemeStoreRefreshService>();
 
-            mockRefreshService.RefreshGalleryStoreTheme(galleryItem).Wait();
+            mockRefreshService.RefreshGalleryStoreTheme(extensionMetadata).Wait();
 
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.GetSavedGalleryItemType(galleryItem.Id), Times.Once);
+                .Verify(x => x.GetSavedExtensionType(extensionMetadata.Id), Times.Once);
             _mock.Mock<IThemeStoreRefresher>()
                 .Verify(x => x.CreateTheme(It.IsAny<VSCodeTheme>()), Times.Never);
             _mock.Mock<IThemeStoreRefresher>()
@@ -101,52 +101,52 @@ namespace CodePaint.WebApi.Tests.Services
         [Fact]
         public void RefreshGalleryStoreTheme_TakesThemeWithActualVersion_DoesNotDownloadsFreshTheme()
         {
-            var galleryItem = new GalleryItem { Id = "expectedId_test", Version = "version_test" };
+            var extensionMetadata = new ExtensionMetadata { Id = "expectedId_test", Version = "version_test" };
 
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.GetSavedGalleryItemType(galleryItem.Id))
-                .ReturnsAsync(GalleryItemType.Default);
+                .Setup(x => x.GetSavedExtensionType(extensionMetadata.Id))
+                .ReturnsAsync(ExtensionType.Default);
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.GetStoredTheme(galleryItem.Id))
-                .ReturnsAsync(new VSCodeTheme { Version = galleryItem.Version });
+                .Setup(x => x.GetStoredTheme(extensionMetadata.Id))
+                .ReturnsAsync(new VSCodeTheme { Version = extensionMetadata.Version });
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.DownloadFreshTheme(galleryItem))
+                .Setup(x => x.DownloadFreshTheme(extensionMetadata))
                 .ReturnsAsync(new VSCodeTheme());
             var mockRefreshService = _mock.Create<ThemeStoreRefreshService>();
 
-            mockRefreshService.RefreshGalleryStoreTheme(galleryItem).Wait();
+            mockRefreshService.RefreshGalleryStoreTheme(extensionMetadata).Wait();
 
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.GetSavedGalleryItemType(galleryItem.Id), Times.Once);
+                .Verify(x => x.GetSavedExtensionType(extensionMetadata.Id), Times.Once);
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.GetStoredTheme(galleryItem.Id), Times.Once);
+                .Verify(x => x.GetStoredTheme(extensionMetadata.Id), Times.Once);
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.DownloadFreshTheme(galleryItem), Times.Never);
+                .Verify(x => x.DownloadFreshTheme(extensionMetadata), Times.Never);
         }
 
         [Fact]
         public void RefreshGalleryStoreTheme_TakesThemeWithActualVersion_DoesNotRefreshTheme()
         {
-            var galleryItem = new GalleryItem { Id = "expectedId_test", Version = "version_test" };
+            var extensionMetadata = new ExtensionMetadata { Id = "expectedId_test", Version = "version_test" };
 
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.GetSavedGalleryItemType(galleryItem.Id))
-                .ReturnsAsync(GalleryItemType.Default);
+                .Setup(x => x.GetSavedExtensionType(extensionMetadata.Id))
+                .ReturnsAsync(ExtensionType.Default);
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.GetStoredTheme(galleryItem.Id))
-                .ReturnsAsync(new VSCodeTheme { Version = galleryItem.Version });
+                .Setup(x => x.GetStoredTheme(extensionMetadata.Id))
+                .ReturnsAsync(new VSCodeTheme { Version = extensionMetadata.Version });
             _mock.Mock<IThemeStoreRefresher>()
                 .Setup(x => x.CreateTheme(It.IsAny<VSCodeTheme>()));
             _mock.Mock<IThemeStoreRefresher>()
                 .Setup(x => x.UpdateTheme(It.IsAny<VSCodeTheme>()));
             var mockRefreshService = _mock.Create<ThemeStoreRefreshService>();
 
-            mockRefreshService.RefreshGalleryStoreTheme(galleryItem).Wait();
+            mockRefreshService.RefreshGalleryStoreTheme(extensionMetadata).Wait();
 
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.GetSavedGalleryItemType(galleryItem.Id), Times.Once);
+                .Verify(x => x.GetSavedExtensionType(extensionMetadata.Id), Times.Once);
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.GetStoredTheme(galleryItem.Id), Times.Once);
+                .Verify(x => x.GetStoredTheme(extensionMetadata.Id), Times.Once);
             _mock.Mock<IThemeStoreRefresher>()
                 .Verify(x => x.CreateTheme(It.IsAny<VSCodeTheme>()), Times.Never);
             _mock.Mock<IThemeStoreRefresher>()
@@ -158,7 +158,7 @@ namespace CodePaint.WebApi.Tests.Services
         {
             const string expectedId = "expectedId_test";
             const string expectedVersion = "version1";
-            var newGalleryItem = new GalleryItem { Id = expectedId, Version = expectedVersion };
+            var newExtansionMetadata = new ExtensionMetadata { Id = expectedId, Version = expectedVersion };
             var colorTheme = new Theme
             {
                 TokenColors = new List<TokenColor> { new TokenColor { Name = "name_test" } }
@@ -171,13 +171,13 @@ namespace CodePaint.WebApi.Tests.Services
             };
 
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.GetSavedGalleryItemType(newGalleryItem.Id))
-                .ReturnsAsync(GalleryItemType.Default);
+                .Setup(x => x.GetSavedExtensionType(newExtansionMetadata.Id))
+                .ReturnsAsync(ExtensionType.Default);
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.GetStoredTheme(newGalleryItem.Id))
+                .Setup(x => x.GetStoredTheme(newExtansionMetadata.Id))
                 .ReturnsAsync(() => null);
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.DownloadFreshTheme(newGalleryItem))
+                .Setup(x => x.DownloadFreshTheme(newExtansionMetadata))
                 .ReturnsAsync(newTheme);
             _mock.Mock<IThemeStoreRefresher>()
                 .Setup(x => x.CreateTheme(newTheme))
@@ -186,12 +186,12 @@ namespace CodePaint.WebApi.Tests.Services
                 .Setup(x => x.UpdateTheme(It.IsAny<VSCodeTheme>()));
             var mockRefreshService = _mock.Create<ThemeStoreRefreshService>();
 
-            mockRefreshService.RefreshGalleryStoreTheme(newGalleryItem).Wait();
+            mockRefreshService.RefreshGalleryStoreTheme(newExtansionMetadata).Wait();
 
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.GetSavedGalleryItemType(newGalleryItem.Id), Times.Once);
+                .Verify(x => x.GetSavedExtensionType(newExtansionMetadata.Id), Times.Once);
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.DownloadFreshTheme(newGalleryItem), Times.Once);
+                .Verify(x => x.DownloadFreshTheme(newExtansionMetadata), Times.Once);
             _mock.Mock<IThemeStoreRefresher>()
                 .Verify(x => x.CreateTheme(newTheme), Times.Once);
             _mock.Mock<IThemeStoreRefresher>()
@@ -203,7 +203,7 @@ namespace CodePaint.WebApi.Tests.Services
         {
             const string expectedId = "expectedId_test";
             const string expectedVersion = "version1";
-            var newGalleryItem = new GalleryItem { Id = expectedId, Version = expectedVersion };
+            var newExtensionMetadata = new ExtensionMetadata { Id = expectedId, Version = expectedVersion };
             var newTheme = new VSCodeTheme
             {
                 Id = expectedId,
@@ -212,31 +212,31 @@ namespace CodePaint.WebApi.Tests.Services
             };
 
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.GetSavedGalleryItemType(newGalleryItem.Id))
-                .ReturnsAsync(GalleryItemType.Default);
+                .Setup(x => x.GetSavedExtensionType(newExtensionMetadata.Id))
+                .ReturnsAsync(ExtensionType.Default);
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.GetStoredTheme(newGalleryItem.Id))
+                .Setup(x => x.GetStoredTheme(newExtensionMetadata.Id))
                 .ReturnsAsync(() => null);
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.DownloadFreshTheme(newGalleryItem))
+                .Setup(x => x.DownloadFreshTheme(newExtensionMetadata))
                 .ReturnsAsync(newTheme);
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.CheckAndUpdateFreshThemeType(newTheme))
-                .ReturnsAsync(GalleryItemType.NoThemes);
+                .Setup(x => x.CheckAndUpdateFreshExtensionType(newTheme))
+                .ReturnsAsync(ExtensionType.NoThemes);
             _mock.Mock<IThemeStoreRefresher>()
                 .Setup(x => x.CreateTheme(It.IsAny<VSCodeTheme>()));
             _mock.Mock<IThemeStoreRefresher>()
                 .Setup(x => x.UpdateTheme(It.IsAny<VSCodeTheme>()));
             var mockRefreshService = _mock.Create<ThemeStoreRefreshService>();
 
-            mockRefreshService.RefreshGalleryStoreTheme(newGalleryItem).Wait();
+            mockRefreshService.RefreshGalleryStoreTheme(newExtensionMetadata).Wait();
 
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.GetSavedGalleryItemType(newGalleryItem.Id), Times.Once);
+                .Verify(x => x.GetSavedExtensionType(newExtensionMetadata.Id), Times.Once);
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.DownloadFreshTheme(newGalleryItem), Times.Once);
+                .Verify(x => x.DownloadFreshTheme(newExtensionMetadata), Times.Once);
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.CheckAndUpdateFreshThemeType(newTheme), Times.Once);
+                .Verify(x => x.CheckAndUpdateFreshExtensionType(newTheme), Times.Once);
             _mock.Mock<IThemeStoreRefresher>()
                 .Verify(x => x.CreateTheme(It.IsAny<VSCodeTheme>()), Times.Never);
             _mock.Mock<IThemeStoreRefresher>()
@@ -248,7 +248,7 @@ namespace CodePaint.WebApi.Tests.Services
         {
             const string expectedId = "expectedId_test";
             const string expectedVersion = "version1";
-            var newGalleryItem = new GalleryItem { Id = expectedId, Version = expectedVersion };
+            var newExtensionMetadata = new ExtensionMetadata { Id = expectedId, Version = expectedVersion };
             var newTheme = new VSCodeTheme
             {
                 Id = expectedId,
@@ -257,31 +257,31 @@ namespace CodePaint.WebApi.Tests.Services
             };
 
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.GetSavedGalleryItemType(newGalleryItem.Id))
-                .ReturnsAsync(GalleryItemType.Default);
+                .Setup(x => x.GetSavedExtensionType(newExtensionMetadata.Id))
+                .ReturnsAsync(ExtensionType.Default);
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.GetStoredTheme(newGalleryItem.Id))
+                .Setup(x => x.GetStoredTheme(newExtensionMetadata.Id))
                 .ReturnsAsync(() => null);
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.DownloadFreshTheme(newGalleryItem))
+                .Setup(x => x.DownloadFreshTheme(newExtensionMetadata))
                 .ReturnsAsync(newTheme);
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.CheckAndUpdateFreshThemeType(newTheme))
-                .ReturnsAsync(GalleryItemType.NeedAttention);
+                .Setup(x => x.CheckAndUpdateFreshExtensionType(newTheme))
+                .ReturnsAsync(ExtensionType.NeedAttention);
             _mock.Mock<IThemeStoreRefresher>()
                 .Setup(x => x.CreateTheme(It.IsAny<VSCodeTheme>()));
             _mock.Mock<IThemeStoreRefresher>()
                 .Setup(x => x.UpdateTheme(It.IsAny<VSCodeTheme>()));
             var mockRefreshService = _mock.Create<ThemeStoreRefreshService>();
 
-            mockRefreshService.RefreshGalleryStoreTheme(newGalleryItem).Wait();
+            mockRefreshService.RefreshGalleryStoreTheme(newExtensionMetadata).Wait();
 
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.GetSavedGalleryItemType(newGalleryItem.Id), Times.Once);
+                .Verify(x => x.GetSavedExtensionType(newExtensionMetadata.Id), Times.Once);
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.DownloadFreshTheme(newGalleryItem), Times.Once);
+                .Verify(x => x.DownloadFreshTheme(newExtensionMetadata), Times.Once);
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.CheckAndUpdateFreshThemeType(newTheme), Times.Once);
+                .Verify(x => x.CheckAndUpdateFreshExtensionType(newTheme), Times.Once);
             _mock.Mock<IThemeStoreRefresher>()
                 .Verify(x => x.CreateTheme(It.IsAny<VSCodeTheme>()), Times.Never);
             _mock.Mock<IThemeStoreRefresher>()
@@ -296,7 +296,7 @@ namespace CodePaint.WebApi.Tests.Services
             {
                 TokenColors = new List<TokenColor> { new TokenColor { Name = "name_test" } }
             };
-            var freshGalleryItem = new GalleryItem { Id = expectedId, Version = "version2" };
+            var freshExtensionMetada = new ExtensionMetadata { Id = expectedId, Version = "version2" };
             var oldTheme = new VSCodeTheme
             {
                 Id = expectedId,
@@ -311,13 +311,13 @@ namespace CodePaint.WebApi.Tests.Services
             };
 
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.GetSavedGalleryItemType(freshGalleryItem.Id))
-                .ReturnsAsync(GalleryItemType.Default);
+                .Setup(x => x.GetSavedExtensionType(freshExtensionMetada.Id))
+                .ReturnsAsync(ExtensionType.Default);
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.GetStoredTheme(freshGalleryItem.Id))
+                .Setup(x => x.GetStoredTheme(freshExtensionMetada.Id))
                 .ReturnsAsync(oldTheme);
             _mock.Mock<IThemeStoreRefresher>()
-                .Setup(x => x.DownloadFreshTheme(freshGalleryItem))
+                .Setup(x => x.DownloadFreshTheme(freshExtensionMetada))
                 .ReturnsAsync(freshTheme);
             _mock.Mock<IThemeStoreRefresher>()
                 .Setup(x => x.CreateTheme(It.IsAny<VSCodeTheme>()));
@@ -326,12 +326,12 @@ namespace CodePaint.WebApi.Tests.Services
                 .Returns(Task.CompletedTask);
             var mockRefreshService = _mock.Create<ThemeStoreRefreshService>();
 
-            mockRefreshService.RefreshGalleryStoreTheme(freshGalleryItem).Wait();
+            mockRefreshService.RefreshGalleryStoreTheme(freshExtensionMetada).Wait();
 
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.GetSavedGalleryItemType(freshGalleryItem.Id), Times.Once);
+                .Verify(x => x.GetSavedExtensionType(freshExtensionMetada.Id), Times.Once);
             _mock.Mock<IThemeStoreRefresher>()
-                .Verify(x => x.DownloadFreshTheme(freshGalleryItem), Times.Once);
+                .Verify(x => x.DownloadFreshTheme(freshExtensionMetada), Times.Once);
             _mock.Mock<IThemeStoreRefresher>()
                 .Verify(x => x.CreateTheme(It.IsAny<VSCodeTheme>()), Times.Never);
             _mock.Mock<IThemeStoreRefresher>()

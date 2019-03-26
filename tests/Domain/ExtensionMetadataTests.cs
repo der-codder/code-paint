@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 using CodePaint.WebApi.Domain.Models;
 using Newtonsoft.Json.Linq;
@@ -6,7 +6,7 @@ using Xunit;
 
 namespace CodePaint.WebApi.Tests.Domain
 {
-    public class GalleryItemTests
+    public class ExtensionMetadataTests
     {
         private const string ValidJson = @"{
                 'publisher': {
@@ -73,7 +73,7 @@ namespace CodePaint.WebApi.Tests.Domain
         [Fact]
         public void FromJson_JObjectWithValidBaseProperties_ReturnsCorrectResult()
         {
-            var result = GalleryItem.FromJson(JObject.Parse(ValidJson));
+            var result = ExtensionMetadata.FromJson(JObject.Parse(ValidJson));
 
             Assert.Equal("publisherName_test.extensionName_test", result.Id);
             Assert.Equal("extensionName_test", result.Name);
@@ -87,7 +87,7 @@ namespace CodePaint.WebApi.Tests.Domain
         public void FromJson_JObjectWithValidVersion_ReturnsCorrectResult()
         {
             var expextedDate = DateTime.Parse("2019-01-01T00:00:00.0Z", CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);
-            var result = GalleryItem.FromJson(JObject.Parse(ValidJson));
+            var result = ExtensionMetadata.FromJson(JObject.Parse(ValidJson));
 
             Assert.Equal("1.0.0", result.Version);
             Assert.Equal(expextedDate, result.LastUpdated);

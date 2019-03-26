@@ -13,10 +13,10 @@ namespace CodePaint.WebApi.Services
 {
     public interface IThemeStoreRefresher
     {
-        Task<GalleryItemType> GetSavedGalleryItemType(string extensionId);
+        Task<ExtensionType> GetSavedExtensionType(string extensionId);
         Task<VSCodeTheme> GetStoredTheme(string extensionId);
-        Task<VSCodeTheme> DownloadFreshTheme(GalleryItem metadata);
-        Task<GalleryItemType> CheckAndUpdateFreshThemeType(VSCodeTheme freshTheme);
+        Task<VSCodeTheme> DownloadFreshTheme(ExtensionMetadata metadata);
+        Task<ExtensionType> CheckAndUpdateFreshExtensionType(VSCodeTheme freshTheme);
         Task CreateTheme(VSCodeTheme newTheme);
         Task UpdateTheme(VSCodeTheme theme);
     }
@@ -26,23 +26,23 @@ namespace CodePaint.WebApi.Services
         private readonly IVSMarketplaceClient _marketplaceClient;
         private readonly IVSExtensionHandler _extensionHandler;
         private readonly IVSCodeThemeStoreRepository _storeRepository;
-        private readonly IGalleryItemsRepository _galleryItemsRepository;
+        private readonly IGalleryMetadataRepository _galleryMetadataRepo;
 
         public ThemeStoreRefresher(
             IVSMarketplaceClient marketplaceClient,
             IVSExtensionHandler extensionHandler,
             IVSCodeThemeStoreRepository storeRepository,
-            IGalleryItemsRepository galleryInfoRepository)
+            IGalleryMetadataRepository galleryMetadataRepo)
         {
             _marketplaceClient = marketplaceClient;
             _extensionHandler = extensionHandler;
             _storeRepository = storeRepository;
-            _galleryItemsRepository = galleryInfoRepository;
+            _galleryMetadataRepo = galleryMetadataRepo;
         }
 
-        public async Task<GalleryItemType> GetSavedGalleryItemType(string extensionId)
+        public async Task<ExtensionType> GetSavedExtensionType(string extensionId)
         {
-            var savedThemeMetadata = await _galleryItemsRepository.GetGalleryItem(extensionId);
+            var savedThemeMetadata = await _galleryMetadataRepo.GetExtensionMetadata(extensionId);
 
             return savedThemeMetadata.Type;
         }
@@ -52,7 +52,7 @@ namespace CodePaint.WebApi.Services
             return await _storeRepository.GetTheme(extensionId);
         }
 
-        public async Task<VSCodeTheme> DownloadFreshTheme(GalleryItem metadata)
+        public async Task<VSCodeTheme> DownloadFreshTheme(ExtensionMetadata metadata)
         {
             VSCodeTheme freshTheme;
             using (var stream = await _marketplaceClient.GetVsixFileStream(metadata))
@@ -63,13 +63,13 @@ namespace CodePaint.WebApi.Services
             return freshTheme;
         }
 
-        public async Task<GalleryItemType> CheckAndUpdateFreshThemeType(VSCodeTheme freshTheme)
+        public async Task<ExtensionType> CheckAndUpdateFreshExtensionType(VSCodeTheme freshTheme)
         {
             if (freshTheme.Themes.Count == 0)
             {
                 Log.Information($"Extension '{freshTheme.Id}' does not contribute any theme. Changing its Type.");
-                const GalleryItemType themeType = GalleryItemType.NoThemes;
-                var result = await _galleryItemsRepository.ChangeGalleryItemType(
+                const ExtensionType themeType = ExtensionType.NoThemes;
+                var result = await _galleryMetadataRepo.ChangeExtensionType(
                     freshTheme.Id,
                     themeType
                 );
@@ -88,8 +88,8 @@ namespace CodePaint.WebApi.Services
             if (freshTheme.Themes.Any(t => t.TokenColors.Count == 0))
             {
                 Log.Information($"Extension '{freshTheme.Id}' does not contains any TokenColor. Changing its Type.");
-                const GalleryItemType themeType = GalleryItemType.NeedAttention;
-                var result = await _galleryItemsRepository.ChangeGalleryItemType(
+                const ExtensionType themeType = ExtensionType.NeedAttention;
+                var result = await _galleryMetadataRepo.ChangeExtensionType(
                     freshTheme.Id,
                     themeType
                 );
@@ -106,7 +106,7 @@ namespace CodePaint.WebApi.Services
                 return themeType;
             }
 
-            return GalleryItemType.Default;
+            return ExtensionType.Default;
         }
 
         public async Task CreateTheme(VSCodeTheme newTheme)

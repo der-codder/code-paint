@@ -11,8 +11,8 @@ namespace CodePaint.WebApi.Services
 {
     public interface IThemeStoreRefreshService
     {
-        Task RefreshGalleryStore(List<GalleryItem> metadata);
-        Task RefreshGalleryStoreTheme(GalleryItem freshThemeMetadata);
+        Task RefreshGalleryStore(List<ExtensionMetadata> metadata);
+        Task RefreshGalleryStoreTheme(ExtensionMetadata freshThemeMetadata);
     }
 
     public class ThemeStoreRefreshService : IThemeStoreRefreshService
@@ -34,7 +34,7 @@ namespace CodePaint.WebApi.Services
 
         public ThemeStoreRefreshService(IThemeStoreRefresher refresher) => _refresher = refresher;
 
-        public async Task RefreshGalleryStore(List<GalleryItem> metadata)
+        public async Task RefreshGalleryStore(List<ExtensionMetadata> metadata)
         {
             Log.Information("Gallery Store Refreshing Started.");
             const int numberOfItemsPerIteration = 10;
@@ -53,14 +53,14 @@ namespace CodePaint.WebApi.Services
             Log.Information("Gallery Store Refreshing Completed.");
         }
 
-        public async Task RefreshGalleryStoreTheme(GalleryItem freshThemeMetadata)
+        public async Task RefreshGalleryStoreTheme(ExtensionMetadata freshThemeMetadata)
         {
             Log.Information($"Start extension refreshing: Id='{freshThemeMetadata.Id}'.");
 
-            var savedGalleryItemType = await _refresher.GetSavedGalleryItemType(freshThemeMetadata.Id);
-            if (savedGalleryItemType != GalleryItemType.Default)
+            var savedExtensionType = await _refresher.GetSavedExtensionType(freshThemeMetadata.Id);
+            if (savedExtensionType != ExtensionType.Default)
             {
-                Log.Information($"Skip refreshing of theme: Id='{freshThemeMetadata.Id}'; Type='{savedGalleryItemType}'.");
+                Log.Information($"Skip refreshing of theme: Id='{freshThemeMetadata.Id}'; Type='{savedExtensionType}'.");
                 return;
             }
 
@@ -77,8 +77,8 @@ namespace CodePaint.WebApi.Services
                 async () => await _refresher.DownloadFreshTheme(freshThemeMetadata)
             );
 
-            var freshThemeType = await _refresher.CheckAndUpdateFreshThemeType(freshTheme);
-            if (freshThemeType == GalleryItemType.Default)
+            var freshThemeType = await _refresher.CheckAndUpdateFreshExtensionType(freshTheme);
+            if (freshThemeType == ExtensionType.Default)
             {
                 if (storedTheme == null)
                 {

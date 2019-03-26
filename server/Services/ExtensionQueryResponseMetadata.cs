@@ -7,11 +7,11 @@ namespace CodePaint.WebApi.Services
     public class ExtensionQueryResponseMetadata
     {
         public int RequestResultTotalCount { get; set; }
-        public List<(GalleryItem GalleryItem, GalleryItemStatistic Statistic)> Items { get; }
+        public List<(ExtensionMetadata Metadata, GalleryItemStatistic Statistic)> Items { get; }
 
         public ExtensionQueryResponseMetadata()
         {
-            Items = new List<(GalleryItem, GalleryItemStatistic)>();
+            Items = new List<(ExtensionMetadata, GalleryItemStatistic)>();
         }
     }
 }

@@ -10,6 +10,7 @@ namespace CodePaint.WebApi.Domain.Repositories
 {
     public interface IGalleryStatisticsRepository
     {
+        Task<ExtensionStatistic> GetExtensionStatistic(string id);
         Task<UpdateResult> UpdateThemeStatistics(ExtensionStatistic statistics);
     }
 
@@ -18,6 +19,15 @@ namespace CodePaint.WebApi.Domain.Repositories
         private readonly IGalleryContext _context;
 
         public GalleryStatisticsRepository(IGalleryContext context) => _context = context;
+
+        public Task<ExtensionStatistic> GetExtensionStatistic(string id)
+        {
+            var filter = Builders<ExtensionStatistic>.Filter.Eq(m => m.Id, id);
+
+            return _context.GalleryStatistics
+                .Find(filter)
+                .FirstOrDefaultAsync();
+        }
 
         public async Task<UpdateResult> UpdateThemeStatistics(ExtensionStatistic statistics)
         {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -18,6 +19,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Serilog;
+using CodePaint.WebApi.Mapping;
+using Newtonsoft.Json;
 
 namespace CodePaint.WebApi
 {
@@ -58,14 +61,20 @@ namespace CodePaint.WebApi
             services.AddTransient<IThemeStoreRefreshService, ThemeStoreRefreshService>();
             services.AddTransient<IGalleryRefreshService, GalleryRefreshService>();
 
-            var provider = services.BuildServiceProvider();
-            JobManager.Initialize(
-                new RefreshGalleryRegistry(
-                    provider.GetRequiredService<IGalleryRefreshService>()
-                )
-            );
+            Mapper.Initialize(cfg => cfg.AddProfile(new ModelToResourceProfile()));
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            // var provider = services.BuildServiceProvider();
+            // JobManager.Initialize(
+            //     new RefreshGalleryRegistry(
+            //         provider.GetRequiredService<IGalleryRefreshService>()
+            //     )
+            // );
+
+            services.AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+                .AddJsonOptions(options =>
+                    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore
+                );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

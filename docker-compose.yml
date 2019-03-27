@@ -13,6 +13,7 @@ services:
       - 5021:5021
     volumes:
       - './server:/app/server'
+      - 'serverlogs:/logs'
     environment:
       MongoDB__Host: mongo
     depends_on:
@@ -50,5 +51,7 @@ services:
 
 volumes:
   mongodata:
+    external: true
+  serverlogs:
     external: true
 

@@ -22,6 +22,7 @@ namespace CodePaint.WebApi
                 .ReadFrom.Configuration(Configuration)
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
+                .WriteTo.RollingFile("/logs/code-paint-server.log.txt", retainedFileCountLimit: 10)
                 .CreateLogger();
 
             try
@@ -39,6 +40,7 @@ namespace CodePaint.WebApi
             }
             finally
             {
+                Log.Information("...Getting the motors stopping");
                 Log.CloseAndFlush();
             }
         }

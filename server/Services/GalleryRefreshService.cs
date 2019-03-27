@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CodePaint.WebApi.Domain.Models;
 using CodePaint.WebApi.Domain.Repositories;
+using CodePaint.WebApi.Services.ThemeStoreRefreshing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Polly;
@@ -75,7 +76,7 @@ namespace CodePaint.WebApi.Services
 
                 pageNumber++;
                 requestResultTotalCount = responseMetadata.RequestResultTotalCount;
-                break;
+                // break;
             }
 
             Log.Information("---- Gallery Refreshing Completed.");

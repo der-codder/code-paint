@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using Autofac.Extras.Moq;
 using CodePaint.WebApi.Services;
+using CodePaint.WebApi.Services.ThemeStoreRefreshing;
 using Moq;
 using Newtonsoft.Json.Linq;
 using Xunit;

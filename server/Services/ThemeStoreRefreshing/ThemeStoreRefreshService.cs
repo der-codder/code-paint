@@ -7,7 +7,7 @@ using Polly;
 using Polly.Retry;
 using Serilog;
 
-namespace CodePaint.WebApi.Services
+namespace CodePaint.WebApi.Services.ThemeStoreRefreshing
 {
     public interface IThemeStoreRefreshService
     {

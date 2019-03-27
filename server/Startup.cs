@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using CodePaint.WebApi.Domain.Repositories;
 using CodePaint.WebApi.Services;
+using CodePaint.WebApi.Services.ThemeStoreRefreshing;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;

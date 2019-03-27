@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Autofac.Extras.Moq;
 using CodePaint.WebApi.Domain.Models;
 using CodePaint.WebApi.Services;
+using CodePaint.WebApi.Services.ThemeStoreRefreshing;
 using Moq;
 using Xunit;
 

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using CodePaint.WebApi.Domain.Models;
 using Serilog;
 
-namespace CodePaint.WebApi.Services
+namespace CodePaint.WebApi.Services.ThemeStoreRefreshing
 {
     public interface IExtensionParsingService
     {

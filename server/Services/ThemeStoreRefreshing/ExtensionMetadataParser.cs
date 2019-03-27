@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
 
-namespace CodePaint.WebApi.Services
+namespace CodePaint.WebApi.Services.ThemeStoreRefreshing
 {
     public interface IExtensionMetadataParser
     {

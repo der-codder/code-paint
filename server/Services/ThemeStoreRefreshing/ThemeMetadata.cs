@@ -1,6 +1,6 @@
 using System;
 
-namespace CodePaint.WebApi.Services
+namespace CodePaint.WebApi.Services.ThemeStoreRefreshing
 {
     public class ThemeMetadata
     {

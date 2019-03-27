@@ -7,6 +7,7 @@ using Autofac.Extras.Moq;
 using CodePaint.WebApi.Domain.Models;
 using CodePaint.WebApi.Domain.Repositories;
 using CodePaint.WebApi.Services;
+using CodePaint.WebApi.Services.ThemeStoreRefreshing;
 using Moq;
 using Xunit;
 

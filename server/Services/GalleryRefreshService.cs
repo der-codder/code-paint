@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -54,12 +54,14 @@ namespace CodePaint.WebApi.Services
             // var pageNumber = 12;
             const int pageSize = 20;
             var requestResultTotalCount = (pageNumber * pageSize);
+            var updatedCount = 0;
 
-            while (requestResultTotalCount - (pageNumber * pageSize) >= 0)
+            while ((pageNumber * pageSize) - requestResultTotalCount < pageSize)
             {
                 var responseMetadata = await _transientExceptionHandlingPolicy.ExecuteAsync(
                     async () => await _marketplaceClient.GetGalleryMetadata(pageNumber, pageSize)
                 );
+                updatedCount += responseMetadata.Items.Count;
 
                 await RefreshGalleryInfo(responseMetadata);
 
@@ -70,7 +72,7 @@ namespace CodePaint.WebApi.Services
                 );
 
                 Log.Information("------------------ Processed {UpdatedCount} of {TotalCount} items.",
-                    ((pageNumber - 1) * pageSize) + responseMetadata.Items.Count,
+                    updatedCount,
                     responseMetadata.RequestResultTotalCount
                 );
 

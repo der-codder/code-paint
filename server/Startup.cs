@@ -5,8 +5,10 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CodePaint.WebApi.Domain.Repositories;
+using CodePaint.WebApi.ScheduledJobs;
 using CodePaint.WebApi.Services;
 using CodePaint.WebApi.Services.ThemeStoreRefreshing;
+using FluentScheduler;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -55,6 +57,13 @@ namespace CodePaint.WebApi
             services.AddTransient<IThemeStoreRefresher, ThemeStoreRefresher>();
             services.AddTransient<IThemeStoreRefreshService, ThemeStoreRefreshService>();
             services.AddTransient<IGalleryRefreshService, GalleryRefreshService>();
+
+            var provider = services.BuildServiceProvider();
+            JobManager.Initialize(
+                new RefreshGalleryRegistry(
+                    provider.GetRequiredService<IGalleryRefreshService>()
+                )
+            );
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

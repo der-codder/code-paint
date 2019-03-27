@@ -28,7 +28,7 @@ namespace CodePaint.WebApi.Controllers
         [HttpGet("{id}")]
         public ActionResult<string> Get(int id)
         {
-            _galleryRefreshService.RefreshGallery(id).Wait();
+            // _galleryRefreshService.RefreshGallery(id).Wait();
             return $"page {id} refreshed";
         }
     }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -17,7 +17,7 @@ namespace CodePaint.WebApi.Services
 {
     public interface IGalleryRefreshService
     {
-        Task RefreshGallery(int pageNumber);
+        Task RefreshGallery();
     }
 
     public class GalleryRefreshService : IGalleryRefreshService
@@ -47,11 +47,11 @@ namespace CodePaint.WebApi.Services
             _themeStoreRefreshService = themeStoreRefreshService;
         }
 
-        public async Task RefreshGallery(int pageNumber)
+        public async Task RefreshGallery()
         {
             Log.Information("---- Gallery Refreshing Started.");
 
-            // var pageNumber = 12;
+            var pageNumber = 1;
             const int pageSize = 20;
             var requestResultTotalCount = (pageNumber * pageSize);
             var updatedCount = 0;

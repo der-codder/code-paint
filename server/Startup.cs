@@ -39,13 +39,8 @@ namespace CodePaint.WebApi
             var config = new ServerConfig();
             Configuration.Bind(config);
 
-            services.AddHttpClient<IVSMarketplaceClient, VSMarketplaceClient>()
-                .ConfigurePrimaryHttpMessageHandler(
-                    _ => new HttpClientHandler
-                    {
-                        AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
-                    }
-                );
+            services.AddHttpClient<IVSMarketplaceClient, VSMarketplaceClient>();
+            services.AddHttpClient<IVSAssetsClient, VSAssetsClient>();
 
             services.AddSingleton<IGalleryContext>(new GalleryContext(config.MongoDB));
             services.AddSingleton<IGalleryMetadataRepository, GalleryMetadataRepository>();

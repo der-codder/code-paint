@@ -23,18 +23,18 @@ namespace CodePaint.WebApi.Services.ThemeStoreRefreshing
 
     public class ThemeStoreRefresher : IThemeStoreRefresher
     {
-        private readonly IVSMarketplaceClient _marketplaceClient;
+        private readonly IVSAssetsClient _assetsClient;
         private readonly IVSExtensionHandler _extensionHandler;
         private readonly IVSCodeThemeStoreRepository _storeRepository;
         private readonly IGalleryMetadataRepository _galleryMetadataRepo;
 
         public ThemeStoreRefresher(
-            IVSMarketplaceClient marketplaceClient,
+            IVSAssetsClient assetsClient,
             IVSExtensionHandler extensionHandler,
             IVSCodeThemeStoreRepository storeRepository,
             IGalleryMetadataRepository galleryMetadataRepo)
         {
-            _marketplaceClient = marketplaceClient;
+            _assetsClient = assetsClient;
             _extensionHandler = extensionHandler;
             _storeRepository = storeRepository;
             _galleryMetadataRepo = galleryMetadataRepo;
@@ -55,7 +55,7 @@ namespace CodePaint.WebApi.Services.ThemeStoreRefreshing
         public async Task<VSCodeTheme> DownloadFreshTheme(ExtensionMetadata metadata)
         {
             VSCodeTheme freshTheme;
-            using (var stream = await _marketplaceClient.GetVsixFileStream(metadata))
+            using (var stream = await _assetsClient.GetVsixFileStream(metadata))
             {
                 freshTheme = await _extensionHandler.ProcessExtension(metadata.Id, stream);
             }

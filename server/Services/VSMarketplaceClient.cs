@@ -18,39 +18,33 @@ namespace CodePaint.WebApi.Services
     public interface IVSMarketplaceClient
     {
         Task<ExtensionQueryResponseMetadata> GetGalleryMetadata(int pageNumber, int pageSize);
-        Task<Stream> GetVsixFileStream(ExtensionMetadata metadata);
     }
 
     public class VSMarketplaceClient : IVSMarketplaceClient
     {
-        private const string _marketplaceUri = "https://marketplace.visualstudio.com/";
-        private readonly MediaTypeWithQualityHeaderValue _extensionQueryHeader;
-        private readonly HttpClient _client;
+        private readonly HttpClient _httpClient;
 
-        public VSMarketplaceClient(HttpClient httpClient)
+        public VSMarketplaceClient(HttpClient client)
         {
-            httpClient.BaseAddress = new Uri(_marketplaceUri);
-            _extensionQueryHeader = new MediaTypeWithQualityHeaderValue("application/json")
-            {
-                Parameters = { new NameValueHeaderValue("api-version", "3.0-preview.1") }
-            };
+            client.BaseAddress = new Uri("https://marketplace.visualstudio.com/");
+            client.DefaultRequestHeaders.Accept.Add(
+                new MediaTypeWithQualityHeaderValue("application/json")
+                {
+                    Parameters = { new NameValueHeaderValue("api-version", "3.0-preview.1") }
+                }
+            );
 
-            _client = httpClient;
+            _httpClient = client;
         }
 
         public async Task<ExtensionQueryResponseMetadata> GetGalleryMetadata(int pageNumber, int pageSize)
         {
-            _client.DefaultRequestHeaders
-                .Clear();
-            _client.DefaultRequestHeaders.Accept
-                .Add(_extensionQueryHeader);
-
             try
             {
                 Log.Information($"-- Requesting: pageNumber={pageNumber} & pageSize={pageSize}");
 
-                var response = await _client.PostAsync(
-                    "/_apis/public/gallery/extensionquery",
+                var response = await _httpClient.PostAsync(
+                    "_apis/public/gallery/extensionquery",
                     GetExtensionQueryRequestContent(pageNumber, pageSize)
                 );
 
@@ -68,41 +62,6 @@ namespace CodePaint.WebApi.Services
             catch (Exception ex)
             {
                 Log.Error(ex, $"Error while requesting gallery metadata (pageNumber={pageNumber} & pageSize={pageSize}).");
-                throw;
-            }
-        }
-
-        public async Task<Stream> GetVsixFileStream(ExtensionMetadata metadata)
-        {
-            if (string.IsNullOrWhiteSpace(metadata.PublisherName))
-            {
-                throw new ArgumentNullException(nameof(metadata.PublisherName));
-            }
-
-            if (string.IsNullOrWhiteSpace(metadata.Name))
-            {
-                throw new ArgumentNullException(nameof(metadata.Name));
-            }
-
-            if (string.IsNullOrWhiteSpace(metadata.Version))
-            {
-                throw new ArgumentNullException(nameof(metadata.Version));
-            }
-
-            _client.DefaultRequestHeaders.Clear();
-
-            // var uri = $"/_apis/public/gallery/publishers/{metadata.PublisherName}" +
-            //     $"/vsextensions/{metadata.Name}/{metadata.Version}/vspackage";
-
-            try
-            {
-                Log.Information($"Requesting vsix file stream from: {metadata.AssetUri}");
-
-                return await _client.GetStreamAsync(metadata.AssetUri);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, $"Error while requesting vsix file stream from: '{metadata.AssetUri}'.");
                 throw;
             }
         }

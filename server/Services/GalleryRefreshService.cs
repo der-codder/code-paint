@@ -78,7 +78,7 @@ namespace CodePaint.WebApi.Services
 
                 pageNumber++;
                 requestResultTotalCount = responseMetadata.RequestResultTotalCount;
-                // break;
+                break;
             }
 
             Log.Information("---- Gallery Refreshing Completed.");

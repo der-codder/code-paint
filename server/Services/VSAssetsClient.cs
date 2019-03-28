@@ -20,6 +20,23 @@ namespace CodePaint.WebApi.Services
 
         public async Task<Stream> GetVsixFileStream(ExtensionMetadata metadata)
         {
+            EnsureValidMetadata(metadata);
+
+            try
+            {
+                Log.Information($"Requesting vsix file stream from: {metadata.AssetUri}");
+
+                return await _httpClient.GetStreamAsync(metadata.AssetUri);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, $"Error while requesting vsix file stream from: '{metadata.AssetUri}'.");
+                throw;
+            }
+        }
+
+        private void EnsureValidMetadata(ExtensionMetadata metadata)
+        {
             if (string.IsNullOrWhiteSpace(metadata.PublisherName))
             {
                 throw new ArgumentNullException(nameof(metadata.PublisherName));
@@ -33,20 +50,6 @@ namespace CodePaint.WebApi.Services
             if (string.IsNullOrWhiteSpace(metadata.Version))
             {
                 throw new ArgumentNullException(nameof(metadata.Version));
-            }
-
-            _httpClient.DefaultRequestHeaders.Clear();
-
-            try
-            {
-                Log.Information($"Requesting vsix file stream from: {metadata.AssetUri}");
-
-                return await _httpClient.GetStreamAsync(metadata.AssetUri);
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex, $"Error while requesting vsix file stream from: '{metadata.AssetUri}'.");
-                throw;
             }
         }
     }

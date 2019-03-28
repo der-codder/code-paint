@@ -173,7 +173,7 @@ namespace CodePaint.WebApi.Tests.Services
             };
             var stream = new MemoryStream(Encoding.UTF8.GetBytes(""));
 
-            _mock.Mock<IVSMarketplaceClient>()
+            _mock.Mock<IVSAssetsClient>()
                 .Setup(x => x.GetVsixFileStream(metadata))
                 .ReturnsAsync(stream);
             _mock.Mock<IVSExtensionHandler>()

@@ -48,11 +48,7 @@ namespace CodePaint.WebApi.Services
                     GetExtensionQueryRequestContent(pageNumber, pageSize)
                 );
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    Log.Information($"Response is unsuccessful: {response.StatusCode}, {response.RequestMessage}");
-                    throw new Exception("Ooooops!");
-                }
+                response.EnsureSuccessStatusCode();
 
                 var result = await ProcessResponseContent(response.Content);
                 Log.Information($"Successfully processed {result.Items.Count} items");

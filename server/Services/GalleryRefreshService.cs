@@ -9,8 +9,6 @@ using CodePaint.WebApi.Domain.Repositories;
 using CodePaint.WebApi.Services.ThemeStoreRefreshing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Polly;
-using Polly.Retry;
 using Serilog;
 
 namespace CodePaint.WebApi.Services
@@ -22,14 +20,6 @@ namespace CodePaint.WebApi.Services
 
     public class GalleryRefreshService : IGalleryRefreshService
     {
-        private readonly AsyncRetryPolicy _transientExceptionHandlingPolicy = Policy
-            .Handle<Exception>()
-            .WaitAndRetryAsync(
-                5,
-                _ => TimeSpan.FromSeconds(5),
-                (_, ts) => Log.Error($"Error while connecting to 'https://marketplace.visualstudio.com/'. Retrying in {ts.Seconds} sec.")
-            );
-
         private readonly IVSMarketplaceClient _marketplaceClient;
         private readonly IGalleryMetadataRepository _galleryMetadataRepository;
         private readonly IGalleryStatisticsRepository _galleryStatisticsRepository;
@@ -58,9 +48,7 @@ namespace CodePaint.WebApi.Services
 
             while ((pageNumber * pageSize) - requestResultTotalCount < pageSize)
             {
-                var responseMetadata = await _transientExceptionHandlingPolicy.ExecuteAsync(
-                    async () => await _marketplaceClient.GetGalleryMetadata(pageNumber, pageSize)
-                );
+                var responseMetadata = await _marketplaceClient.GetGalleryMetadata(pageNumber, pageSize);
                 updatedCount += responseMetadata.Items.Count;
 
                 await RefreshGalleryInfo(responseMetadata);

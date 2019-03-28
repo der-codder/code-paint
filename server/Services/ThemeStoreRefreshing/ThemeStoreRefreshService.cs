@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CodePaint.WebApi.Domain.Models;
-using Polly;
-using Polly.Retry;
 using Serilog;
 
 namespace CodePaint.WebApi.Services.ThemeStoreRefreshing
@@ -18,19 +16,6 @@ namespace CodePaint.WebApi.Services.ThemeStoreRefreshing
     public class ThemeStoreRefreshService : IThemeStoreRefreshService
     {
         private readonly IThemeStoreRefresher _refresher;
-
-        private readonly AsyncRetryPolicy _policy = Policy
-            .Handle<Exception>()
-            .WaitAndRetryAsync(new[]
-                {
-                    TimeSpan.FromSeconds(20),
-                    TimeSpan.FromSeconds(30),
-                    TimeSpan.FromSeconds(50),
-                    TimeSpan.FromSeconds(70),
-                    TimeSpan.FromSeconds(90)
-                },
-                (_, ts, retryCount, __) => Log.Error($"Error while processing fresh theme. RetryCount: {retryCount}.")
-            );
 
         public ThemeStoreRefreshService(IThemeStoreRefresher refresher) => _refresher = refresher;
 
@@ -73,9 +58,7 @@ namespace CodePaint.WebApi.Services.ThemeStoreRefreshing
                 return;
             }
 
-            var freshTheme = await _policy.ExecuteAsync(
-                async () => await _refresher.DownloadFreshTheme(freshThemeMetadata)
-            );
+            var freshTheme = await _refresher.DownloadFreshTheme(freshThemeMetadata);
 
             var freshThemeType = await _refresher.CheckAndUpdateFreshExtensionType(freshTheme);
             if (freshThemeType == ExtensionType.Default)

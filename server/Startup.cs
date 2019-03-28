@@ -21,6 +21,7 @@ using Microsoft.Extensions.Options;
 using Serilog;
 using CodePaint.WebApi.Mapping;
 using Newtonsoft.Json;
+using Polly;
 
 namespace CodePaint.WebApi
 {
@@ -39,8 +40,18 @@ namespace CodePaint.WebApi
             var config = new ServerConfig();
             Configuration.Bind(config);
 
-            services.AddHttpClient<IVSMarketplaceClient, VSMarketplaceClient>();
-            services.AddHttpClient<IVSAssetsClient, VSAssetsClient>();
+            services.AddHttpClient<IVSMarketplaceClient, VSMarketplaceClient>()
+                .AddTransientHttpErrorPolicy(builder =>
+                    builder.WaitAndRetryAsync(
+                        3,
+                        retryCount => TimeSpan.FromSeconds(Math.Pow(2, retryCount)),
+                        (response, ts) => Log.Error($"Error while connecting to 'https://marketplace.visualstudio.com/': {response.Exception.Message}. Retrying in {ts.Seconds} sec.")));
+            services.AddHttpClient<IVSAssetsClient, VSAssetsClient>()
+                .AddTransientHttpErrorPolicy(builder =>
+                    builder.WaitAndRetryAsync(
+                        5,
+                        retryCount => TimeSpan.FromSeconds(Math.Pow(2, retryCount)),
+                        (response, ts) => Log.Error($"Error while getting assets: {response.Exception.Message}. Retrying in {ts.Seconds} sec.")));
 
             services.AddSingleton<IGalleryContext>(new GalleryContext(config.MongoDB));
             services.AddSingleton<IGalleryMetadataRepository, GalleryMetadataRepository>();

@@ -22,18 +22,15 @@ namespace CodePaint.WebApi.Services
     {
         private readonly IVSMarketplaceClient _marketplaceClient;
         private readonly IGalleryMetadataRepository _galleryMetadataRepository;
-        private readonly IGalleryStatisticsRepository _galleryStatisticsRepository;
         private readonly IThemeStoreRefreshService _themeStoreRefreshService;
 
         public GalleryRefreshService(
             IVSMarketplaceClient marketplaceClient,
             IGalleryMetadataRepository galleryMetadataRepository,
-            IGalleryStatisticsRepository galleryStatisticsRepository,
             IThemeStoreRefreshService themeStoreRefreshService)
         {
             _marketplaceClient = marketplaceClient;
             _galleryMetadataRepository = galleryMetadataRepository;
-            _galleryStatisticsRepository = galleryStatisticsRepository;
             _themeStoreRefreshService = themeStoreRefreshService;
         }
 
@@ -53,11 +50,7 @@ namespace CodePaint.WebApi.Services
 
                 await RefreshGalleryInfo(responseMetadata);
 
-                await _themeStoreRefreshService.RefreshGalleryStore(
-                    responseMetadata.Items
-                        .Select(i => i.Metadata)
-                        .ToList()
-                );
+                await _themeStoreRefreshService.RefreshGalleryStore(responseMetadata.Items);
 
                 Log.Information("------------------ Processed {UpdatedCount} of {TotalCount} items.",
                     updatedCount,
@@ -74,46 +67,36 @@ namespace CodePaint.WebApi.Services
 
         private async Task RefreshGalleryInfo(ExtensionQueryResponseMetadata metadata)
         {
-            Log.Information("Metadata Refreshing Started.");
             await Task.WhenAll(
                 metadata.Items
-                    .Select(m => RefreshExtensionMetadata(m.Metadata))
+                    .Select(m => RefreshExtensionMetadata(m))
                     .ToArray()
             );
-            Log.Information("Metadata Refreshing Completed.");
-
-            Log.Information("Gallery Statistics Refreshing Started.");
-            await Task.WhenAll(
-                metadata.Items
-                    .Select(m => UpdateGalleryStatistics(m.Statistic))
-                    .ToArray()
-            );
-            Log.Information("Gallery Statistics Refreshing Completed.");
         }
 
-        private async Task RefreshExtensionMetadata(ExtensionMetadata freshExtensionMetadata)
+        private async Task RefreshExtensionMetadata(ExtensionMetadata freshMetadata)
         {
             try
             {
                 var extensionMetadata = await _galleryMetadataRepository
-                    .GetExtensionMetadata(freshExtensionMetadata.Id);
+                    .GetExtensionMetadata(freshMetadata.Id);
 
                 if (extensionMetadata == null)
                 {
-                    await CreateExtensionMetadata(freshExtensionMetadata);
+                    await CreateExtensionMetadata(freshMetadata);
                 }
-                else if (extensionMetadata.LastUpdated != freshExtensionMetadata.LastUpdated)
+                else if (extensionMetadata.LastUpdated != freshMetadata.LastUpdated)
                 {
-                    await UpdateExtensionMetadata(freshExtensionMetadata);
+                    await UpdateExtensionMetadata(freshMetadata);
                 }
-                // else
-                // {
-                //     Log.Information($"Extension: '{extensionMetadata.Id}' does not changed.");
-                // }
+                else
+                {
+                    await UpdateGalleryStatistics(freshMetadata.Id, freshMetadata.Statistics);
+                }
             }
             catch (Exception ex)
             {
-                Log.Error(ex, $"Error while refreshing extension metadata: '{freshExtensionMetadata.Id}'.");
+                Log.Error(ex, $"Error while refreshing extension metadata: '{freshMetadata.Id}'.");
             }
         }
 
@@ -123,43 +106,39 @@ namespace CodePaint.WebApi.Services
             await _galleryMetadataRepository.Create(extensionMetadata);
         }
 
-        private async Task UpdateExtensionMetadata(ExtensionMetadata theme)
+        private async Task UpdateExtensionMetadata(ExtensionMetadata extensionInfo)
         {
-            var result = await _galleryMetadataRepository.Update(theme);
+            var result = await _galleryMetadataRepository.Update(extensionInfo);
 
             if (result)
             {
-                Log.Information($"Successfully updated '{theme.Id}'.");
+                Log.Information($"Successfully updated '{extensionInfo.Id}'.");
             }
             else
             {
-                Log.Warning($"Update unsuccessful '{theme.Id}'.");
+                Log.Warning($"Update unsuccessful '{extensionInfo.Id}'.");
             }
         }
 
-        private async Task UpdateGalleryStatistics(ExtensionStatistic freshStatistic)
+        private async Task UpdateGalleryStatistics(string extensionId, Statistics freshStatistics)
         {
             try
             {
-                var result = await _galleryStatisticsRepository
-                    .UpdateThemeStatistics(freshStatistic);
+                var result = await _galleryMetadataRepository
+                    .UpdateStatistics(extensionId, freshStatistics);
 
-                if (result.IsAcknowledged && result.ModifiedCount == 1)
+                if (result)
                 {
-                    Log.Information($"Modified statistics for '{freshStatistic.Id}'.");
+                    Log.Information($"Successfully updated statistics '{extensionId}'.");
                 }
-                else if (result.IsAcknowledged && result.UpsertedId != null)
+                else
                 {
-                    Log.Information($"Upserted (Id='{result.UpsertedId}') statistics for '{freshStatistic.Id}'.");
+                    Log.Warning($"Statistics update unsuccessful '{extensionId}'.");
                 }
-                // else
-                // {
-                //     Log.Information($"Statistics for '{freshStatistic.Id}' does not changed.");
-                // }
             }
             catch (Exception ex)
             {
-                Log.Error(ex, $"Error while refreshing statistic for '{freshStatistic.Id}'.");
+                Log.Error(ex, $"Error while refreshing statistic for '{extensionId}'.");
             }
         }
     }

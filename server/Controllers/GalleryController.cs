@@ -18,16 +18,13 @@ namespace CodePaint.WebApi.Controllers
     public class GalleryController : ControllerBase
     {
         private readonly IGalleryMetadataRepository _metadataRepository;
-        private readonly IGalleryStatisticsRepository _statisticsRepository;
         private readonly IVSCodeThemeStoreRepository _themeStoreRepository;
 
         public GalleryController(
             IGalleryMetadataRepository metadataRepository,
-            IGalleryStatisticsRepository statisticsRepository,
             IVSCodeThemeStoreRepository themeStoreRepository)
         {
             _metadataRepository = metadataRepository;
-            _statisticsRepository = statisticsRepository;
             _themeStoreRepository = themeStoreRepository;
         }
 
@@ -47,13 +44,6 @@ namespace CodePaint.WebApi.Controllers
                 return new NotFoundResult();
             }
 
-            var statistic = await _statisticsRepository.GetExtensionStatistic(id);
-            if (statistic == null)
-            {
-                Log.Error($"Statistic for '{id}' extension is empty.");
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
-
             var storedTheme = await _themeStoreRepository.GetTheme(id);
             if (storedTheme == null)
             {
@@ -62,7 +52,6 @@ namespace CodePaint.WebApi.Controllers
             }
 
             var extension = Mapper.Map<ExtensionMetadata, ExtensionResource>(metadata);
-            extension.Statistics = Mapper.Map<ExtensionStatistic, StatisticResource>(statistic);
             extension.Themes = ConvertThemes(storedTheme.Themes);
 
             return new OkObjectResult(extension);

@@ -96,12 +96,11 @@ namespace CodePaint.WebApi.Services
             }
         }
 
-        private (ExtensionMetadata, ExtensionStatistic) ParseExtensionMetadata(JObject jObject)
+        private ExtensionMetadata ParseExtensionMetadata(JObject jObject)
         {
-            var itemInfo = ExtensionMetadata.FromJson(jObject);
-            var itemStatistic = ExtensionStatistic.FromJson(jObject);
+            var extensionInfo = ExtensionMetadata.FromJson(jObject);
 
-            return (itemInfo, itemStatistic);
+            return extensionInfo;
         }
 
         private StringContent GetExtensionQueryRequestContent(int pageNumber, int pageSize)

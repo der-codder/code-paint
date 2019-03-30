@@ -12,6 +12,7 @@ namespace CodePaint.WebApi.Domain.Repositories
         Task<ExtensionMetadata> GetExtensionMetadata(string id);
         Task Create(ExtensionMetadata extensionMetadata);
         Task<bool> Update(ExtensionMetadata extensionMetadata);
+        Task<bool> UpdateStatistics(string extensionId, Statistics statistics);
         Task<bool> ChangeExtensionType(string id, ExtensionType itemType);
         Task<bool> Delete(string id);
     }
@@ -52,7 +53,36 @@ namespace CodePaint.WebApi.Domain.Repositories
                 .Set(i => i.Version, extensionMetadata.Version)
                 .Set(i => i.LastUpdated, extensionMetadata.LastUpdated)
                 .Set(i => i.IconDefault, extensionMetadata.IconDefault)
-                .Set(i => i.IconSmall, extensionMetadata.IconSmall);
+                .Set(i => i.IconSmall, extensionMetadata.IconSmall)
+                .Set(i => i.AssetUri, extensionMetadata.AssetUri)
+                .Set(i => i.Statistics.InstallCount, extensionMetadata.Statistics.InstallCount)
+                .Set(i => i.Statistics.UpdateCount, extensionMetadata.Statistics.UpdateCount)
+                .Set(i => i.Statistics.AverageRating, extensionMetadata.Statistics.AverageRating)
+                .Set(i => i.Statistics.WeightedRating, extensionMetadata.Statistics.WeightedRating)
+                .Set(i => i.Statistics.RatingCount, extensionMetadata.Statistics.RatingCount)
+                .Set(i => i.Statistics.TrendingDaily, extensionMetadata.Statistics.TrendingDaily)
+                .Set(i => i.Statistics.TrendingWeekly, extensionMetadata.Statistics.TrendingWeekly)
+                .Set(i => i.Statistics.TrendingMonthly, extensionMetadata.Statistics.TrendingMonthly);
+
+            var result = await _context.GalleryMetadata
+                .UpdateOneAsync(filter, updater);
+
+            return result.IsAcknowledged && result.ModifiedCount == 1;
+        }
+
+        public async Task<bool> UpdateStatistics(string extensionId, Statistics statistics)
+        {
+            var filter = Builders<ExtensionMetadata>.Filter
+                .Where(i => i.Id == extensionId);
+            var updater = Builders<ExtensionMetadata>.Update
+                .Set(i => i.Statistics.InstallCount, statistics.InstallCount)
+                .Set(i => i.Statistics.UpdateCount, statistics.UpdateCount)
+                .Set(i => i.Statistics.AverageRating, statistics.AverageRating)
+                .Set(i => i.Statistics.WeightedRating, statistics.WeightedRating)
+                .Set(i => i.Statistics.RatingCount, statistics.RatingCount)
+                .Set(i => i.Statistics.TrendingDaily, statistics.TrendingDaily)
+                .Set(i => i.Statistics.TrendingWeekly, statistics.TrendingWeekly)
+                .Set(i => i.Statistics.TrendingMonthly, statistics.TrendingMonthly);
 
             var result = await _context.GalleryMetadata
                 .UpdateOneAsync(filter, updater);

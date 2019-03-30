@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson.Serialization.IdGenerators;
 using Newtonsoft.Json.Linq;
@@ -38,12 +39,15 @@ namespace CodePaint.WebApi.Domain.Models
 
         public ExtensionType Type { get; set; }
 
+        public Statistics Statistics { get; set; }
+
         public ExtensionMetadata() => Type = ExtensionType.Default;
 
         public static ExtensionMetadata FromJson(JObject jObject) =>
             Create()
                 .TakeBaseData(jObject)
-                .TakeVersionData(jObject);
+                .TakeVersionData(jObject)
+                .TakeStatistics(jObject);
 
         private static ExtensionMetadataParser Create() => new ExtensionMetadataParser(new ExtensionMetadata());
 
@@ -62,6 +66,50 @@ namespace CodePaint.WebApi.Domain.Models
                 _extensionMetadata.DisplayName = jObject.SelectToken("displayName", true).ToString();
                 _extensionMetadata.PublisherDisplayName = jObject.SelectToken("publisher.displayName", true).ToString();
                 _extensionMetadata.Description = (string) jObject.SelectToken("shortDescription");
+
+                return this;
+            }
+
+            public ExtensionMetadataParser TakeStatistics(JObject jObject)
+            {
+                var statisticDict = ((JArray) jObject.SelectToken("statistics", true))
+                    .ToDictionary<string, string>("statisticName", "value");
+
+                _extensionMetadata.Statistics = new Statistics
+                {
+                    InstallCount = Convert.ToInt32(
+                        statisticDict.GetValueOrDefault("install"),
+                        CultureInfo.InvariantCulture
+                    ),
+                    UpdateCount = Convert.ToInt32(
+                        statisticDict.GetValueOrDefault("updateCount"),
+                        CultureInfo.InvariantCulture
+                    ),
+                    AverageRating = Convert.ToDouble(
+                        statisticDict.GetValueOrDefault("averagerating"),
+                        CultureInfo.InvariantCulture
+                    ),
+                    WeightedRating = Convert.ToDouble(
+                        statisticDict.GetValueOrDefault("weightedRating"),
+                        CultureInfo.InvariantCulture
+                    ),
+                    RatingCount = Convert.ToInt32(
+                        statisticDict.GetValueOrDefault("ratingcount"),
+                        CultureInfo.InvariantCulture
+                    ),
+                    TrendingDaily = Convert.ToDouble(
+                        statisticDict.GetValueOrDefault("trendingdaily"),
+                        CultureInfo.InvariantCulture
+                    ),
+                    TrendingWeekly = Convert.ToDouble(
+                        statisticDict.GetValueOrDefault("trendingweekly"),
+                        CultureInfo.InvariantCulture
+                    ),
+                    TrendingMonthly = Convert.ToDouble(
+                        statisticDict.GetValueOrDefault("trendingmonthly"),
+                        CultureInfo.InvariantCulture
+                    )
+                };
 
                 return this;
             }

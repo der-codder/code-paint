@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using CodePaint.WebApi.Domain.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
@@ -94,6 +95,63 @@ namespace CodePaint.WebApi.Tests.Domain
             Assert.Equal("iconDefault_test", result.IconDefault);
             Assert.Equal("iconSmall_test", result.IconSmall);
             Assert.Equal("fallbackAssetUri_test/Microsoft.VisualStudio.Services.VSIXPackage", result.AssetUri);
+        }
+
+        [Fact]
+        public void FromJson_JObjectWithValidStatistics_ReturnsCorrectResult()
+        {
+            var result = ExtensionMetadata.FromJson(JObject.Parse(ValidJson));
+
+            Assert.Equal(101, result.Statistics.InstallCount);
+            Assert.Equal(102, result.Statistics.UpdateCount);
+            Assert.Equal(4.77469158172607, result.Statistics.AverageRating);
+            Assert.Equal(4.7635946102485, result.Statistics.WeightedRating);
+            Assert.Equal(103, result.Statistics.RatingCount);
+            Assert.Equal(0.0134154704538845, result.Statistics.TrendingDaily);
+            Assert.Equal(3.56943172567113, result.Statistics.TrendingWeekly);
+            Assert.Equal(39.7426646124054, result.Statistics.TrendingMonthly);
+        }
+
+        [Fact]
+        public void FromJson_JObjectWithoutPublisher_ThrowsJsonException()
+        {
+            const string json = @"{
+                'extensionName': 'extensionName_test'
+            }";
+
+            var ex = Assert.Throws<JsonException>(() =>
+                ExtensionMetadata.FromJson(JObject.Parse(json)));
+
+            Assert.Equal("Property 'publisher' does not exist on JObject.", ex.Message);
+        }
+
+        [Fact]
+        public void FromJson_JObjectWithoutPublisherName_ThrowsJsonException()
+        {
+            const string json = @"{
+                'publisher': {},
+                'extensionName': 'extensionName_test'
+            }";
+
+            var ex = Assert.Throws<JsonException>(() =>
+                ExtensionMetadata.FromJson(JObject.Parse(json)));
+
+            Assert.Equal("Property 'publisherName' does not exist on JObject.", ex.Message);
+        }
+
+        [Fact]
+        public void FromJson_JObjectWithoutExtensionName_ThrowsJsonException()
+        {
+            const string json = @"{
+                'publisher': {
+                    'publisherName': 'publisherName_test'
+                }
+            }";
+
+            var ex = Assert.Throws<JsonException>(() =>
+                ExtensionMetadata.FromJson(JObject.Parse(json)));
+
+            Assert.Equal("Property 'extensionName' does not exist on JObject.", ex.Message);
         }
     }
 }

@@ -11,10 +11,9 @@ namespace CodePaint.WebApi.Mapping
         public ModelToResourceProfile()
         {
             CreateMap<ExtensionMetadata, ExtensionResource>()
-                .ForMember(dest => dest.Statistics, opt => opt.Ignore())
                 .ForMember(dest => dest.Themes, opt => opt.Ignore());
 
-            CreateMap<ExtensionStatistic, StatisticResource>();
+            CreateMap<Statistics, StatisticResource>();
 
             CreateMap<Theme, ThemeResource>()
                 // .ForMember(dest => dest.Colors, opt => opt.Ignore())

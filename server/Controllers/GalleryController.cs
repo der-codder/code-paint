@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using CodePaint.WebApi.Domain.Models;
 using CodePaint.WebApi.Domain.Repositories;
-using CodePaint.WebApi.Resources;
+using CodePaint.WebApi.Controllers.Resources;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;

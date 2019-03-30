@@ -1,6 +1,6 @@
 using AutoMapper;
 using CodePaint.WebApi.Domain.Models;
-using CodePaint.WebApi.Resources;
+using CodePaint.WebApi.Controllers.Resources;
 using System;
 using System.Collections.Generic;
 

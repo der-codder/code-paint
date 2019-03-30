@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CodePaint.WebApi.Resources
+namespace CodePaint.WebApi.Controllers.Resources
 {
     public class StatisticResource
     {

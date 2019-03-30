@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace CodePaint.WebApi.Resources
+namespace CodePaint.WebApi.Controllers.Resources
 {
     public class ThemeResource
     {

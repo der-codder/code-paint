@@ -40,7 +40,7 @@ namespace CodePaint.WebApi
             }
             finally
             {
-                Log.Information("...Getting the motors stopping");
+                Log.Information("...Stop the motors");
                 Log.CloseAndFlush();
             }
         }

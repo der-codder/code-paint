@@ -66,7 +66,7 @@ namespace CodePaint.WebApi
             services.AddTransient<IThemeStoreRefreshService, ThemeStoreRefreshService>();
             services.AddTransient<IGalleryRefreshService, GalleryRefreshService>();
 
-            Mapper.Initialize(cfg => cfg.AddProfile(new ModelToResourceProfile()));
+            Mapper.Initialize(cfg => cfg.AddProfile(new MappingProfile()));
 
             // var provider = services.BuildServiceProvider();
             // JobManager.Initialize(

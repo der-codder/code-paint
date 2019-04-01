@@ -28,6 +28,18 @@ namespace CodePaint.WebApi.Controllers
             _themeStoreRepository = themeStoreRepository;
         }
 
+        // GET api/gallery?pageNumber=2&pageSize=10&sortBy=Downloads
+        [HttpGet]
+        public async Task<QueryResultResource<ExtensionMetadataResource>> Index(
+            [FromQuery] ExtensionsQueryResource queryResource)
+        {
+            var query = Mapper.Map<ExtensionsQueryResource, ExtensionsQuery>(queryResource);
+
+            var queryResult = await _metadataRepository.GetItems(query);
+
+            return Mapper.Map<QueryResult<ExtensionMetadata>, QueryResultResource<ExtensionMetadataResource>>(queryResult);
+        }
+
         // GET api/gallery/id
         [HttpGet("{id}")]
         public async Task<ActionResult<ExtensionResource>> Get(string id)

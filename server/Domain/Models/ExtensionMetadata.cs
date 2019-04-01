@@ -75,16 +75,19 @@ namespace CodePaint.WebApi.Domain.Models
                 var statisticDict = ((JArray) jObject.SelectToken("statistics", true))
                     .ToDictionary<string, string>("statisticName", "value");
 
+                var installs = Convert.ToInt32(
+                    statisticDict.GetValueOrDefault("install"),
+                    CultureInfo.InvariantCulture
+                );
+                var updates = Convert.ToInt32(
+                    statisticDict.GetValueOrDefault("updateCount"),
+                    CultureInfo.InvariantCulture
+                );
+
                 _extensionMetadata.Statistics = new Statistics
                 {
-                    InstallCount = Convert.ToInt32(
-                        statisticDict.GetValueOrDefault("install"),
-                        CultureInfo.InvariantCulture
-                    ),
-                    UpdateCount = Convert.ToInt32(
-                        statisticDict.GetValueOrDefault("updateCount"),
-                        CultureInfo.InvariantCulture
-                    ),
+                    InstallCount = installs,
+                    Downloads = installs + updates,
                     AverageRating = Convert.ToDouble(
                         statisticDict.GetValueOrDefault("averagerating"),
                         CultureInfo.InvariantCulture

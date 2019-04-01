@@ -103,7 +103,7 @@ namespace CodePaint.WebApi.Tests.Domain
             var result = ExtensionMetadata.FromJson(JObject.Parse(ValidJson));
 
             Assert.Equal(101, result.Statistics.InstallCount);
-            Assert.Equal(102, result.Statistics.UpdateCount);
+            Assert.Equal(203, result.Statistics.Downloads);
             Assert.Equal(4.77469158172607, result.Statistics.AverageRating);
             Assert.Equal(4.7635946102485, result.Statistics.WeightedRating);
             Assert.Equal(103, result.Statistics.RatingCount);

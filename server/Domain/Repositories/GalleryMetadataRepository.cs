@@ -8,7 +8,7 @@ namespace CodePaint.WebApi.Domain.Repositories
 {
     public interface IGalleryMetadataRepository
     {
-        Task<IEnumerable<ExtensionMetadata>> GetAllItems();
+        Task<QueryResult<ExtensionMetadata>> GetItems(ExtensionsQuery query);
         Task<ExtensionMetadata> GetExtensionMetadata(string id);
         Task Create(ExtensionMetadata extensionMetadata);
         Task<bool> Update(ExtensionMetadata extensionMetadata);
@@ -23,10 +23,24 @@ namespace CodePaint.WebApi.Domain.Repositories
 
         public GalleryMetadataRepository(IGalleryContext context) => _context = context;
 
-        public async Task<IEnumerable<ExtensionMetadata>> GetAllItems() =>
-            await _context.GalleryMetadata
-                .Find(_ => true)
+        public async Task<QueryResult<ExtensionMetadata>> GetItems(ExtensionsQuery query)
+        {
+            var filter = Builders<ExtensionMetadata>.Filter.Eq(extension => extension.Type, ExtensionType.Default);
+
+            var totalCount = await _context.GalleryMetadata.Find(filter).CountDocumentsAsync();
+            var items = await _context.GalleryMetadata
+                .Find(filter)
+                .Sort(query.GetSorting())
+                .Skip(query.PageNumber * query.PageSize)
+                .Limit(query.PageSize)
                 .ToListAsync();
+
+            return new QueryResult<ExtensionMetadata>
+            {
+                TotalCount = (int) totalCount,
+                Items = items
+            };
+        }
 
         public Task<ExtensionMetadata> GetExtensionMetadata(string id)
         {
@@ -56,7 +70,7 @@ namespace CodePaint.WebApi.Domain.Repositories
                 .Set(i => i.IconSmall, extensionMetadata.IconSmall)
                 .Set(i => i.AssetUri, extensionMetadata.AssetUri)
                 .Set(i => i.Statistics.InstallCount, extensionMetadata.Statistics.InstallCount)
-                .Set(i => i.Statistics.UpdateCount, extensionMetadata.Statistics.UpdateCount)
+                .Set(i => i.Statistics.Downloads, extensionMetadata.Statistics.Downloads)
                 .Set(i => i.Statistics.AverageRating, extensionMetadata.Statistics.AverageRating)
                 .Set(i => i.Statistics.WeightedRating, extensionMetadata.Statistics.WeightedRating)
                 .Set(i => i.Statistics.RatingCount, extensionMetadata.Statistics.RatingCount)
@@ -76,7 +90,7 @@ namespace CodePaint.WebApi.Domain.Repositories
                 .Where(i => i.Id == extensionId);
             var updater = Builders<ExtensionMetadata>.Update
                 .Set(i => i.Statistics.InstallCount, statistics.InstallCount)
-                .Set(i => i.Statistics.UpdateCount, statistics.UpdateCount)
+                .Set(i => i.Statistics.Downloads, statistics.Downloads)
                 .Set(i => i.Statistics.AverageRating, statistics.AverageRating)
                 .Set(i => i.Statistics.WeightedRating, statistics.WeightedRating)
                 .Set(i => i.Statistics.RatingCount, statistics.RatingCount)

@@ -10,7 +10,8 @@ namespace CodePaint.WebApi.ScheduledJobs
         public RefreshGalleryRegistry(IGalleryRefreshService refreshingService)
         {
             Schedule(async () => await refreshingService.RefreshGallery())
-                .ToRunNow().AndEvery(60).Minutes();
+                .ToRunEvery(60).Minutes();
+            // .ToRunNow().AndEvery(60).Minutes();
         }
     }
 }

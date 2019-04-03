@@ -41,11 +41,11 @@ namespace CodePaint.WebApi.Domain.Repositories
                 new CreateIndexModel<ExtensionMetadata>(
                     extensionMetadataBuilder.Descending(m => m.LastUpdated)),
                 new CreateIndexModel<ExtensionMetadata>(
-                    extensionMetadataBuilder.Ascending(m => m.PublisherName)),
+                    extensionMetadataBuilder.Ascending(m => m.PublisherDisplayName)),
                 new CreateIndexModel<ExtensionMetadata>(
-                    extensionMetadataBuilder.Ascending(m => m.Name)),
+                    extensionMetadataBuilder.Ascending(m => m.DisplayName)),
                 new CreateIndexModel<ExtensionMetadata>(
-                    extensionMetadataBuilder.Descending(m => m.Statistics.AverageRating)),
+                    extensionMetadataBuilder.Descending(m => m.Statistics.WeightedRating)),
                 new CreateIndexModel<ExtensionMetadata>(
                     extensionMetadataBuilder.Descending(m => m.Statistics.TrendingWeekly))
             };

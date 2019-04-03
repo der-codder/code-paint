@@ -68,12 +68,12 @@ namespace CodePaint.WebApi
 
             Mapper.Initialize(cfg => cfg.AddProfile(new MappingProfile()));
 
-            // var provider = services.BuildServiceProvider();
-            // JobManager.Initialize(
-            //     new RefreshGalleryRegistry(
-            //         provider.GetRequiredService<IGalleryRefreshService>()
-            //     )
-            // );
+            var provider = services.BuildServiceProvider();
+            JobManager.Initialize(
+                new RefreshGalleryRegistry(
+                    provider.GetRequiredService<IGalleryRefreshService>()
+                )
+            );
 
             services.AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)

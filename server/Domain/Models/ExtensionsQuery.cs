@@ -25,11 +25,11 @@ namespace CodePaint.WebApi.Domain.Models
                 ["UpdatedDate"] = Builders<ExtensionMetadata>
                     .Sort.Descending(x => x.LastUpdated),
                 ["Publisher"] = Builders<ExtensionMetadata>
-                    .Sort.Ascending(x => x.PublisherName),
+                    .Sort.Ascending(x => x.PublisherDisplayName),
                 ["Name"] = Builders<ExtensionMetadata>
-                    .Sort.Ascending(x => x.Name),
+                    .Sort.Ascending(x => x.DisplayName),
                 ["Rating"] = Builders<ExtensionMetadata>
-                    .Sort.Descending(x => x.Statistics.AverageRating),
+                    .Sort.Descending(x => x.Statistics.WeightedRating),
                 ["TrendingWeekly"] = Builders<ExtensionMetadata>
                     .Sort.Descending(x => x.Statistics.TrendingWeekly)
             };

@@ -25,13 +25,12 @@ namespace CodePaint.WebApi.Domain.Repositories
 
         public async Task<QueryResult<ExtensionMetadata>> GetItems(ExtensionsQuery query)
         {
-            var filter = Builders<ExtensionMetadata>.Filter
-                .Eq(extension => extension.Type, ExtensionType.Default);
+            var filter = query.Filter;
 
             var totalCount = await _context.GalleryMetadata.Find(filter).CountDocumentsAsync();
             var items = await _context.GalleryMetadata
                 .Find(filter)
-                .Sort(query.GetSorting())
+                .Sort(query.Sorting)
                 .Skip((query.PageNumber * query.PageSize) - query.PageSize)
                 .Limit(query.PageSize)
                 .ToListAsync();

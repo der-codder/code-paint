@@ -47,7 +47,13 @@ namespace CodePaint.WebApi.Domain.Repositories
                 new CreateIndexModel<ExtensionMetadata>(
                     extensionMetadataBuilder.Descending(m => m.Statistics.WeightedRating)),
                 new CreateIndexModel<ExtensionMetadata>(
-                    extensionMetadataBuilder.Descending(m => m.Statistics.TrendingWeekly))
+                    extensionMetadataBuilder.Descending(m => m.Statistics.TrendingWeekly)),
+                new CreateIndexModel<ExtensionMetadata>(
+                    extensionMetadataBuilder
+                        .Text(m => m.PublisherDisplayName)
+                        .Text(m => m.DisplayName)
+                        .Text(m => m.Description)
+                )
             };
             GalleryMetadata.Indexes.CreateMany(indexModel);
         }

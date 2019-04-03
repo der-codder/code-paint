@@ -1,10 +1,10 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Driver;
 
 namespace CodePaint.WebApi.Domain.Models
 {
-    public class ExtensionsQuery
+    public class GalleryQuery
     {
         private const int DEFAULT_PAGE_NUMBER = 1;
         private const int DEFAULT_PAGE_SIZE = 50;
@@ -64,7 +64,7 @@ namespace CodePaint.WebApi.Domain.Models
             }
         }
 
-        public ExtensionsQuery()
+        public GalleryQuery()
         {
             _sortings = new Dictionary<string, SortDefinition<ExtensionMetadata>>
             {

@@ -31,9 +31,9 @@ namespace CodePaint.WebApi.Controllers
         // GET api/gallery?pageNumber=2&pageSize=10&sortBy=Downloads
         [HttpGet]
         public async Task<QueryResultResource<ExtensionMetadataResource>> Index(
-            [FromQuery] ExtensionsQueryResource queryResource)
+            [FromQuery] GalleryQueryResource queryResource)
         {
-            var query = Mapper.Map<ExtensionsQueryResource, ExtensionsQuery>(queryResource);
+            var query = Mapper.Map<GalleryQueryResource, GalleryQuery>(queryResource);
 
             var queryResult = await _metadataRepository.GetItems(query);
 

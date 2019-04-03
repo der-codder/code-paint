@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using CodePaint.WebApi.Domain.Models;
 using Xunit;
 using MongoDB.Bson;
@@ -7,7 +7,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace CodePaint.WebApi.Tests.Domain
 {
-    public class ExtensionsQueryTests
+    public class GalleryQueryTests
     {
         [Theory]
         [InlineData(null, null)]
@@ -19,7 +19,7 @@ namespace CodePaint.WebApi.Tests.Domain
             int? pageNumber,
             int? pageSize)
         {
-            var query = new ExtensionsQuery
+            var query = new GalleryQuery
             {
                 PageNumber = pageNumber,
                 PageSize = pageSize
@@ -35,7 +35,7 @@ namespace CodePaint.WebApi.Tests.Domain
         public void NormalizeQueryParams_DoesNotChangeValidPageNumber()
         {
             const int expectedPageNumber = 2;
-            var query = new ExtensionsQuery
+            var query = new GalleryQuery
             {
                 PageNumber = expectedPageNumber
             };
@@ -49,7 +49,7 @@ namespace CodePaint.WebApi.Tests.Domain
         public void NormalizeQueryParams_DoesNotChangeValidPageSize()
         {
             const int expectedPageSize = 20;
-            var query = new ExtensionsQuery
+            var query = new GalleryQuery
             {
                 PageSize = expectedPageSize
             };

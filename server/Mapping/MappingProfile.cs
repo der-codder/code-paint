@@ -22,7 +22,7 @@ namespace CodePaint.WebApi.Mapping
             CreateMap(typeof(QueryResult<>), typeof(QueryResultResource<>));
 
             // API Resource to Domain
-            CreateMap<ExtensionsQueryResource, ExtensionsQuery>()
+            CreateMap<GalleryQueryResource, GalleryQuery>()
                 .AfterMap((_, q) => q.NormalizeQueryParams());
         }
     }

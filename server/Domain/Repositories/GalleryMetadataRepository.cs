@@ -8,7 +8,7 @@ namespace CodePaint.WebApi.Domain.Repositories
 {
     public interface IGalleryMetadataRepository
     {
-        Task<QueryResult<ExtensionMetadata>> GetItems(ExtensionsQuery query);
+        Task<QueryResult<ExtensionMetadata>> GetItems(GalleryQuery query);
         Task<ExtensionMetadata> GetExtensionMetadata(string id);
         Task Create(ExtensionMetadata extensionMetadata);
         Task<bool> Update(ExtensionMetadata extensionMetadata);
@@ -23,7 +23,7 @@ namespace CodePaint.WebApi.Domain.Repositories
 
         public GalleryMetadataRepository(IGalleryContext context) => _context = context;
 
-        public async Task<QueryResult<ExtensionMetadata>> GetItems(ExtensionsQuery query)
+        public async Task<QueryResult<ExtensionMetadata>> GetItems(GalleryQuery query)
         {
             var filter = query.Filter;
 

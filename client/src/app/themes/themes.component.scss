@@ -1,0 +1,10 @@
+@import '~@angular/material/theming';
+
+cp-theme-info-header {
+  background-color: map-get($mat-light-theme-background, 'card');
+  width: 100%;
+}
+
+mat-spinner {
+  margin-top: 70px;
+}

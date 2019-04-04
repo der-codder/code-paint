@@ -1,0 +1,20 @@
+<div fxLayout="row" fxLayoutAlign="space-between">
+  <mat-form-field class="search-form-field">
+    <input matInput type="text" placeholder="Search Visual Studio Code themes"
+      maxlength="200" [(ngModel)]="searchText"
+      (keyup.enter)="onSearch()" (input)="onInput($event.target.value)">
+    <button mat-button matSuffix *ngIf="searchText"
+      mat-icon-button aria-label="Clear" (click)="onClearSearchText()">
+      <mat-icon matSuffix fontSet="mdi" fontIcon="mdi-close"></mat-icon>
+    </button>
+    <mat-icon matSuffix color="accent" fontSet="mdi" fontIcon="mdi-magnify"></mat-icon>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Sort By</mat-label>
+    <mat-select [value]="selectedSort" (selectionChange)="sortByChange.emit($event.value)">
+      <mat-option *ngFor="let option of sortByOptions" [value]="option.value">
+        {{ option.description }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>

@@ -1,1 +1,24 @@
+@import '~@angular/material/theming';
 
+html,
+body {
+  height: 100%;
+  background-color: map-get($mat-light-theme-background, 'background');
+}
+
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+}
+
+.row {
+  width: 1160px;
+}
+
+.centered-content {
+  width: 1160px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 10px;
+  padding-right: 10px;
+}

@@ -1,0 +1,61 @@
+@import '~@angular/material/theming';
+
+div.card-list {
+  a {
+    text-decoration: none;
+    margin-right: 15px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    width: 220px;
+  }
+  a:nth-child(5n) {
+    margin-right: 0;
+  }
+}
+
+mat-paginator {
+  background-color: map-get($mat-light-theme-background, 'background');
+}
+
+mat-spinner {
+  margin-top: 30px;
+}
+
+// @media (max-width: 599px) {
+//   .main-content-container {
+//     top: 56px;
+//   }
+// }
+
+
+// @media (min-width: 1330px) {
+//   .container {
+//     width: 1280px;
+//     padding: 0 25px;
+//   }
+// }
+
+// @media (min-width: 1200px) {
+//   .container {
+//     width: 1170px;
+//   }
+// }
+
+// @media (min-width: 992px) {
+//   .container {
+//     width: 970px;
+//   }
+// }
+
+// @media (min-width: 768px) {
+//   .container {
+//     width: 750px;
+//   }
+// }
+
+// .container {
+//   margin-right: auto;
+//   margin-left: auto;
+//   padding-left: 15px;
+//   padding-right: 15px;
+// }

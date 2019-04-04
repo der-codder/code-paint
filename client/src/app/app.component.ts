@@ -3,8 +3,8 @@ import { Component } from '@angular/core';
 @Component({
   selector: 'cp-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styles: []
 })
 export class AppComponent {
-  title = 'code-paint';
+  title = 'vsc-themes';
 }

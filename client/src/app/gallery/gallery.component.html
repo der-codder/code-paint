@@ -1,0 +1,22 @@
+<div class="gallery" fxLayout="column" fxLayoutAlign="start center">
+  <cp-gallery-header class="row" [sortByOptions]="sortByOptions" [selectedSort]="sortBy"
+    (sortByChange)="onSortByChanged($event)" [searchText]="searchText" (search)="onSearch($event)">
+  </cp-gallery-header>
+  <ng-container *ngIf="gallery$ | async as gallery; else elseBlock">
+    <div class="card-list-container row">
+      <div class="card-list" fxLayout="row wrap">
+        <ng-container *ngFor="let theme of gallery.themes">
+          <a [routerLink]="['/themes']" [queryParams]="{themeName: theme.id}" mat-elevation-8>
+            <cp-theme-card [themeInfo]="theme"></cp-theme-card>
+          </a>
+        </ng-container>
+      </div>
+      <mat-paginator class="row" [length]="gallery.totalCount" [pageIndex]="pageNumber - 1" [pageSize]="pageSize"
+        (page)="onPageChanged($event)" hidePageSize="true" showFirstLastButtons="true">
+      </mat-paginator>
+    </div>
+  </ng-container>
+  <ng-template #elseBlock>
+    <mat-spinner></mat-spinner>
+  </ng-template>
+</div>

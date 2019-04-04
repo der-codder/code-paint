@@ -1,0 +1,12 @@
+<div fxLayout="column" fxLayoutAlign="start center">
+  <ng-container *ngIf="theme$ | async as theme">
+    <cp-theme-info-header [theme]='theme'></cp-theme-info-header>
+    <cp-theme-preview [themeInfo]='theme'></cp-theme-preview>
+  </ng-container>
+  <ng-container *ngIf="loading">
+    <mat-spinner></mat-spinner>
+  </ng-container>
+  <ng-container *ngIf="notFound">
+    <cp-not-found></cp-not-found>
+  </ng-container>
+</div>

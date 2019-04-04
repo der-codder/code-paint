@@ -1,0 +1,45 @@
+@import '~@angular/material/theming';
+
+mat-card {
+  height: 290px;
+  @include mat-elevation-transition;
+  @include mat-elevation(4);
+
+  &:hover {
+    @include mat-elevation(8);
+  }
+}
+
+.small-icon {
+  margin-bottom: 16px;
+  height: 72px;
+  width: 72px;
+}
+
+.mat-icon {
+  margin-left: 5px;
+  height: 16px;
+  width: 16px;
+}
+
+.description {
+  overflow: hidden;
+}
+
+.text-fadeout {
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+
+  &:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20%;
+    height: 100%;
+    margin-right: -1px;
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0) 0%, #ffffff 80%, #ffffff 100%);
+    pointer-events: none;
+  }
+}

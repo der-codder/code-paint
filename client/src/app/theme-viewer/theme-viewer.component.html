@@ -1,0 +1,9 @@
+<div fxLayout="column" fxLayoutAlign="start center">
+  <ng-container *ngIf="extension$ | async as extension">
+    <cp-theme-viewer-header [extensionInfo]='extension'></cp-theme-viewer-header>
+    <cp-viewer [theme]='extension.themes[0]'></cp-viewer>
+  </ng-container>
+  <ng-container *ngIf="loading">
+    <mat-spinner></mat-spinner>
+  </ng-container>
+</div>

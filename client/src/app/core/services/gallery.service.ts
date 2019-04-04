@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ExtensionInfo, GalleryQuery, QueryResult } from '..';
+import { ExtensionInfo, GalleryQuery, QueryResult, Extension } from '..';
 
 interface IQueryResultResource {
   totalCount: number;
@@ -28,6 +28,10 @@ export class GalleryService {
 
   getExtensions(query: GalleryQuery): Observable<QueryResult> {
     return this.http.get<QueryResult>(this.apiUrl + '?' + this.toQueryString(query));
+  }
+
+  getExtension(id: string): Observable<Extension> {
+    return this.http.get<Extension>(this.apiUrl + '/' + id);
   }
 
   private toQueryString(queryObj: GalleryQuery): string {

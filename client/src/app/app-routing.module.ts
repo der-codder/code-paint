@@ -6,7 +6,7 @@ import { NotFoundComponent } from './shared';
 const routes: Routes = [
   { path: '', redirectTo: '/gallery', pathMatch: 'full' },
   { path: 'gallery', loadChildren: 'app/gallery/gallery.module#GalleryModule' },
-  { path: 'themes', loadChildren: 'app/themes/themes.module#ThemesModule' },
+  { path: 'gallery/:id', loadChildren: 'app/theme-viewer/theme-viewer.module#ThemeViewerModule' },
   { path: '404', component: NotFoundComponent },
   { path: '**', redirectTo: '/404' }
 ];

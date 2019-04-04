@@ -1,6 +1,7 @@
 import { Statistics } from './statistics.model';
 
-export class ExtensionInfo {
+export interface ExtensionInfo {
+  id: string;
   name: string;
   displayName: string;
   description: string;
@@ -11,8 +12,4 @@ export class ExtensionInfo {
   iconDefault: string;
   iconSmall: string;
   statistics: Statistics;
-
-  get id(): string {
-    return this.publisherName + '.' + this.name;
-  }
 }

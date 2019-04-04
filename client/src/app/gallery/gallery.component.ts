@@ -4,7 +4,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { Observable } from 'rxjs';
 import { tap, switchMap } from 'rxjs/operators';
 
-import { GalleryService, QueryResult } from '@app/core';
+import { GalleryService, QueryResult, ExtensionInfo } from '@app/core';
 
 export interface SortByOption {
   value: string;
@@ -56,7 +56,7 @@ export class GalleryComponent implements OnInit {
       .pipe(
         tap(queryParams => {
           this.pageNumber = this.parsePageIndex(queryParams.get('pageIndex'));
-          this.sortBy = queryParams.get('sortBy') || '';
+          this.sortBy = queryParams.get('sortBy') || 'Downloads';
           this.searchText = this.querySearchText = queryParams.get('search') || '';
         }),
         switchMap(() => {

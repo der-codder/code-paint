@@ -12,7 +12,9 @@ namespace CodePaint.WebApi.Mapping
         {
             // Domain to API Resource
             CreateMap<ExtensionMetadata, ExtensionResource>()
+                .IncludeBase<ExtensionMetadata, ExtensionMetadataResource>()
                 .ForMember(dest => dest.Themes, opt => opt.Ignore());
+            CreateMap<ExtensionMetadata, ExtensionMetadataResource>();
             CreateMap<Statistics, StatisticResource>();
             CreateMap<Theme, ThemeResource>()
                 // .ForMember(dest => dest.Colors, opt => opt.Ignore())

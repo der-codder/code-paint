@@ -1,19 +1,19 @@
 <mat-card fxLayout="column">
   <div class="mat-card-header" fxLayout="column" fxLayoutAlign="center">
     <div class="mat-card-title" fxLayout="column" fxLayoutAlign="center">
-      <img [src]="themeInfo.iconSmall | defaultIcon" [alt]="themeInfo.displayName + ' icon'" fxFlexAlign="center"
-        class="small-icon">
-      <span class="text-fadeout">{{ themeInfo.displayName }}</span>
+      <img [src]="extensionInfo.iconSmall | defaultIcon" [alt]="extensionInfo.displayName + ' icon'"
+        fxFlexAlign="center" class="small-icon">
+      <span class="text-fadeout">{{ extensionInfo.displayName }}</span>
     </div>
     <div class="mat-card-subtitle" fxLayout="row" fxLayoutAlign="end">
-      <span class="text-fadeout" fxFlex>{{ themeInfo.publisherDisplayName }}</span>
+      <span class="text-fadeout" fxFlex>{{ extensionInfo.publisherDisplayName }}</span>
       <mat-icon fontSet="mdi" fontIcon="mdi-download"></mat-icon>
-      <span>{{ themeInfo.statistics.downloads | installCount:true }}</span>
+      <span>{{ extensionInfo.statistics.downloads | installCount:true }}</span>
     </div>
   </div>
   <mat-card-content fxFlex fxLayout="column" fxLayoutAlign="space-between">
-    <p class="description" fxFlex>{{ themeInfo.description }}</p>
-    <cp-rating [rating]="themeInfo.statistics.averageRating" [ratingCount]="themeInfo.statistics.ratingCount">
+    <p class="description" fxFlex>{{ extensionInfo.description }}</p>
+    <cp-rating [rating]="extensionInfo.statistics.averageRating" [ratingCount]="extensionInfo.statistics.ratingCount">
     </cp-rating>
   </mat-card-content>
 </mat-card>

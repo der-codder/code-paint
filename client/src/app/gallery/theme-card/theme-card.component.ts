@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core';
 
-import { ThemeInfo } from '@app/core';
+import { ExtensionInfo } from '@app/core';
 
 @Component({
   selector: 'cp-theme-card',
@@ -9,7 +9,7 @@ import { ThemeInfo } from '@app/core';
 })
 export class ThemeCardComponent implements OnInit {
   @Input()
-  themeInfo: ThemeInfo;
+  extensionInfo: ExtensionInfo;
 
   constructor() { }
 

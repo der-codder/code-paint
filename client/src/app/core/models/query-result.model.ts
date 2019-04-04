@@ -1,6 +1,6 @@
-import { ThemeInfo } from './theme-info.model';
+import { ExtensionInfo } from './extension-info.model';
 
 export interface QueryResult {
   totalCount: number;
-  themes: ThemeInfo[];
+  items: ExtensionInfo[];
 }

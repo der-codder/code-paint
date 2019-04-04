@@ -3,11 +3,11 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ThemeInfo, GalleryQuery, QueryResult } from '..';
+import { ExtensionInfo, GalleryQuery, QueryResult } from '..';
 
 interface IQueryResultResource {
   totalCount: number;
-  items: ThemeInfo[];
+  items: ExtensionInfo[];
 }
 
 const GALERY_URL = 'https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery';
@@ -22,21 +22,12 @@ const httpOptions = {
   providedIn: 'root'
 })
 export class GalleryService {
-  private readonly originUrl = 'http://localhost:5021';
-  private readonly apiEndpoint = '/api/gallery';
+  private readonly apiUrl = 'http://localhost:5021/api/gallery';
 
   constructor(private http: HttpClient) { }
 
-  getThemes(query: GalleryQuery): Observable<QueryResult> {
-    return this.http
-      .get(this.originUrl + this.apiEndpoint + '?' + this.toQueryString(query))
-      .pipe(
-        map((data: IQueryResultResource) => this.toGalleryQuery(data))
-      );
-  }
-
-  private toGalleryQuery(obj: IQueryResultResource): QueryResult {
-    return { totalCount: obj.totalCount, themes: obj.items };
+  getExtensions(query: GalleryQuery): Observable<QueryResult> {
+    return this.http.get<QueryResult>(this.apiUrl + '?' + this.toQueryString(query));
   }
 
   private toQueryString(queryObj: GalleryQuery): string {

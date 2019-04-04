@@ -4,7 +4,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { Observable } from 'rxjs';
 import { tap, switchMap } from 'rxjs/operators';
 
-import { GalleryService, QueryResult, ThemeInfo } from '@app/core';
+import { GalleryService, QueryResult } from '@app/core';
 
 export interface SortByOption {
   value: string;
@@ -66,7 +66,7 @@ export class GalleryComponent implements OnInit {
             this.sortByOptions = DEFAULT_SORT_OPTIONS;
           }
 
-          return this.galleryService.getThemes({
+          return this.galleryService.getExtensions({
             sortBy: this.sortBy,
             pageNumber: this.pageNumber,
             pageSize: this.pageSize,
@@ -151,47 +151,5 @@ export class GalleryComponent implements OnInit {
     }
 
     return result;
-  }
-
-  private parseSortByQueryParam(value: string): number {
-    switch (value) {
-      case 'Relevance':
-        return 0;
-      case 'UpdatedDate':
-        return 1;
-      case 'Publisher':
-        return 3;
-      case 'Name':
-        return 2;
-      case 'PublishedDate':
-        return 10;
-      case 'Rating':
-        return 12;
-      case 'Trending':
-        return 8;
-    }
-
-    return 4;
-  }
-
-  private _valueToSortByQueryParam(value: number): string {
-    switch (value) {
-      case 0:
-        return 'Relevance';
-      case 1:
-        return 'UpdatedDate';
-      case 3:
-        return 'Publisher';
-      case 2:
-        return 'Name';
-      case 10:
-        return 'PublishedDate';
-      case 12:
-        return 'Rating';
-      case 8:
-        return 'Trending';
-    }
-
-    return 'Downloads';
   }
 }

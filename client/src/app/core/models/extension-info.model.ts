@@ -1,6 +1,6 @@
 import { Statistics } from './statistics.model';
 
-export class ThemeInfo {
+export class ExtensionInfo {
   name: string;
   displayName: string;
   description: string;

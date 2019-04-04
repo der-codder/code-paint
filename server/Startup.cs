@@ -40,6 +40,13 @@ namespace CodePaint.WebApi
             var config = new ServerConfig();
             Configuration.Bind(config);
 
+            services.AddCors(
+                o => o.AddPolicy(
+                    "MyPolicy",
+                    builder => builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()));
+
             services.AddHttpClient<IVSMarketplaceClient, VSMarketplaceClient>()
                 .AddTransientHttpErrorPolicy(builder =>
                     builder.WaitAndRetryAsync(
@@ -95,6 +102,7 @@ namespace CodePaint.WebApi
                 app.UseHsts();
             }
 
+            app.UseCors("MyPolicy");
             app.UseHttpsRedirection();
             app.UseMvc();
         }

@@ -1,4 +1,5 @@
 import { NgModule } from '@angular/core';
+import { MonacoEditorModule } from 'ngx-monaco-editor';
 
 import { SharedModule } from '@app/shared';
 
@@ -15,7 +16,8 @@ import { ThemeViewerHeaderComponent } from './theme-viewer-header/theme-viewer-h
   ],
   imports: [
     SharedModule,
-    ThemeViewerRoutingModule
+    ThemeViewerRoutingModule,
+    MonacoEditorModule.forRoot()
   ]
 })
 export class ThemeViewerModule {

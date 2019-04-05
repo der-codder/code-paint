@@ -5,6 +5,11 @@ cp-theme-info-header {
   width: 100%;
 }
 
+cp-viewer {
+  height: calc(100vh - 234px);
+  overflow-y: hidden;
+}
+
 mat-spinner {
   margin-top: 70px;
 }

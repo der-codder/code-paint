@@ -9,16 +9,21 @@ import { Theme } from '@app/core';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ViewerComponent implements OnInit {
+  editorOptions = {
+    automaticLayout: true,
+    theme: 'vs-dark',
+    language: 'javascript'
+  };
+  code = 'function x() {\n  console.log("Hello world!");\n}';
 
   private _theme: Theme;
-  public get theme(): Theme {
+  get theme(): Theme {
     return this._theme;
   }
   @Input()
-  public set theme(value: Theme) {
+  set theme(value: Theme) {
     this._theme = value;
   }
-
 
   constructor() { }
 

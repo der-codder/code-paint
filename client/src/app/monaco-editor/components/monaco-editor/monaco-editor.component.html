@@ -1,0 +1,10 @@
+<div #container appResized (resized)="onResized($event)" class="editor-container" fxFlex>
+  <div class="wrapper">
+    <div
+      #editor
+      class="monaco-editor"
+      [style.width.px]="container.offsetWidth"
+      [style.height.px]="container.offsetHeight" style="min-width: 0;">
+    </div>
+  </div>
+</div>

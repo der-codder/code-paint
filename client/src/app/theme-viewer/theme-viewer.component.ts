@@ -3,7 +3,7 @@ import { ActivatedRoute, Router, ParamMap } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { tap, switchMap, map, delay } from 'rxjs/operators';
 
-import { GalleryService, Extension } from '@app/core';
+import { GalleryService, Extension, Theme } from '@app/core';
 
 @Component({
   selector: 'cp-theme-viewer',
@@ -33,5 +33,4 @@ export class ThemeViewerComponent implements OnInit {
         })
       );
   }
-
 }

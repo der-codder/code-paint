@@ -10,10 +10,11 @@ import {
   ChangeDetectionStrategy
 } from '@angular/core';
 
+import { StandaloneThemeData } from '@app/core/models/standalone-theme-data';
+
 import { MonacoEditorLoaderService } from '../../services/monaco-editor-loader.service';
 import { MonacoOptions } from '../../interfaces/monaco-options';
 import { ResizedEvent } from '../../directives/resized-event.directive';
-import { StandaloneThemeData } from '../../interfaces/standalone-theme-data';
 
 declare const monaco: any;
 
@@ -55,6 +56,7 @@ export class MonacoEditorComponent implements OnInit, OnDestroy {
   }
 
   @Output() codeChange = new EventEmitter<string>();
+  @Output() monacoInitialized = new EventEmitter();
 
   @ViewChild('editor') editorContent: ElementRef;
 
@@ -106,6 +108,7 @@ export class MonacoEditorComponent implements OnInit, OnDestroy {
     });
 
     this.updateOptions();
+    this.monacoInitialized.emit();
   }
 
   private updateCode() {
@@ -136,10 +139,15 @@ export class MonacoEditorComponent implements OnInit, OnDestroy {
 
   private updateTheme() {
     if (this.theme) {
-      monaco.editor.defineTheme(
-        this.theme.name,
-        this.theme
-      );
+      try {
+        monaco.editor.defineTheme(
+          this.theme.name,
+          this.theme
+        );
+      } catch (error) {
+        console.error(error);
+        return;
+      }
       monaco.editor.setTheme(this.theme.name);
     }
   }

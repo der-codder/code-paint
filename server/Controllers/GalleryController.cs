@@ -75,9 +75,13 @@ namespace CodePaint.WebApi.Controllers
                 .Select(theme =>
                 {
                     var themeResource = Mapper.Map<Theme, ThemeResource>(theme);
-                    themeResource.TokenColors = theme.TokenColors
+                    themeResource.Rules = theme.TokenColors
                         .Select(tc => Mapper.Map<TokenColor, TokenColorResource>(tc))
                         .ToList();
+                    themeResource.Colors = new Dictionary<string, string>(
+                        theme.Colors
+                            .FindAll(c => !string.IsNullOrWhiteSpace(c.Value))
+                            .Select(c => KeyValuePair.Create(c.PropertyName, c.Value)));
 
                     return themeResource;
                 })

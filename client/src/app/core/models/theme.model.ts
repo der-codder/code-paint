@@ -1,17 +1,5 @@
+import { StandaloneThemeData } from './standalone-theme-data';
 
-export interface Theme {
+export interface Theme extends StandaloneThemeData {
   label: string;
-  themeType: string;
-  tokenColors: TokenColor[];
-}
-
-export interface TokenColor {
-  name: string;
-  scope: string;
-  settings: Settings;
-}
-
-export interface Settings {
-  foreground: string;
-  fontStyle: string;
 }

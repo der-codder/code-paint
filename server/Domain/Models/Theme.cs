@@ -52,6 +52,9 @@ namespace CodePaint.WebApi.Domain.Models
 
                 foreach (var item in dictionary)
                 {
+                    if (string.IsNullOrWhiteSpace(item.Key) || string.IsNullOrWhiteSpace(item.Value))
+                        continue;
+
                     var colorCustomization = new ColorCustomization
                     {
                         PropertyName = item.Key,

@@ -25,6 +25,17 @@ namespace CodePaint.WebApi.Tests.Domain
             Assert.Equal("#ff0000", result[0].Value);
         }
 
+        [Theory]
+        [InlineData("{ 'colors': { 'activityBar.background': null } }")]
+        [InlineData("{ 'colors': { 'activityBar.background': '' } }")]
+        [InlineData("{ 'colors': { '': '#ff0000' } }")]
+        public void ParseColors_KeyOrValueIsEmpty_ShouldNotReturnAnything(string jsonString)
+        {
+            var colors = Theme.ParseColors(JObject.Parse(jsonString));
+
+            Assert.Empty(colors);
+        }
+
         [Fact]
         public void ParseTokenColors_TokenColorWithOnlyRequiredProperies_ReturnsCorrectResult()
         {

@@ -1,0 +1,10 @@
+<div fxLayout="row" fxLayoutAlign="space-between">
+  <mat-form-field>
+    <mat-label>Selected Theme</mat-label>
+    <mat-select [value]="selectedThemeLabel" (selectionChange)="selectedThemeChange.emit($event.value)">
+      <mat-option *ngFor="let theme of themes" [value]="theme.label">
+        {{ theme.label }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>

@@ -31,7 +31,10 @@ export class GalleryService {
   }
 
   getExtension(id: string): Observable<Extension> {
-    return this.http.get<Extension>(this.apiUrl + '/' + id);
+    return this.http.get<Extension>(this.apiUrl + '/' + id)
+      .pipe(
+        map(ext => this.setThemeNames(ext))
+      );
   }
 
   private toQueryString(queryObj: GalleryQuery): string {
@@ -44,5 +47,13 @@ export class GalleryService {
     }
 
     return parts.join('&');
+  }
+
+  private setThemeNames(extension: Extension): Extension {
+    for (let i = 0; i < extension.themes.length; i++) {
+      extension.themes[i].name = extension.name + i;
+    }
+
+    return extension;
   }
 }

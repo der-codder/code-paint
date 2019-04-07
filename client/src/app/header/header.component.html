@@ -1,7 +1,15 @@
 <mat-toolbar color="primary">
   <mat-toolbar-row>
-    <div class="centered-content">
-      <a routerLink="/gallery" mat-button>Code Paint</a>
+    <div class="centered-content" fxLayout="row">
+      <a mat-button routerLink="/gallery">
+        <img src="assets/images/favicon-32x32.png" alt="Logo">
+        Code Paint
+      </a>
+      <div class="fill-remaining-space"></div>
+      <a mat-button target="_blank" href="https://github.com/der-codder/code-paint#code-paint">
+        <mat-icon class="button-icon icon-left" fontSet="mdi" fontIcon="mdi-github-circle"></mat-icon>
+        <span>GitHub</span>
+      </a>
     </div>
   </mat-toolbar-row>
 </mat-toolbar>

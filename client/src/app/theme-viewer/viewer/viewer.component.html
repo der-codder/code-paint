@@ -1,2 +1,6 @@
-<ngx-monaco-editor fxFlexFill [options]="editorOptions" [(ngModel)]="code">
-</ngx-monaco-editor>
+<cp-viewer-toolbar class="row" [themes]="themes" [selectedThemeLabel]="selectedThemeLabel"
+  (selectedThemeChange)="selectedThemeChanged($event)">
+</cp-viewer-toolbar>
+<cp-monaco-editor fxFlexFill [(code)]="code" [options]="editorOptions" [theme]="editorTheme"
+  (monacoInitialized)="onMonacoInitialized()">
+</cp-monaco-editor>

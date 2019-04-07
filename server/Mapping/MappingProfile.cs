@@ -13,14 +13,22 @@ namespace CodePaint.WebApi.Mapping
             // Domain to API Resource
             CreateMap<ExtensionMetadata, ExtensionResource>()
                 .IncludeBase<ExtensionMetadata, ExtensionMetadataResource>()
-                .ForMember(dest => dest.Themes, opt => opt.Ignore());
+                .ForMember(extMeta => extMeta.Themes, opt => opt.Ignore());
             CreateMap<ExtensionMetadata, ExtensionMetadataResource>();
             CreateMap<Statistics, StatisticResource>();
             CreateMap<Theme, ThemeResource>()
-                // .ForMember(dest => dest.Colors, opt => opt.Ignore())
-                .ForMember(dest => dest.TokenColors, opt => opt.Ignore());
-            CreateMap<TokenColorSettings, TokenColorSettingsResource>();
-            CreateMap<TokenColor, TokenColorResource>();
+                .ForMember(tr => tr.Base, opt => opt.MapFrom(t => t.ThemeType))
+                .ForMember(tr => tr.Colors, opt => opt.Ignore())
+                .ForMember(tr => tr.Rules, opt => opt.Ignore());
+            CreateMap<TokenColor, TokenColorResource>()
+                .ForMember(tcr => tcr.Token, opt => opt.MapFrom(tc => tc.Scope))
+                .ForMember(tcr => tcr.Foreground, opt => opt.MapFrom(tc => tc.Settings.Foreground))
+                .ForMember(tcr => tcr.FontStyle, opt => opt.MapFrom(tc => tc.Settings.FontStyle))
+                .AfterMap((_, tcr) =>
+                {
+                    if (string.IsNullOrWhiteSpace(tcr.Foreground))
+                        tcr.Foreground = null;
+                });
             CreateMap(typeof(QueryResult<>), typeof(QueryResultResource<>));
 
             // API Resource to Domain
